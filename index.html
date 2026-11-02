@@ -985,7 +985,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
         'Описание: ' + String(fields.get('message') || ''),
         '',
         'Отправитель ознакомлен с политикой конфиденциальности и направляет данные для ответа на обращение.'
-      ].join('\\n');
+      ].join('\n');
       window.location.href = 'mailto:mirvixai@mail.ru?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
     });
   }
