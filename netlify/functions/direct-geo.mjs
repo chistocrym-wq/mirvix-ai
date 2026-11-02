@@ -1,3 +1,4 @@
+import {isStaffRequest} from '../lib/cabinet-session.mjs';
 import crypto from 'node:crypto';
 
 const PROVIDERS = Object.freeze({
@@ -231,7 +232,7 @@ const CALL = Object.freeze({ openai: callOpenai, gemini: callGemini, perplexity:
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return respond(405, { error: 'Разрешён только POST.' });
   if (Buffer.byteLength(event.body || '') > 5000) return respond(413, { error: 'Слишком большой запрос.' });
-  if (!passwordMatches(event.headers)) {
+  if (!isStaffRequest(event)) {
     return respond(401, { error: 'Неверный пароль внутреннего кабинета MIRVIX AI.' });
   }
   let request;
