@@ -34,7 +34,7 @@ function normalize(value) {
   return String(value || '')
     .normalize('NFKC')
     .toLocaleLowerCase('ru-RU')
-    .replace(/[^\\p{L}\\p{N}]+/gu, ' ')
+    .replace(/[^\p{L}\p{N}]+/gu, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
