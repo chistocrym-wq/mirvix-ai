@@ -1,3 +1,4 @@
+import {isStaffRequest} from '../lib/cabinet-session.mjs';
 import crypto from 'node:crypto';
 
 const BASE = 'https://ai.pixeltools.ru/api';
@@ -145,7 +146,7 @@ export const handler = async (event) => {
   if (!process.env.PIXELTOOLS_API_TOKEN || !process.env.MIRVIX_AUDIT_PASSWORD) {
     return result(503, { error: 'Для анализа ИИ нужно задать PIXELTOOLS_API_TOKEN и MIRVIX_AUDIT_PASSWORD в Netlify.' });
   }
-  if (!authorized(event)) return result(401, { error: 'Неверный пароль кабинета MIRVIX AI.' });
+  if (!isStaffRequest(event)) return result(401, { error: 'Войдите как сотрудник MIRVIX AI.' });
   try {
     switch (data.action) {
       case 'connect': {
