@@ -1,5 +1,6 @@
 import dns from 'node:dns/promises';
 import net from 'node:net';
+import https from 'node:https';
 
 const JSON_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
@@ -74,57 +75,75 @@ async function checkHost(url) {
   if (!addresses.length || addresses.some((item) => !publicIp(item.address))) {
     throw new Error('Сайт не имеет подтверждённого публичного адреса.');
   }
+  return addresses[0];
+}
+
+// DNS answer is pinned to the HTTPS socket. Rebinding cannot silently
+// re-resolve the hostname to localhost or a private address on fetch().
+async function pinnedFetch(url, limit) {
+  const resolved = await checkHost(url);
+  return await new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (value, err) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(guard);
+      if (err) reject(err);
+      else resolve(value);
+    };
+    const guard = setTimeout(() => request.destroy(new Error('Сайт не ответил за 8 секунд.')), 8000);
+    const request = https.request(url, {
+      method: 'GET',
+      agent: false,
+      timeout: 7500,
+      lookup: (_name, _options, cb) => cb(null, resolved.address, resolved.family),
+      headers: {
+        'user-agent': 'MIRVIX-Audit/1.1 (+https://mirvixai.com/audit/)',
+        accept: 'text/html,application/xml,text/plain;q=0.9,*/*;q=0.5'
+      }
+    }, (response) => {
+      const chunks = [];
+      let received = 0;
+      const done = () => finish({
+        status: response.statusCode || 0,
+        text: Buffer.concat(chunks).toString('utf8'),
+        headers: { get: (name) => response.headers[name.toLowerCase()] || '' },
+        url: url.href
+      });
+      response.on('data', (chunk) => {
+        if (received >= limit) return;
+        const portion = chunk.subarray(0, Math.max(0, limit - received));
+        if (portion.length) chunks.push(portion);
+        received += portion.length;
+        if (received >= limit) {
+          done();
+          response.destroy();
+        }
+      });
+      response.on('end', done);
+      response.on('error', (err) => { if (!settled) finish(null, err); });
+    });
+    request.on('timeout', () => request.destroy(new Error('Сайт не ответил за 8 секунд.')));
+    request.on('error', (err) => finish(null, err));
+    request.end();
+  });
 }
 
 async function getText(start, limit = 950000) {
   let current = start;
+  const root = start.hostname.replace(/^www\./, '');
   for (let hop = 0; hop < 4; hop++) {
-    await checkHost(current);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 7500);
-    let response;
-    try {
-      response = await fetch(current, {
-        method: 'GET',
-        redirect: 'manual',
-        signal: controller.signal,
-        headers: {
-          'user-agent': 'MIRVIX-Audit/1.0 (+https://mirvixai.com/audit/)',
-          accept: 'text/html,application/xml,text/plain;q=0.9,*/*;q=0.5'
-        }
-      });
-      if (response.status >= 300 && response.status < 400 && response.headers.get('location')) {
-        const next = new URL(response.headers.get('location'), current);
-        await response.body?.cancel();
-        if (next.protocol !== 'https:' || next.origin !== start.origin) {
-          throw new Error('Сайт перенаправляет на другой домен. Проверьте итоговый URL отдельно.');
-        }
-        current = next;
-        continue;
+    const response = await pinnedFetch(current, limit);
+    if (response.status >= 300 && response.status < 400 && response.headers.get('location')) {
+      const next = new URL(response.headers.get('location'), current);
+      if (next.protocol !== 'https:' || next.port || next.username || next.password ||
+          next.hostname.replace(/^www\./, '') !== root) {
+        throw new Error('Сайт перенаправляет на другой домен. Введите итоговый HTTPS-адрес.');
       }
-      const type = response.headers.get('content-type') || '';
-      if (type && !/(text|xml|html|json|octet-stream)/i.test(type)) {
-        return { status: response.status, text: '', headers: response.headers, url: current.href };
-      }
-      const reader = response.body?.getReader();
-      if (!reader) return { status: response.status, text: '', headers: response.headers, url: current.href };
-      const chunks = [];
-      let total = 0;
-      while (true) {
-        const next = await reader.read();
-        if (next.done) break;
-        total += next.value.length;
-        if (total > limit) {
-          await reader.cancel();
-          break;
-        }
-        chunks.push(next.value);
-      }
-      const bytes = Buffer.concat(chunks);
-      return { status: response.status, text: bytes.toString('utf8'), headers: response.headers, url: current.href };
-    } finally {
-      clearTimeout(timer);
+      current = next;
+      continue;
     }
+    return response;
   }
   throw new Error('Слишком много перенаправлений.');
 }
@@ -224,8 +243,8 @@ async function audit(raw, brand) {
     throw new Error('Главная страница не вернула доступный HTML (HTTP ' + homepage.status + ').');
   }
   const [robots, sitemap] = await Promise.all([
-    getText(new URL('/robots.txt', start), 140000).catch(() => null),
-    getText(new URL('/sitemap.xml', start), 200000).catch(() => null)
+    getText(new URL('/robots.txt', homepage.url), 140000).catch(() => null),
+    getText(new URL('/sitemap.xml', homepage.url), 200000).catch(() => null)
   ]);
   const tags = extract(homepage.text);
   const robotsAvailable = robots && robots.status === 200 && /user-agent\s*:/i.test(robots.text);
@@ -262,7 +281,7 @@ async function audit(raw, brand) {
     check('viewport','Мобильная адаптация (viewport)', !!tags.viewport, tags.viewport || 'Viewport не найден.',
       'Добавить meta viewport и проверить реальное отображение на телефоне.', 'medium'),
     check('robots','Файл robots.txt', robots === null ? null : !!robotsAvailable,
-      robots === null ? 'Не удалось получить robots.txt.' : robotsAvailable ? 'Доступен: ' + start.origin + '/robots.txt' : 'Файл robots.txt не найден или формат не распознан.',
+      robots === null ? 'Не удалось получить robots.txt.' : robotsAvailable ? 'Доступен: ' + new URL(homepage.url).origin + '/robots.txt' : 'Файл robots.txt не найден или формат не распознан.',
       'Создать или проверить robots.txt. Это рекомендация, не обязательное условие индексации.', 'medium'),
     check('sitemap','XML-карта сайта', finalMap === null ? null : sitemapOk,
       finalMap === null ? 'Не удалось проверить sitemap.' : sitemapOk ? 'Карта сайта найдена.' : 'Карта сайта по стандартному адресу или robots.txt не обнаружена.',
