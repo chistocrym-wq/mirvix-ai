@@ -562,6 +562,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   <script type="application/ld+json">
   {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://mirvixai.com/#organization","name":"MIRVIX AI","legalName":"ИП Катаускайте Юлия Альгисовна","url":"https://mirvixai.com/","logo":"https://mirvixai.com/assets/brand-symbol.png","description":"Цифровизация бизнеса, ИИ-помощники 24/7, SEO и подготовка сайта для ИИ-поиска.","email":"mirvixai@mail.ru","telephone":"+79602537979","address":{"@type":"PostalAddress","postalCode":"150000","addressLocality":"Ярославль","streetAddress":"2-я Бутырская, д. 79","addressCountry":"RU"},"contactPoint":{"@type":"ContactPoint","contactType":"sales","telephone":"+79602537979","email":"mirvixai@mail.ru","availableLanguage":"Russian"}},{"@type":"WebSite","@id":"https://mirvixai.com/#website","name":"MIRVIX AI","url":"https://mirvixai.com/","inLanguage":"ru-RU","publisher":{"@id":"https://mirvixai.com/#organization"}},{"@type":"Service","@id":"https://mirvixai.com/#ai-visibility","name":"Подготовка бизнеса к видимости в поисковых и ИИ-сервисах","provider":{"@id":"https://mirvixai.com/#organization"},"url":"https://mirvixai.com/ai-search/","areaServed":{"@type":"Country","name":"Россия"}}]}
   </script>
+<link rel="stylesheet" href="/assets/mira-widget.css">
 </head>
 <body>
 <a class="skip-link" href="#main">К содержимому</a>
@@ -1016,5 +1017,15 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 })();
 
 </script>
+<div id="mira-widget">
+<button type="button" class="mira-launch" data-mira="launch" aria-controls="mira-chat" aria-expanded="false" aria-label="Открыть помощника MIRA"><img src="/assets/mira-avatar.jpg" alt="" width="49" height="49" loading="lazy"><span>MIRA<small>Выслушаю и помогу</small></span></button>
+<section class="mira-chat" id="mira-chat" data-mira="dialog" role="dialog" aria-label="Помощница MIRA" aria-modal="false" hidden>
+<header class="mira-head"><img src="/assets/mira-avatar.jpg" alt="" width="50" height="50"><span><strong>MIRA</strong><small>Расскажите о своей задаче</small></span><button class="mira-close" type="button" data-mira="close" aria-label="Закрыть чат">×</button></header>
+<div class="mira-history" data-mira="history" role="log" aria-live="polite"></div>
+<div class="mira-voicecheck" data-mira="voicecheck" hidden><b>Я правильно записала? Проверьте текст:</b><textarea data-mira="transcript" aria-label="Распознанный текст"></textarea><div class="mira-actions"><button type="button" data-mira="confirm">Да, всё верно</button><button type="button" data-mira="retry">Надиктовать снова</button><button type="button" data-mira="cancel">Отмена</button></div></div>
+<div class="mira-inputbar"><textarea data-mira="input" aria-label="Ваше сообщение MIRA" rows="1" placeholder="Напишите сообщение"></textarea><button type="button" data-mira="mic" aria-label="Надиктовать сообщение" title="Голосовой ввод">🎙</button><button type="button" data-mira="send" aria-label="Отправить сообщение">➤</button></div>
+<div class="mira-foot">При голосовом вводе браузер может передавать речь своему сервису распознавания. Обращение отправляется только вами через почту. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
+</section></div>
+<script src="/assets/mira-widget.js" defer></script>
 </body>
 </html>
