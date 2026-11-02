@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 
 const PROVIDERS = Object.freeze({
   openai: { title: 'OpenAI (ответы API с веб-поиском)', env: 'OPENAI_API_KEY', model: 'gpt-5.5' },
-  gemini: { title: 'Gemini (Google Search grounding)', env: 'GEMINI_API_KEY', model: 'gemini-2.5-flash' },
+  gemini: { title: 'Gemini (Google Search grounding)', env: 'GEMINI_API_KEY', model: 'gemini-3.8-flash' },
   perplexity: { title: 'Perplexity Sonar', env: 'PERPLEXITY_API_KEY', model: 'sonar' }
 });
 
@@ -142,7 +142,8 @@ async function callOpenai(prompt, key) {
     input: prompt,
     tools: [{ type: 'web_search', search_context_size: 'low' }],
     tool_choice: 'required',
-    max_output_tokens: 1400,
+    max_output_tokens: 1800,
+    reasoning: { effort: 'low' },
     store: false,
     include: ['web_search_call.action.sources']
   }, { Authorization: 'Bearer ' + key });
@@ -171,21 +172,35 @@ async function callOpenai(prompt, key) {
 
 async function callGemini(prompt, key) {
   const data = await requestJson(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/interactions',
     key, {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      tools: [{ google_search: {} }],
-      generationConfig: { temperature: 0.3, maxOutputTokens: 1600 }
-    }, { 'x-goog-api-key': key }
+      model: 'gemini-3.8-flash',
+      input: prompt,
+      tools: [{ type: 'google_search' }],
+      generation_config: { max_output_tokens: 1500 }
+    }, { 'x-goog-api-key': key }, 45000
   );
-  const candidate = data.candidates?.[0] || {};
-  const grounding = candidate.groundingMetadata || {};
+  const steps = Array.isArray(data.steps) ? data.steps :
+    Array.isArray(data.interaction?.steps) ? data.interaction.steps : [];
+  const lines = [];
+  const references = [];
+  let searched = false;
+  for (const step of steps) {
+    if (step.type === 'google_search_call') searched = true;
+    if (step.type !== 'model_output') continue;
+    for (const block of step.content || []) {
+      if (block.type === 'text' && typeof block.text === 'string') lines.push(block.text);
+      for (const item of block.annotations || []) {
+        if (item.type === 'url_citation' && item.url)
+          references.push({ url: item.url, title: item.title });
+      }
+    }
+  }
   return {
-    answer: (candidate.content?.parts || []).map((x) => x.text || '').join('\n').trim(),
-    sources: uniqueSources((grounding.groundingChunks || [])
-      .filter((x) => x.web?.uri).map((x) => ({ url: x.web.uri, title: x.web.title }))),
-    searched: Array.isArray(grounding.webSearchQueries) && grounding.webSearchQueries.length > 0,
-    model: 'gemini-2.5-flash'
+    answer: text(data.output_text || data.interaction?.output_text, 12000) || lines.join('\n').trim(),
+    sources: uniqueSources(references),
+    searched,
+    model: 'gemini-3.8-flash'
   };
 }
 
@@ -195,7 +210,7 @@ async function callPerplexity(prompt, key) {
       model: 'sonar',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 1100,
-      search_mode: 'web'
+      web_search_options: { search_mode: 'web' }
     }, { Authorization: 'Bearer ' + key }
   );
   const citations = Array.isArray(data.citations) ? data.citations : [];
