@@ -565,6 +565,28 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @media(max-width:960px){.packages-intro{grid-template-columns:1fr;gap:16px}}
 @media(max-width:690px){.packages-section{padding:70px 0}.packages-grid{grid-template-columns:1fr;gap:14px}.package-card{padding:27px 23px}.package-price{font-size:33px}.packages-intro h2{font-size:35px}.package-disclaimer{text-align:left}}
 @media(max-width:375px){.packages-intro h2{font-size:30px}.package-price{font-size:30px}}
+
+/* Lead form: intentionally uses the client's own email software; no data is transmitted to site host */
+.contact-shell{align-items:start}
+.contact-primary{min-width:0}
+.lead-panel{margin-top:32px;padding:26px;border:1px solid #92b4e856;background:#ffffff12;border-radius:20px;scroll-margin-top:100px}
+.lead-panel-head h3{font-size:24px;line-height:1.2;letter-spacing:-.025em;color:#fff;margin:9px 0}
+.lead-panel-head p{font-size:12.6px;color:#c8dafa;line-height:1.6;margin:0 0 19px}
+.lead-eyebrow{font-size:10px;color:#8cdeef;letter-spacing:.12em;font-weight:820}
+.lead-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.lead-fields label{display:flex;flex-direction:column;font-size:12px;font-weight:730;color:#dcecff;gap:7px;min-width:0}
+.lead-fields label>span{color:#9ce9f0}
+.lead-fields .lead-full{grid-column:1/-1}
+.lead-fields input,.lead-fields select,.lead-fields textarea{width:100%;min-width:0;border:1px solid #b1c9e3;border-radius:9px;background:#fff;padding:11px 12px;font-size:13px;font-family:inherit;color:#203960}
+.lead-fields textarea{resize:vertical;min-height:86px}
+.lead-fields input:focus-visible,.lead-fields select:focus-visible,.lead-fields textarea:focus-visible{outline:3px solid #54d0ff;outline-offset:1px}
+.lead-consent{display:flex;align-items:flex-start;gap:10px;margin-top:20px;line-height:1.5;color:#d4e6ff;font-size:12px;cursor:pointer}
+.lead-consent input{accent-color:#21a3e3;width:17px;height:17px;flex-shrink:0;margin-top:2px}
+.lead-consent a,.lead-explain a{color:#a5e8ff;text-decoration:underline;text-underline-offset:3px}
+.lead-submit{width:100%;justify-content:center;margin-top:17px;font-size:13px}
+.lead-explain{color:#c6d9f0;font-size:11.5px;line-height:1.62;margin:14px 0 0}
+@media(max-width:1130px){.contact-shell{gap:28px;padding:54px 35px}}
+@media(max-width:690px){.contact-shell{padding:35px 23px;gap:27px}.lead-panel{padding:20px 16px}.lead-fields{grid-template-columns:1fr}.lead-fields .lead-full{grid-column:auto}.lead-panel-head h3{font-size:22px}}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -776,7 +798,21 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
         <a class="button button-white" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BD%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%20MIRVIX%20AI">Написать нам <span aria-hidden="true">↗</span></a>
         <button type="button" class="button button-outline-white" data-phone-open>Позвонить или скопировать номер <span aria-hidden="true">☎</span></button>
       </div>
-      <span class="pricing-note">Стоимость работ рассчитывается индивидуально. Напишите на почту или свяжитесь с нами в удобном мессенджере.</span>
+      <span class="pricing-note">Можно выбрать готовый пакет или обсудить индивидуальное решение. Дополнительные интеграции рассчитываются отдельно.</span>
+<div class="lead-panel" id="lead-form">
+  <div class="lead-panel-head"><span class="lead-eyebrow">ЗАЯВКА НА КОНСУЛЬТАЦИЮ</span><h3>Расскажите о своей задаче</h3><p>Подготовим обращение и откроем письмо в вашей почтовой программе. Данные не передаются сайту и не сохраняются на сервере.</p></div>
+  <form id="mirvix-lead" action="mailto:mirvixai@mail.ru" method="get">
+    <div class="lead-fields">
+      <label>Как к вам обращаться? <span>*</span><input name="client_name" autocomplete="name" maxlength="100" placeholder="Ваше имя" required></label>
+      <label>Как с вами связаться? <span>*</span><input name="client_contact" maxlength="160" placeholder="Телефон, почта или Telegram" required></label>
+      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ — 50 000 ₽</option><option value="visibility-support">Продвижение + сопровождение — 50 000 ₽ + 5 000 ₽/мес.</option><option value="bot">ИИ-помощник — +20 000 ₽</option><option value="full">Комплекс — 70 000 ₽</option></select></label>
+      <label class="lead-full">Опишите задачу<textarea name="message" rows="3" maxlength="3000" placeholder="Чем занимается компания и что хотелось бы улучшить?"></textarea></label>
+    </div>
+    <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я ознакомлен(а) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и согласен(на) передать указанные данные по электронной почте для ответа на обращение.</span></label>
+    <button class="button button-primary lead-submit" type="submit">Подготовить письмо с заявкой <span aria-hidden="true">↗</span></button>
+    <p class="lead-explain">После нажатия откроется почтовое приложение. Для отправки нажмите «Отправить» в нём. Если почтовая программа не настроена, <a href="mailto:mirvixai@mail.ru">напишите нам напрямую</a>.</p>
+  </form>
+</div>
     </div>
     <aside class="contact-card">
       <span class="contact-card-caption">ВАШ КОНТАКТ</span>
@@ -799,7 +835,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   <div class="container faq-layout">
     <div><span class="section-kicker">КОРОТКО О ГЛАВНОМ</span><h2>Вопросы и ответы</h2></div>
     <div class="faq-items">
-      <details><summary>Сколько стоят услуги?<span aria-hidden="true">+</span></summary><p>Стоимость зависит от задачи и объёма работ. Для предварительного обсуждения напишите на <a href="mailto:mirvixai@mail.ru">mirvixai@mail.ru</a> или <button type="button" data-phone-open>позвоните</button>.</p></details>
+      <details><summary>Сколько стоят услуги?<span aria-hidden="true">+</span></summary><p>Базовая подготовка к поиску и ИИ — 50 000 ₽, сопровождение — 5 000 ₽/мес., настройка ИИ-помощника — от 20 000 ₽. <a href="#packages">Посмотреть все пакеты</a>. Для нестандартных задач напишите на <a href="mailto:mirvixai@mail.ru">mirvixai@mail.ru</a> или <button type="button" data-phone-open>позвоните</button>.</p></details>
       <details><summary>Всегда ли нужен ИИ?<span aria-hidden="true">+</span></summary><p>Нет. Часто задачу эффективнее решить обычной автоматизацией, хорошим интерфейсом и понятным учётом данных. Подход подбираем под ситуацию.</p></details>
       <details><summary>Можно доработать уже существующий продукт?<span aria-hidden="true">+</span></summary><p>Да. Рассматриваем аудит, интеграции, улучшение пользовательских сценариев и добавление отдельных функций.</p></details>
     </div>
@@ -818,6 +854,8 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     <nav class="footer-column" aria-label="Разделы сайта">
       <h3>Навигация</h3>
       <a href="#services">Услуги</a>
+      <a href="#packages">Тарифы</a>
+      <a href="/ai-search/">ИИ-поиск для бизнеса</a>
       <a href="#approach">Как мы работаем</a>
       <a href="#projects">Наши разработки</a>
       <a href="#about">О нас</a>
@@ -858,7 +896,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   <button type="button" data-phone-open>☎ Позвонить</button>
 </div>
 <script>
-/* MIRVIX AI — offline-capable interaction layer. No tracking, external APIs, or forms. */
+/* MIRVIX AI — no analytics or external form backend. Mail drafts are created locally. */
 (() => {
   'use strict';
   document.documentElement.classList.add('has-js');
@@ -924,6 +962,33 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     }
   }, {passive: true});
   updateProgress();
+
+  // Preserve the selected package when a visitor uses its call-to-action.
+  const leadForm = document.getElementById('mirvix-lead');
+  if (leadForm) {
+    const planSelect = leadForm.querySelector('[name="plan"]');
+    document.querySelectorAll('[data-plan]').forEach(link => link.addEventListener('click', () => {
+      if (planSelect) planSelect.value = link.dataset.plan;
+    }));
+    leadForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!leadForm.reportValidity()) return;
+      const fields = new FormData(leadForm);
+      const planText = planSelect?.selectedOptions?.[0]?.textContent || 'Консультация';
+      const subject = 'Заявка MIRVIX AI: ' + planText;
+      const body = [
+        'Здравствуйте, MIRVIX AI!',
+        '',
+        'Имя: ' + String(fields.get('client_name') || ''),
+        'Контакт: ' + String(fields.get('client_contact') || ''),
+        'Услуга: ' + planText,
+        'Описание: ' + String(fields.get('message') || ''),
+        '',
+        'Отправитель ознакомлен с политикой конфиденциальности и направляет данные для ответа на обращение.'
+      ].join('\\n');
+      window.location.href = 'mailto:mirvixai@mail.ru?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    });
+  }
 
   const modal = document.getElementById('phone-modal');
   const modalClose = modal && modal.querySelector('[data-phone-close]');
