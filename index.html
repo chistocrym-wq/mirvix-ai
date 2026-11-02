@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f9ff">
+  <meta name="description" content="MIRVIX AI — цифровые технологии и ИИ разработки. Оцифровка бизнеса, приложения, ИИ-автоматизация, SEO и собственные цифровые продукты. Санкт-Петербург.">
+  <link rel="canonical" href="https://mirvixai.com/">
+  <meta property="og:url" content="https://mirvixai.com/">
+  <title>MIRVIX AI — Цифровые технологии и ИИ разработки</title>
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MIRVIX AI — Цифровые технологии и ИИ разработки">
+  <meta property="og:description" content="Цифровизация бизнеса, ИИ-разработки, приложения и собственные технологические продукты.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <link rel="icon" type="image/png" href="assets/favicon-32.png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  
+  
+<style>
+
+/* MIRVIX AI | Website v2 — designed as a balanced editorial technology system */
+:root {
+  --navy:#101d43;
+  --ink:#172548;
+  --text:#405272;
+  --muted:#677896;
+  --line:#e0e8f4;
+  --surface:#ffffff;
+  --soft:#f5f8ff;
+  --soft-blue:#edf4ff;
+  --blue:#0a66eb;
+  --cyan:#05b9d9;
+  --violet:#6b36de;
+  --dark:#091b42;
+  --radius:20px;
+  --shadow:0 22px 54px rgba(35,68,126,.075);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{margin:0;background:#fff;color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;min-width:280px}
+body.modal-open{overflow:hidden}
+button,input{font:inherit}button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+svg{display:block}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid #03b5e9;outline-offset:4px}
+::selection{background:#baeafa;color:#132353}
+.container{width:min(1220px,calc(100% - 64px));margin-inline:auto}
+.skip-link{position:absolute;top:-70px;left:16px;z-index:250;background:#0a66eb;color:#fff;padding:10px 15px;border-radius:6px}
+.skip-link:focus{top:12px}
+.scroll-progress{position:fixed;top:0;left:0;z-index:70;height:3px;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue),var(--violet));pointer-events:none}
+.gradient{background:linear-gradient(103deg,#0868ed 0%,#0c9bde 50%,#6b35df 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:52px;border-radius:12px;padding:0 24px;border:1px solid transparent;font-size:14px;font-weight:750;letter-spacing:-.01em;white-space:nowrap;transition:transform .25s,background .25s,box-shadow .25s,border-color .25s}
+.button:hover{transform:translateY(-2px)}
+.button-primary{color:#fff;background:linear-gradient(120deg,#0b71ef 0%,#195ad9 60%,#603cd4);box-shadow:0 12px 30px rgba(13,83,210,.2)}
+.button-light{color:var(--ink);background:#fff;border-color:#d5e2f5}
+.button-light:hover{background:#f7fbff;box-shadow:0 10px 22px rgba(26,70,138,.09)}
+.button-white{background:#fff;color:#13306a;box-shadow:0 16px 36px rgba(4,18,59,.2)}
+.button-outline-white{border-color:rgba(213,233,255,.34);background:rgba(255,255,255,.09);color:#fff}
+.button-outline-white:hover{background:rgba(255,255,255,.16)}
+.eyebrow,.section-kicker{display:inline-flex;align-items:center;gap:11px;color:#1566c7;font-size:12px;letter-spacing:.145em;font-weight:800;text-transform:uppercase}
+.eyebrow-dot{display:block;width:7px;height:7px;background:var(--cyan);box-shadow:0 0 0 5px rgba(5,185,217,.13);border-radius:50%}
+/* Header */
+.site-header{position:sticky;z-index:60;top:0;background:rgba(251,253,255,.94);border-bottom:1px solid rgba(212,225,243,.78);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.header-inner{height:88px;display:flex;align-items:center;gap:32px}
+.brand{display:inline-flex;align-items:center;gap:5px;flex-shrink:0}
+.brand-symbol{width:61px;height:50px;object-fit:contain}
+.brand-text{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.brand-wordmark{width:160px;height:auto;max-height:30px;object-fit:contain;object-position:left center}
+.brand-tagline{font-size:9.4px;line-height:1.2;font-weight:700;letter-spacing:-.02em;color:#55708f;white-space:nowrap}
+.desktop-nav{display:flex;align-items:center;gap:28px;margin-left:auto}
+.desktop-nav a{font-size:13.5px;color:#455975;font-weight:690;transition:color .2s}
+.desktop-nav a:hover,.desktop-nav a.is-current{color:#075bd1}
+.header-contact{display:inline-flex;align-items:center;gap:12px;min-height:43px;padding:0 18px;border-radius:10px;background:#102756;color:#fff;font-size:13px;font-weight:750;white-space:nowrap;transition:background .2s,transform .2s}
+.header-contact:hover{background:#1d53a0;transform:translateY(-1px)}
+.mobile-toggle{display:none;flex-direction:column;gap:5px;align-items:center;justify-content:center;width:44px;height:44px;background:#ecf3ff;border:1px solid #d8e7f8;border-radius:11px;color:var(--ink)}
+.mobile-toggle span{display:block;height:2px;width:18px;border-radius:2px;background:currentColor;transition:transform .2s,opacity .2s}
+.mobile-toggle.is-open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.mobile-toggle.is-open span:nth-child(2){opacity:0}
+.mobile-toggle.is-open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-nav{border-top:1px solid var(--line);padding:7px 24px 22px;background:#fff;box-shadow:0 15px 30px #0d2d5824}
+.mobile-nav a{display:block;font-size:16px;font-weight:730;padding:13px 5px;border-bottom:1px solid #eaf0f9}
+/* Hero */
+.hero{position:relative;overflow:hidden;background:linear-gradient(155deg,#fafdff 0%,#f6f9ff 56%,#f0f3fd 100%)}
+.hero::before{content:"";position:absolute;pointer-events:none;left:-22%;top:-52%;height:850px;width:850px;border-radius:50%;background:radial-gradient(circle,rgba(59,166,250,.14),transparent 68%)}
+.hero::after{content:"";position:absolute;pointer-events:none;right:-18%;bottom:-70%;height:850px;width:850px;border-radius:50%;background:radial-gradient(circle,rgba(119,67,225,.13),transparent 70%)}
+.hero-noise{position:absolute;inset:0;pointer-events:none;opacity:.35;background-image:radial-gradient(#4788c020 .55px,transparent .55px);background-size:13px 13px;mask-image:linear-gradient(110deg,transparent 15%,#000 75%)}
+.hero-layout{position:relative;display:grid;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);gap:54px;align-items:center;padding:96px 0 77px;min-height:660px}
+.hero-copy{position:relative;z-index:1}
+.hero h1{font-size:clamp(42px,4.4vw,65px);line-height:1.095;letter-spacing:-.061em;font-weight:850;margin:22px 0 22px;max-width:640px;text-wrap:balance}
+.hero-copy>p{max-width:560px;color:#566b89;line-height:1.81;font-size:16.5px;margin:0}
+.hero-buttons{display:flex;align-items:center;gap:12px;margin-top:31px;flex-wrap:wrap}
+.hero-footnotes{display:flex;gap:22px;flex-wrap:wrap;margin-top:27px;color:#687d99;font-size:12px;font-weight:650}
+.hero-footnotes span{display:inline-flex;align-items:center;gap:7px}
+.hero-footnotes i{display:block;width:6px;height:6px;border-radius:100%;background:#0aa8d4}
+.hero-art{position:relative;min-width:0}
+.hero-screen{position:relative;height:424px;border-radius:25px;background:linear-gradient(145deg,#122f64,#091d43 58%,#1e1a5d);box-shadow:0 35px 70px rgba(9,35,86,.20);overflow:hidden;border:1px solid rgba(122,183,248,.32)}
+.hero-screen:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(108,175,236,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(108,175,236,.06) 1px,transparent 1px);background-size:26px 26px;mask-image:linear-gradient(#000,transparent 93%)}
+.hero-screen:after{content:"";position:absolute;right:-60px;top:-80px;width:330px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(97,74,238,.32),transparent 70%);pointer-events:none}
+.screen-toolbar,.screen-bottom{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:21px 27px;color:#afccf1;letter-spacing:.115em;font-size:10px;font-weight:780}
+.tool-live{display:inline-flex;align-items:center;gap:10px}
+.tool-live>span{display:block;width:7px;height:7px;border-radius:50%;background:#2de4e0;box-shadow:0 0 0 5px #2de4e025;animation:glow 3.5s ease-in-out infinite}
+.toolbar-code{opacity:.75}
+.screen-inner{display:grid;grid-template-columns:.97fr 1.03fr;align-items:center;position:relative;z-index:2;padding:10px 27px 13px;min-height:310px;gap:18px}
+.screen-left{padding:20px 14px 15px;border:1px solid #9dc3f033;border-radius:18px;background:#ffffff0b;text-align:center;display:flex;flex-direction:column;align-items:center;min-height:260px;justify-content:center;min-width:0}
+.screen-logo-wrap{width:100%;height:129px;max-width:235px;display:grid;place-items:center;border-radius:15px;background:linear-gradient(133deg,#e6f6ff,#edf1ff 70%,#f3eaff);box-shadow:inset 0 1px rgba(255,255,255,.8)}
+.screen-logo-wrap img{max-height:112px;width:90%;object-fit:contain}
+.screen-label{font-size:10px;color:#c6e8ff;font-weight:850;letter-spacing:.14em;margin-top:18px}
+.screen-caption{font-size:11px;color:#a7c9eb;margin-top:3px}
+.screen-signal{display:flex;align-items:center;justify-content:center;gap:5px;height:25px;margin-top:7px}
+.screen-signal span{display:block;width:3px;height:8px;border-radius:8px;background:#29d9f5;opacity:.45;animation:sound 1.8s ease-in-out infinite alternate}
+.screen-signal span:nth-child(3n+1){height:15px;animation-delay:.15s}.screen-signal span:nth-child(4n+2){height:5px;animation-delay:.4s}.screen-signal span:nth-child(2n){animation-delay:.75s}
+.screen-stages{display:flex;flex-direction:column;align-items:stretch;justify-content:center;min-width:0}
+.stage{display:flex;align-items:center;gap:12px;padding:14px 13px;background:#ffffff0d;border:1px solid #b2cefd2b;border-radius:13px;color:#eef7ff;min-width:0}
+.stage.active{background:linear-gradient(105deg,#2175d570,#7051e34f);border-color:#80b9ff72;box-shadow:0 0 35px rgba(27,130,240,.15)}
+.stage-index{flex-shrink:0;font-size:10px;color:#8bb9f6;letter-spacing:.07em;font-weight:850}
+.stage>div{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.stage strong{font-size:13px;white-space:nowrap}.stage small{font-size:10px;color:#a9c4e9;margin-top:6px;white-space:nowrap}
+.stage-pulse{display:block;flex-shrink:0;margin-left:auto;width:5px;height:5px;background:#21d4e4;border-radius:50%}
+.stage-connector{height:19px;border-left:1px solid #37c8e58a;margin-left:20px}
+.screen-bottom{padding:10px 27px 20px;font-size:9px}
+.screen-bottom>span:last-child{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.screen-bottom i{width:5px;height:5px;background:#3bead4;display:block;border-radius:50%}
+.art-corner{position:absolute;right:-11px;bottom:-14px;padding:12px 18px;border:1px solid #d9e6fa;border-radius:13px;background:#fff;color:#1c4d95;box-shadow:var(--shadow);font-size:10px;line-height:1.5;font-weight:850;letter-spacing:.1em}
+.capability-row{position:relative;display:flex;align-items:center;justify-content:center;gap:34px;min-height:77px;border-top:1px solid #dfebfc;color:#536b8b;font-size:12.5px;font-weight:710;flex-wrap:wrap}
+.capability-row b{color:#c3d4ea;font-size:15px;font-weight:400}
+/* Reusable section rhythm */
+.section{padding:104px 0}
+.section-header{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:60px;align-items:end;margin-bottom:39px}
+.section-header h2,.approach-header h2,.about-content h2{font-size:clamp(35px,3.65vw,52px);line-height:1.14;letter-spacing:-.055em;font-weight:840;margin:17px 0 0;text-wrap:balance}
+.section-header p{font-size:15px;line-height:1.8;color:var(--muted);margin:0 0 4px;max-width:390px}
+.services-section{background:#fff}
+.services-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.service-card{position:relative;display:flex;flex-direction:column;padding:29px 29px 24px;background:#fff;border:1px solid #dfe8f4;border-radius:19px;min-height:274px;transition:transform .35s,border-color .35s,box-shadow .35s;overflow:hidden}
+.service-card:before{content:"";height:3px;left:0;right:0;top:0;position:absolute;background:linear-gradient(90deg,#08b5df,#0d64ed,#6f3be0);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.service-card:hover{transform:translateY(-5px);box-shadow:0 24px 45px #16396616;border-color:#a9cef3}
+.service-card:hover:before{transform:scaleX(1)}
+.service-card-top{display:flex;align-items:start;justify-content:space-between;margin-bottom:24px}
+.service-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:13px;background:#ebf5ff;color:#1465d3}
+.service-icon svg{width:25px;height:25px}
+.service-card:nth-child(3n+2) .service-icon{background:#f1ecff;color:#753cda}
+.service-card:nth-child(3n+3) .service-icon{background:#e8fafd;color:#099eb4}
+.card-index{font-size:11px;color:#a5b4ca;letter-spacing:.13em;font-weight:750}
+.service-card h3{font-size:20px;letter-spacing:-.025em;font-weight:795;line-height:1.26;margin:0 0 11px;max-width:275px}
+.service-card p{font-size:13.7px;line-height:1.69;color:#63748d;margin:0}
+.service-tail{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:20px;color:#8199b5}
+.service-tail span:first-child{display:block;width:35px;height:1px;background:#a9d2fb}
+.service-tail span:last-child{font-size:19px;line-height:1}
+/* Process band */
+.approach-section{background:linear-gradient(132deg,#0c224b,#102757 58%,#28216c);color:#fff;padding:96px 0 102px;position:relative;overflow:hidden}
+.approach-section:before{content:"";width:630px;height:630px;position:absolute;right:-140px;top:-360px;border-radius:50%;background:radial-gradient(circle,#6660db47,transparent 65%)}
+.approach-section:after{content:"";position:absolute;right:0;bottom:0;left:0;height:2px;background:linear-gradient(90deg,#0ac8ec,#6677fa,#7a3bde)}
+.approach-header{position:relative;display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:60px;margin-bottom:56px}
+.kicker-on-dark{color:#91cfff}
+.approach-header h2{font-size:clamp(34px,3.7vw,52px);margin-top:17px;color:#fff}
+.approach-header p{max-width:410px;line-height:1.85;color:#b8cbe4;font-size:15px;margin:0 0 5px}
+.steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.steps:before{content:"";position:absolute;top:21px;left:24px;right:23px;height:1px;background:linear-gradient(90deg,#159edb,#86b8ff88,#8e63e5)}
+.step{position:relative;padding:0 26px 0 0}
+.step:not(:first-child){padding-left:26px}
+.step span{position:relative;display:grid;place-items:center;width:42px;height:42px;background:#142f63;border:1px solid #5898dd;color:#d1eaff;font-size:12px;font-weight:800;border-radius:50%;box-shadow:0 0 0 7px #102757}
+.step h3{font-size:21px;letter-spacing:-.03em;font-weight:800;margin:24px 0 8px}
+.step p{font-size:13.5px;line-height:1.7;color:#b3cae4;max-width:225px;margin:0}
+/* Portfolio */
+.projects-section{background:linear-gradient(180deg,#f9fbff,#fff 45%)}
+.portfolio-heading{margin-bottom:33px}
+.project-filter{display:flex;gap:9px;flex-wrap:wrap;padding-bottom:20px;margin-bottom:29px;border-bottom:1px solid #dfe8f4}
+.filter-button{display:inline-flex;align-items:center;gap:10px;border:1px solid #d7e2f1;background:#fff;color:#536987;border-radius:12px;min-height:43px;padding:0 17px;font-size:13px;font-weight:760;transition:background .2s,color .2s,border-color .2s}
+.filter-button span{font-size:10px;color:#94a7be;font-weight:820}
+.filter-button:hover{border-color:#7cbbef;color:#0756c4}
+.filter-button.is-active{border-color:#174b9f;background:#112f67;color:#fff;box-shadow:0 8px 22px rgba(24,71,150,.14)}
+.filter-button.is-active span{color:#94d7fd}
+.project-group+.project-group{margin-top:59px}
+.group-title{display:flex;align-items:center;gap:18px;margin-bottom:19px}
+.group-index{color:#3b608c;font-size:12px;font-weight:850;letter-spacing:.115em;white-space:nowrap}
+.group-line{height:1px;background:#dce6f3;flex:1}
+.group-count{font-size:11px;color:#a2b2c8;font-weight:770;letter-spacing:.085em;white-space:nowrap}
+.feature-project{display:grid;grid-template-columns:1.08fr .92fr;background:linear-gradient(125deg,#10326f 0%,#0f2352 51%,#352179);border-radius:25px;overflow:hidden;min-height:380px;color:#fff;box-shadow:0 24px 62px rgba(25,54,119,.15)}
+.feature-content{padding:47px 44px 43px;display:flex;flex-direction:column;align-items:flex-start}
+.feature-state{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff37;color:#acd7fa;border-radius:30px;padding:7px 12px;font-size:10px;font-weight:770;letter-spacing:.075em}
+.feature-state span{width:6px;height:6px;border-radius:50%;background:#2ce7df}
+.feature-content h3{font-size:clamp(33px,3.6vw,49px);font-weight:850;letter-spacing:-.06em;line-height:1.12;margin:22px 0 14px}
+.feature-content h3 em{font-style:normal;color:#6fdef9}
+.feature-content>p{color:#c0d4ed;font-size:14.5px;line-height:1.76;margin:0;max-width:560px}
+.feature-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:21px}
+.feature-tags span{background:#ffffff13;border:1px solid #ffffff1d;padding:6px 10px;border-radius:7px;font-size:10px;color:#d1e9ff;font-weight:750}
+.feature-link{display:inline-flex;gap:10px;margin-top:auto;padding-top:23px;color:#8be8fc;font-size:13px;font-weight:790}
+.feature-link:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
+.feature-demo{position:relative;display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden;background:radial-gradient(circle at 55% 45%,#4d66c64a,transparent 65%)}
+.feature-demo:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0d 1px,transparent 1px),linear-gradient(90deg,#ffffff0d 1px,transparent 1px);background-size:27px 27px;mask-image:linear-gradient(90deg,transparent,#000)}
+.demo-panel{position:relative;z-index:1;max-width:410px;width:100%;border-radius:19px;border:1px solid #aedfff50;background:linear-gradient(150deg,#ecf6ffef,#dce8ffdf);color:#18336d;padding:22px;transform:rotate(-3deg);box-shadow:0 24px 44px #071a4963}
+.demo-top{display:flex;align-items:center;gap:5px;border-bottom:1px solid #bed4f2;padding-bottom:15px}
+.demo-top .demo-circle{width:6px;height:6px;border-radius:50%;background:#5da4eb}
+.demo-top .demo-circle:nth-child(2){background:#55d0e1}.demo-top .demo-circle:nth-child(3){background:#8e7ce7}
+.demo-top>span:last-child{font-size:10px;font-weight:760;letter-spacing:.1em;color:#7c90b0;margin-left:auto}
+.demo-question{margin-top:21px;font-size:20px;font-weight:800;letter-spacing:-.035em}
+.demo-line{height:7px;background:#c7d7ef;border-radius:15px;margin-top:12px}.demo-line.line-1{width:91%}.demo-line.line-2{width:68%;margin-top:8px}
+.demo-route{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:25px 0;white-space:nowrap}
+.demo-route span{border-radius:7px;background:#daebff;color:#2754a5;padding:9px 10px;font-size:9px;font-weight:850}
+.demo-route i{font-style:normal;color:#3994df}
+.demo-output{display:flex;align-items:center;gap:11px;border:1px solid #d8e7f9;background:#fff;padding:15px;border-radius:12px}
+.demo-output>span:first-child{font-size:22px;color:#157add}
+.demo-output div{display:flex;flex-direction:column;line-height:1.35;min-width:0}.demo-output b{font-size:12px}.demo-output small{font-size:10px;color:#7c90b2;margin-top:3px}.demo-output>span:last-child{margin-left:auto;color:#2775d6}
+.project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.project-grid.grid-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+.project-card{display:flex;flex-direction:column;background:#fff;border:1px solid #e0e8f4;border-radius:19px;padding:26px;min-height:257px;box-shadow:0 8px 30px #15488706;transition:transform .28s,box-shadow .28s,border-color .28s}
+.project-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px #28508219;border-color:#aaccf4}
+.project-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.project-mark{display:grid;place-items:center;min-width:54px;width:54px;height:53px;border-radius:12px;font-size:21px;letter-spacing:-.055em;font-weight:860}
+.project-mark.sky{background:#e4f2ff;color:#1568d4}.project-mark.iris{background:#f0ebff;color:#7746ca}.project-mark.violet{background:#eee9ff;color:#6032b5}.project-mark.aqua{background:#e2f8fb;color:#068ca8}
+.status-chip{border:1px solid #e1e9f5;color:#7587a2;background:#f7faff;border-radius:30px;padding:6px 9px;font-size:10px;line-height:1.2;font-weight:735;text-align:center}
+.project-card h4{font-size:20px;line-height:1.22;font-weight:825;letter-spacing:-.035em;margin:24px 0 11px;text-wrap:balance}
+.project-card p{color:#64748e;font-size:13.4px;line-height:1.68;margin:0}
+.project-link{margin-top:auto;padding-top:19px;font-size:12.5px;font-weight:800;color:#146bd8;display:inline-flex;gap:9px;align-items:center}
+.project-link:hover{color:#6838d5}
+.portfolio-disclaimer{font-size:12px;color:#7a8aa2;line-height:1.7;margin:29px 0 0;padding-left:14px;border-left:2px solid #95c5fa;max-width:930px}
+/* About */
+.about-section{background:#f3f7fe;padding:105px 0}
+.about-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:88px;align-items:center}
+.about-art{position:relative;height:425px;border-radius:26px;background:linear-gradient(128deg,#e7f3ff,#d9e9ff 53%,#e8ddff);overflow:hidden;display:grid;place-items:center}
+.about-orb{position:absolute;border-radius:50%;filter:blur(1px);pointer-events:none}
+.orb-one{width:440px;height:440px;top:-230px;left:-110px;background:radial-gradient(circle,#00cfff1d,transparent 72%)}
+.orb-two{width:430px;height:430px;right:-200px;bottom:-250px;background:radial-gradient(circle,#7c3fe344,transparent 70%)}
+.about-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:73%;height:77%;border-radius:22px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.85);box-shadow:0 25px 55px #33579b1c;backdrop-filter:blur(10px)}
+.about-card img{width:min(73%,260px);height:150px;object-fit:contain}
+.about-card>span{font-size:27px;font-weight:870;letter-spacing:-.045em;margin-top:6px;background:linear-gradient(105deg,#0f286b,#2e5cd0,#6b35db);background-clip:text;-webkit-background-clip:text;color:transparent}
+.about-card small{font-size:10px;letter-spacing:.12em;font-weight:760;color:#8095b7;margin-top:7px}
+.about-coordinate{position:absolute;left:23px;bottom:19px;font-size:11px;color:#6984ae;letter-spacing:.12em;font-weight:730}
+.about-content h2{margin:17px 0 24px;max-width:590px}
+.about-content>p{color:#5c6f8a;font-size:15px;line-height:1.82;margin:0 0 15px}
+.about-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin-top:32px;padding-top:24px;border-top:1px solid #d8e3f3}
+.about-points div{display:flex;flex-direction:column;gap:8px}
+.about-points span{font-size:11px;font-weight:810;color:#0d69d3}
+.about-points b{font-size:13px;line-height:1.35;letter-spacing:-.015em}
+.about-points small{font-size:12px;color:#778ba6;line-height:1.55}
+/* Contact */
+.contact-section{padding:103px 0;background:#fff}
+.contact-shell{position:relative;overflow:hidden;display:grid;grid-template-columns:1.12fr .88fr;gap:70px;padding:64px 68px;border-radius:27px;background:linear-gradient(123deg,#0e2656 0%,#102b65 58%,#38216b);box-shadow:0 32px 70px #173d8224}
+.contact-shell:before{content:"";position:absolute;right:-230px;top:-220px;width:580px;height:580px;border-radius:50%;background:radial-gradient(circle,#576fe542,transparent 68%);pointer-events:none}
+.contact-primary,.contact-card{position:relative;z-index:1}
+.contact-primary h2{font-size:clamp(36px,3.7vw,55px);line-height:1.14;font-weight:850;letter-spacing:-.055em;color:#fff;margin:22px 0 19px}
+.contact-primary h2 span{color:#76e1f5}
+.contact-primary>p{color:#bfd2ee;line-height:1.84;max-width:530px;font-size:15px;margin:0}
+.contact-buttons{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:26px}
+.contact-buttons .button{font-size:12.5px;padding-inline:18px}
+.pricing-note{display:block;color:#9dbadb;font-size:11.5px;line-height:1.6;margin-top:26px}
+.contact-card{align-self:center;background:#fdfefe;border-radius:21px;padding:30px;box-shadow:0 28px 55px #05163840}
+.contact-card-caption{color:#7288ab;letter-spacing:.14em;font-size:11px;font-weight:800}
+.contact-lead{display:flex;align-items:center;gap:13px;margin-top:18px}
+.contact-avatar{display:grid;place-items:center;flex-shrink:0;width:46px;height:46px;border-radius:13px;color:#fff;font-size:14px;font-weight:850;background:linear-gradient(130deg,#147cf2,#6333dc)}
+.contact-lead>div{display:flex;flex-direction:column;gap:3px}
+.contact-lead>div>span{font-size:11px;color:#7585a1;font-weight:710}
+.contact-lead strong{font-size:15px;line-height:1.35;letter-spacing:-.02em}
+.contact-divider{height:1px;background:#e2e9f4;margin:24px 0 19px}
+.contact-row{display:flex;gap:12px;align-items:center;padding:11px 0;color:#243e68;font-size:14px;min-width:0}
+.contact-icon{flex-shrink:0;width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:#eef5ff;color:#1267d9;font-size:17px;font-weight:850}
+.contact-row button,.contact-row a{border:0;background:none;padding:0;font-size:15px;font-weight:780;color:#1e3a67;text-align:left;overflow-wrap:anywhere}
+.contact-row button:hover,.contact-row a:hover{color:#087be7}
+.contact-row button span,.contact-row a span{color:#79a1d4;margin-left:4px}
+.contact-row>span:last-child{line-height:1.48;color:#4c607e;font-size:13px}
+/* FAQ */
+.mini-faq{padding:5px 0 108px;background:#fff}
+.faq-layout{display:grid;grid-template-columns:.75fr 1.25fr;gap:80px}
+.faq-layout h2{font-size:37px;letter-spacing:-.05em;line-height:1.2;margin:17px 0 0}
+.faq-items{border-top:1px solid #dce6f3}
+.faq-items details{border-bottom:1px solid #dce6f3}
+.faq-items summary{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 0;cursor:pointer;list-style:none;font-weight:750;color:#1d355b}
+.faq-items summary::-webkit-details-marker{display:none}
+.faq-items summary>span{color:#1268d8;font-size:22px;font-weight:400;transition:transform .25s}
+.faq-items details[open] summary>span{transform:rotate(45deg)}
+.faq-items p{font-size:14px;color:#637591;line-height:1.78;max-width:620px;margin:0 0 22px}
+.faq-items a,.faq-items button{color:#0965d2;background:none;border:0;padding:0;font:inherit;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+/* Footer */
+.site-footer{border-top:1px solid #e2e9f4;padding:29px 0 38px;background:#f9fbff}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;gap:25px}
+.footer-brand .brand-symbol{width:52px;height:42px}.footer-brand .brand-wordmark{width:145px}.footer-brand .brand-tagline{font-size:8.5px}
+.footer-inner>span{font-size:12px;color:#8191a8}
+.footer-nav{display:flex;gap:21px;align-items:center}
+.footer-nav a{font-size:12px;color:#566a89;font-weight:660}
+.footer-nav a:hover{color:#1068d9}
+/* Phone chooser */
+.phone-modal{position:fixed;inset:0;z-index:100;background:rgba(5,19,49,.68);display:grid;place-items:center;padding:18px;backdrop-filter:blur(7px)}
+.modal-sheet{position:relative;width:min(440px,100%);background:#fff;color:#1c315b;border-radius:23px;padding:35px;box-shadow:0 32px 70px rgba(1,10,38,.3)}
+.modal-close{position:absolute;right:17px;top:17px;border:0;background:#edf4ff;border-radius:50%;width:35px;height:35px;color:#294a7c;font-size:23px}
+.modal-kicker{font-size:10px;color:#1478de;font-weight:820;letter-spacing:.12em}
+.modal-sheet h2{font-size:25px;line-height:1.2;letter-spacing:-.04em;margin:16px 0 10px}
+.modal-sheet>p{font-size:13px;color:#7386a0;margin:0 0 5px}
+.modal-number{font-size:29px;font-weight:830;letter-spacing:-.035em;margin-bottom:24px}
+.modal-actions{display:flex;gap:10px}
+.modal-actions .button{flex:1;padding:0 15px;font-size:13px}
+.copy-feedback{min-height:17px;margin:13px 0 0!important;font-size:12px!important;color:#0b74b0!important}
+.mobile-action-bar{display:none}
+/* Scroll reveal + refined interaction */
+html.has-js [data-reveal]{opacity:0;transform:translateY(16px);transition:opacity .65s ease,transform .65s ease}
+html.has-js [data-reveal].is-visible{opacity:1;transform:none}
+@keyframes sound{0%{transform:scaleY(.6);opacity:.35}100%{transform:scaleY(1.3);opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 5px #2de4e018}50%{box-shadow:0 0 0 8px #2de4e006}}
+/* Large tablet */
+@media(max-width:1130px){
+  .container{width:min(1100px,calc(100% - 50px))}
+  .header-inner{gap:20px}
+  .desktop-nav{gap:18px}
+  .hero-layout{gap:26px}
+  .hero h1{font-size:clamp(42px,4.5vw,58px)}
+  .hero-screen{height:406px}
+  .screen-toolbar,.screen-bottom{padding-inline:20px}
+  .screen-inner{padding-inline:18px;gap:12px}
+  .screen-left{padding-inline:10px}
+  .stage{padding:12px 10px;gap:8px}
+  .stage strong{font-size:12px}.stage small{font-size:9px}
+  .contact-shell{padding:56px 45px;gap:37px}
+  .about-layout{gap:50px}
+}
+@media(max-width:960px){
+  .desktop-nav,.header-contact{display:none}
+  .mobile-toggle{display:flex;margin-left:auto}
+  .header-inner{height:75px}
+  .hero-layout{grid-template-columns:1fr;padding:67px 0 55px;gap:46px}
+  .hero h1{font-size:clamp(43px,6vw,65px);max-width:720px}
+  .hero-copy>p{max-width:690px}
+  .hero-screen{height:414px;max-width:700px;margin:0 auto}
+  .hero-art{width:100%;max-width:740px;margin:0 auto}
+  .capability-row{gap:17px;min-height:68px}
+  .services-grid,.project-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .project-grid.grid-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .section-header{gap:30px}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:34px}
+  .steps:before{display:none}
+  .step:not(:first-child),.step{padding:0}
+  .feature-project{grid-template-columns:1fr 1fr}
+  .feature-content{padding:37px}
+  .feature-demo{padding:20px}
+  .about-layout{grid-template-columns:1fr 1fr;gap:36px}
+  .about-art{height:390px}
+  .about-points{grid-template-columns:1fr;gap:11px}
+  .about-points div{display:grid;grid-template-columns:30px 1fr;column-gap:9px}
+  .about-points small{grid-column:2}
+  .contact-shell{grid-template-columns:1fr;gap:34px}
+  .contact-card{width:100%}
+}
+@media(max-width:690px){
+  .container{width:calc(100% - 36px)}
+  .brand-symbol{width:54px;height:42px}.brand-wordmark{width:146px}.brand-tagline{font-size:8.5px}
+  .hero-layout{padding:49px 0 42px;gap:34px}
+  .hero h1{font-size:clamp(38px,8.1vw,56px);letter-spacing:-.055em;margin:20px 0}
+  .hero-copy>p{font-size:15px;line-height:1.72}
+  .hero-buttons{gap:10px}
+  .hero-buttons .button{width:100%}
+  .hero-footnotes{gap:10px 17px;margin-top:22px}
+  .hero-screen{height:346px;border-radius:18px}
+  .screen-toolbar{padding:17px 17px;font-size:9px}
+  .toolbar-code{font-size:8px}
+  .screen-inner{min-height:255px;padding:4px 15px;gap:10px}
+  .screen-left{min-height:227px;padding:10px 6px}
+  .screen-logo-wrap{height:100px}
+  .screen-logo-wrap img{max-height:100px}
+  .screen-label{font-size:8px;margin-top:10px}
+  .screen-caption{font-size:9px}
+  .stage{padding:10px 7px;gap:6px}
+  .stage-index{font-size:9px}
+  .stage strong{font-size:10px}
+  .stage small{font-size:8px}
+  .stage-connector{height:15px;margin-left:15px}
+  .screen-bottom{padding:12px 17px 16px;font-size:8px}
+  .art-corner{display:none}
+  .capability-row{min-height:77px;justify-content:start;gap:7px 13px;padding:15px 0;font-size:10.5px}
+  .capability-row b{display:none}
+  .capability-row span{border:1px solid #dbe8f8;padding:4px 8px;border-radius:30px;background:#ffffffa8}
+  .section{padding:76px 0}
+  .section-header{display:block;margin-bottom:29px}
+  .section-header h2,.about-content h2{font-size:clamp(34px,8vw,44px)}
+  .section-header p{font-size:14px;margin-top:19px}
+  .services-grid,.project-grid,.project-grid.grid-four{grid-template-columns:1fr;gap:13px}
+  .service-card{min-height:245px}
+  .approach-section{padding:73px 0 76px}
+  .approach-header{display:block;margin-bottom:35px}
+  .approach-header h2{font-size:35px}
+  .approach-header p{margin-top:20px;font-size:14px}
+  .steps{gap:29px 20px}
+  .step h3{font-size:19px;margin:17px 0 6px}
+  .step p{font-size:12.5px}
+  .project-filter{gap:8px;overflow-x:auto;flex-wrap:nowrap;scrollbar-width:thin;padding-bottom:15px}
+  .filter-button{flex-shrink:0;padding:0 13px;font-size:12px;min-height:41px}
+  .project-group+.project-group{margin-top:44px}
+  .group-index{font-size:10.5px}
+  .group-count{font-size:10px}
+  .feature-project{grid-template-columns:1fr}
+  .feature-content{padding:32px 27px 30px}
+  .feature-content h3{font-size:38px}
+  .feature-demo{padding:16px 26px 29px;min-height:300px}
+  .demo-panel{max-width:400px;transform:rotate(0)}
+  .project-card{min-height:228px;padding:24px}
+  .about-section{padding:78px 0}
+  .about-layout{grid-template-columns:1fr;gap:42px}
+  .about-art{order:2;height:320px}
+  .about-content{order:1}
+  .about-points{grid-template-columns:repeat(3,1fr)}
+  .about-points div{display:flex}
+  .about-points small{grid-column:auto}
+  .contact-section{padding:73px 0}
+  .contact-shell{padding:35px 25px;border-radius:22px}
+  .contact-primary h2{font-size:39px}
+  .contact-primary>p{font-size:14px}
+  .contact-buttons{gap:9px}
+  .contact-buttons .button{width:100%}
+  .contact-card{padding:23px}
+  .faq-layout{grid-template-columns:1fr;gap:23px}
+  .mini-faq{padding:0 0 78px}
+  .faq-layout h2{font-size:32px}
+  .footer-inner{flex-direction:column;align-items:flex-start;gap:18px}
+  .footer-nav{flex-wrap:wrap}
+  .site-footer{padding-bottom:112px}
+  .mobile-action-bar{position:fixed;bottom:0;left:0;right:0;display:flex;gap:10px;padding:9px 17px calc(9px + env(safe-area-inset-bottom,0px));z-index:63;background:rgba(249,252,255,.96);border-top:1px solid #dbe6f3;backdrop-filter:blur(16px)}
+  .mobile-action-bar a,.mobile-action-bar button{min-height:44px;flex:1;display:flex;align-items:center;justify-content:center;border:1px solid #dce7f6;border-radius:12px;background:#eff5ff;color:#213d6d;font-size:13px;font-weight:750}
+  .mobile-action-bar button{border:0;background:linear-gradient(110deg,#116ce9,#543bd5);color:#fff}
+}
+@media(max-width:375px){
+  .brand-symbol{width:47px;height:38px}.brand-wordmark{width:135px}.brand-tagline{font-size:7.6px}
+  .hero h1{font-size:36px}
+  .hero-screen{height:320px}
+  .screen-toolbar{padding-inline:12px}
+  .screen-inner{padding-inline:10px;min-height:235px}
+  .screen-left{min-height:208px}
+  .screen-logo-wrap{height:88px}
+  .screen-label{font-size:7px}
+  .screen-caption{font-size:8px}
+  .stage{padding:9px 5px}
+  .stage small{white-space:normal}
+  .screen-bottom{font-size:7px;padding-inline:12px}
+  .steps{grid-template-columns:1fr 1fr;gap:25px 14px}
+  .about-points{grid-template-columns:1fr}
+  .contact-shell{padding:27px 18px}
+  .contact-primary h2{font-size:34px}
+  .contact-row button,.contact-row a{font-size:13.5px}
+  .modal-sheet{padding:25px 20px}
+  .modal-actions{flex-direction:column}
+  .modal-number{font-size:25px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+  html.has-js [data-reveal]{opacity:1!important;transform:none!important}
+}
+
+/* Every service card now has a functional contact link (no inert arrows). */
+.service-cta{font-size:12.5px;font-weight:810;color:#1366d5;justify-content:space-between;letter-spacing:-.01em;}
+.service-cta span:first-child{width:auto;height:auto;background:none;font-size:19px;line-height:1;}
+.service-cta:hover{color:#6d39dc}
+
+</style>
+
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:image:alt" content="MIRVIX AI — цифровые технологии и ИИ-разработки">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="index, follow">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"MIRVIX AI","description":"Цифровизация бизнеса, ИИ-разработки и приложения.","email":"mirvixai@mail.ru","telephone":"+79602537979","address":{"@type":"PostalAddress","addressLocality":"Санкт-Петербург","streetAddress":"ул. Смоленская, д. 18","addressCountry":"RU"}}
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">К содержимому</a>
+<div class="scroll-progress" aria-hidden="true"></div>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#top" aria-label="MIRVIX AI, на главную">
+      <img class="brand-symbol" src="assets/brand-symbol.png" alt="" width="58" height="42">
+      <span class="brand-text">
+        <img class="brand-wordmark" src="assets/brand-wordmark.png" alt="MIRVIX AI" width="166" height="26">
+        <span class="brand-tagline">Цифровые технологии и ИИ разработки</span>
+      </span>
+    </a>
+    <nav class="desktop-nav" aria-label="Основное меню">
+      <a href="#services">Услуги</a><a href="#projects">Разработки</a><a href="#approach">Подход</a><a href="#about">О нас</a>
+    </nav>
+    <a class="header-contact" href="#contacts">Обсудить проект <span aria-hidden="true">↗</span></a>
+    <button class="mobile-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Меню на телефоне" hidden>
+    <a href="#services">Услуги</a><a href="#projects">Разработки</a><a href="#approach">Подход</a><a href="#about">О нас</a><a href="#contacts">Контакты</a>
+  </nav>
+</header>
+
+<main id="main">
+<section class="hero" id="top">
+  <div class="hero-noise" aria-hidden="true"></div>
+  <div class="container hero-layout">
+    <div class="hero-copy" data-reveal>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> ТЕХНОЛОГИИ ДЛЯ РЕАЛЬНЫХ ЗАДАЧ</div>
+      <h1>Оцифровываем процессы.<br><span class="gradient">Создаём интеллект.</span></h1>
+      <p>Помогаем бизнесу переходить от ручной работы к цифровым системам. Разрабатываем приложения, внедряем ИИ и делаем технологии полезными в ежедневных процессах.</p>
+      <div class="hero-buttons">
+        <a class="button button-primary" href="#contacts">Обсудить вашу задачу <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#projects">Смотреть разработки <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="hero-footnotes">
+        <span><i aria-hidden="true"></i> Продукты под задачу</span><span><i aria-hidden="true"></i> Человек контролирует ИИ</span>
+      </div>
+    </div>
+    <div class="hero-art" data-reveal aria-label="Схема цифровой технологии: данные, интеллект, результат">
+      <div class="hero-screen">
+        <div class="screen-toolbar"><span class="tool-live"><span></span> MIRVIX / DIGITAL CORE</span><span class="toolbar-code">SYSTEM 01</span></div>
+        <div class="screen-inner">
+          <div class="screen-left">
+            <div class="screen-logo-wrap"><img src="assets/brand-symbol.png" alt="" width="244" height="170"></div>
+            <div class="screen-label">ТЕХНОЛОГИЧЕСКОЕ ЯДРО</div>
+            <div class="screen-caption">Процессы → цифровая система</div>
+            <div class="screen-signal"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          </div>
+          <div class="screen-stages">
+            <div class="stage"><span class="stage-index">01</span><div><strong>Данные</strong><small>Понимаем процесс</small></div><span class="stage-pulse"></span></div>
+            <div class="stage-connector" aria-hidden="true"></div>
+            <div class="stage active"><span class="stage-index">02</span><div><strong>Логика + ИИ</strong><small>Создаём инструмент</small></div><span class="stage-pulse"></span></div>
+            <div class="stage-connector" aria-hidden="true"></div>
+            <div class="stage"><span class="stage-index">03</span><div><strong>Результат</strong><small>Проверяем пользу</small></div><span class="stage-pulse"></span></div>
+          </div>
+        </div>
+        <div class="screen-bottom"><span>BUILD · CONNECT · EVOLVE</span><span><i></i> HUMAN IN CONTROL</span></div>
+      </div>
+      
+    </div>
+  </div>
+  <div class="container capability-row" aria-label="Основные направления">
+    <span>Оцифровка бизнеса</span><b aria-hidden="true">/</b><span>Разработка приложений</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span><b aria-hidden="true">/</b><span>Поиск и продвижение</span>
+  </div>
+</section>
+
+<section class="section services-section" id="services">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <div><span class="section-kicker">01 / НАШИ УСЛУГИ</span><h2>От сложной задачи —<br><span class="gradient">к понятному решению.</span></h2></div>
+      <p>Не начинаем с модной технологии. Сначала разбираемся, что тормозит бизнес и какой результат действительно нужен.</p>
+    </div>
+    <div class="services-grid"><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg></span><span class="card-index">01 / 06</span></div>
+      <h3>Оцифровка бизнес-процессов</h3><p>Собираем заявки, документы, согласования и операции в понятные цифровые маршруты вместо разрозненных таблиц.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.6 6.4L20 11l-6.4 1.6L12 19l-1.6-6.4L4 11l6.4-1.6L12 3ZM19 18l.6 2.4L22 21l-2.4.6L19 24l-.6-2.4L16 21l2.4-.6L19 18Z"/></svg></span><span class="card-index">02 / 06</span></div>
+      <h3>ИИ-решения и автоматизация</h3><p>Создаём помощников для задач бизнеса, обработки обращений и работы с данными, сохраняя контроль человека.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4M6 8h7"/></svg></span><span class="card-index">03 / 06</span></div>
+      <h3>Разработка приложений</h3><p>Проектируем веб-сервисы, PWA, личные кабинеты, мобильные интерфейсы и Telegram Mini Apps.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/><path d="m11 8 2 0m-6 3v5h6"/></svg></span><span class="card-index">04 / 06</span></div>
+      <h3>Интеграция цифровых систем</h3><p>Связываем данные, внутренние сервисы и рабочие инструменты, чтобы информация не терялась между этапами.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 11h6m-3-3v6"/></svg></span><span class="card-index">05 / 06</span></div>
+      <h3>Видимость в поиске и ИИ</h3><p>Работаем с SEO, структурой сайта, качественным содержанием и доступностью информации для поисковых и ИИ-систем.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article><article class="service-card" data-reveal>
+      <div class="service-card-top"><span class="service-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 8 4v6c0 5-3.5 8.4-8 10-4.5-1.6-8-5-8-10V6l8-4Z"/><path d="m8 12 2.5 2.5L16 9"/></svg></span><span class="card-index">06 / 06</span></div>
+      <h3>Аудит и развитие продуктов</h3><p>Анализируем решения, выявляем узкие места, тестируем улучшения и помогаем с последующим сопровождением.</p>
+      <a class="service-tail service-cta" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BF%D0%BE%20%D1%83%D1%81%D0%BB%D1%83%D0%B3%D0%B5%20MIRVIX%20AI">Обсудить услугу <span aria-hidden="true">↗</span></a>
+    </article></div>
+  </div>
+</section>
+
+<section class="approach-section" id="approach">
+  <div class="container">
+    <div class="approach-header" data-reveal>
+      <div><span class="section-kicker kicker-on-dark">02 / КАК МЫ РАБОТАЕМ</span><h2>Четыре шага.<br>Один ясный маршрут.</h2></div>
+      <p>Проект строится вокруг задачи, проверяемого результата и возможности развивать систему без ненужной сложности.</p>
+    </div>
+    <div class="steps">
+      <article class="step" data-reveal><span>01</span><h3>Разбираем</h3><p>Цель, текущий процесс и узкие места.</p></article>
+      <article class="step" data-reveal><span>02</span><h3>Проектируем</h3><p>Состав решения, ограничения и этапы.</p></article>
+      <article class="step" data-reveal><span>03</span><h3>Создаём</h3><p>Рабочая версия и проверки сценариев.</p></article>
+      <article class="step" data-reveal><span>04</span><h3>Развиваем</h3><p>Улучшения по результатам эксплуатации.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section projects-section" id="projects">
+  <div class="container">
+    <div class="section-header portfolio-heading" data-reveal>
+      <div><span class="section-kicker">03 / СОБСТВЕННЫЕ РАЗРАБОТКИ</span><h2>Не только внедряем.<br><span class="gradient">Создаём своё.</span></h2></div>
+      <p>В нашем портфеле — инструменты для предпринимателей, обучение с ИИ-преподавателями и цифровые сервисы для повседневной жизни.</p>
+    </div>
+    <div class="project-filter" role="group" aria-label="Выберите направление разработок">
+      <button type="button" class="filter-button is-active" data-filter="all" aria-pressed="true">Все разработки <span>11</span></button>
+      <button type="button" class="filter-button" data-filter="business" aria-pressed="false">ИИ для бизнеса <span>01</span></button>
+      <button type="button" class="filter-button" data-filter="education" aria-pressed="false">Образование <span>06</span></button>
+      <button type="button" class="filter-button" data-filter="platforms" aria-pressed="false">Сервисы <span>04</span></button>
+    </div>
+
+    <div class="project-group" data-category="business">
+      <div class="group-title"><span class="group-index">A / ИИ ДЛЯ БИЗНЕСА</span><span class="group-line"></span><span class="group-count">01 ПРОЕКТ</span></div>
+      <article class="feature-project" data-reveal>
+        <div class="feature-content">
+          <span class="feature-state"><span></span> В РАЗРАБОТКЕ</span>
+          <h3>Бизнес Советник <em>01</em></h3>
+          <p>ИИ-помощник для предпринимателей и тех, кто ищет бизнес-идею. Помогает сформулировать задачу, подключить нужного из 18 специалистов и получить структурированный анализ со следующим шагом.</p>
+          <div class="feature-tags"><span>18 ИИ-ролей</span><span>Бизнес-задачи</span><span>Единый кабинет</span></div>
+          <a class="feature-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20%D0%91%D0%B8%D0%B7%D0%BD%D0%B5%D1%81%20%D0%A1%D0%BE%D0%B2%D0%B5%D1%82%D0%BD%D0%B8%D0%BA%2001">Узнать о разработке <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="feature-demo" aria-hidden="true">
+          <div class="demo-panel">
+            <div class="demo-top"><span class="demo-circle"></span><span class="demo-circle"></span><span class="demo-circle"></span><span>BUSINESS ADVISOR / 01</span></div>
+            <div class="demo-question">Что нужно решить?</div>
+            <div class="demo-line line-1"></div><div class="demo-line line-2"></div>
+            <div class="demo-route"><span>ЗАДАЧА</span><i>→</i><span>18 РОЛЕЙ</span><i>→</i><span>РЕШЕНИЕ</span></div>
+            <div class="demo-output"><span>◈</span><div><b>План действий</b><small>Анализ • источники • следующий шаг</small></div><span>↗</span></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="project-group" data-category="education">
+      <div class="group-title"><span class="group-index">B / ИИ И ОБРАЗОВАНИЕ</span><span class="group-line"></span><span class="group-count">06 ПРОЕКТОВ</span></div>
+      <div class="project-grid"><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark sky" aria-hidden="true">A1</span><span class="status-chip">Рабочая версия</span></div>
+      <h4>Super A1 Trainer</h4><p>Тренажёр подготовки к Goethe A1: аудирование, чтение, письмо и устная практика. Учебные сценарии и проверка знаний.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20Super%20A1%20Trainer">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark iris" aria-hidden="true">DE</span><span class="status-chip">В разработке</span></div>
+      <h4>Немецкий с ИИ-преподавателем</h4><p>Персональные занятия по немецкому языку: объяснения, диалоги, работа над ошибками и адаптация учебного маршрута.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%9D%D0%B5%D0%BC%D0%B5%D1%86%D0%BA%D0%B8%D0%B9%20%D1%81%20%D0%98%D0%98-%D0%BF%D1%80%D0%B5%D0%BF%D0%BE%D0%B4%D0%B0%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D0%B5%D0%BC">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Е+</span><span class="status-chip">Проектируется</span></div>
+      <h4>Отто Экзамен+</h4><p>Платформа подготовки к ОГЭ и ЕГЭ по предметам с ИИ-преподавателем Викторией, диагностикой и планом занятий.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%9E%D1%82%D1%82%D0%BE%20%D0%AD%D0%BA%D0%B7%D0%B0%D0%BC%D0%B5%D0%BD%2B">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark sky" aria-hidden="true">∑</span><span class="status-chip">Концепция</span></div>
+      <h4>Математика с ИИ-учителем</h4><p>Пошаговое объяснение задач, поиск пробелов в знаниях и тренировка решения с разбором каждого шага.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%A2%D1%80%D0%B5%D0%BD%D0%B0%D0%B6%D1%91%D1%80%20%D0%BC%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D0%BA%D0%B8">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark iris" aria-hidden="true">Φ</span><span class="status-chip">Концепция</span></div>
+      <h4>Физика с ИИ-учителем</h4><p>Понятные объяснения физических явлений, задачи с проверкой рассуждений и персональная практика.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%A2%D1%80%D0%B5%D0%BD%D0%B0%D0%B6%D1%91%D1%80%20%D1%84%D0%B8%D0%B7%D0%B8%D0%BA%D0%B8">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Аа</span><span class="status-chip">Концепция</span></div>
+      <h4>Литература с ИИ-учителем</h4><p>Работа с произведениями, анализ текста, аргументация и подготовка письменных ответов с обратной связью.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%A2%D1%80%D0%B5%D0%BD%D0%B0%D0%B6%D1%91%D1%80%20%D0%BB%D0%B8%D1%82%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D1%8B">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article></div>
+    </div>
+
+    <div class="project-group" data-category="platforms">
+      <div class="group-title"><span class="group-index">C / ЦИФРОВЫЕ СЕРВИСЫ</span><span class="group-line"></span><span class="group-count">04 ПРОЕКТА</span></div>
+      <div class="project-grid grid-four"><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark sky" aria-hidden="true">MD</span><span class="status-chip">Развитие платформы</span></div>
+      <h4>МойДиспетчер</h4><p>Платформа заказов спецтехники и строительных услуг: поиск исполнителей, размещение заказов и рабочее взаимодействие.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%9C%D0%BE%D0%B9%D0%94%D0%B8%D1%81%D0%BF%D0%B5%D1%82%D1%87%D0%B5%D1%80">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Б</span><span class="status-chip">В разработке</span></div>
+      <h4>Буквай</h4><p>Сервис создания персональных книг с помощью ИИ: от идеи и текста до подготовки публикации и авторского проекта.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%91%D1%83%D0%BA%D0%B2%D0%B0%D0%B9">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark aqua" aria-hidden="true">≈</span><span class="status-chip">В разработке</span></div>
+      <h4>Клёв Инфо</h4><p>Помощник рыболова: информация о водоёмах, условиях ловли и рекомендации по месту, времени и снастям.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%9A%D0%BB%D1%91%D0%B2%20%D0%98%D0%BD%D1%84%D0%BE">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article><article class="project-card" data-reveal>
+      <div class="project-head"><span class="project-mark iris" aria-hidden="true">Д</span><span class="status-chip">В разработке</span></div>
+      <h4>Династия</h4><p>Цифровая история семьи: родословное древо, фотографии, документы, воспоминания и семейный архив.</p>
+      <a class="project-link" href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%BE%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B5%20MIRVIX%20AI%3A%20%D0%94%D0%B8%D0%BD%D0%B0%D1%81%D1%82%D0%B8%D1%8F">Узнать о проекте <span aria-hidden="true">↗</span></a>
+    </article></div>
+    </div>
+    <p class="portfolio-disclaimer">Проекты находятся на разных стадиях: от концепции до рабочих версий. Статус указан в каждой карточке; публичный запуск и доступность функций зависят от конкретного продукта.</p>
+  </div>
+</section>
+
+<section class="section about-section" id="about">
+  <div class="container about-layout">
+    <div class="about-art" aria-hidden="true" data-reveal>
+      <div class="about-orb orb-one"></div><div class="about-orb orb-two"></div>
+      <div class="about-card"><img src="assets/brand-symbol.png" alt="" width="270" height="188"><span>MIRVIX AI</span><small>TECHNOLOGY WITH PURPOSE</small></div>
+      <div class="about-coordinate">59° N · 30° E</div>
+    </div>
+    <div class="about-content" data-reveal>
+      <span class="section-kicker">04 / О НАС</span>
+      <h2>Технологии должны <span class="gradient">упрощать жизнь.</span></h2>
+      <p>MIRVIX AI — команда, которая занимается оцифровкой бизнеса, разработкой приложений и применением искусственного интеллекта в практических задачах.</p>
+      <p>Отдельное направление нашей работы — образовательные продукты: тренажёры, персональные учебные маршруты и приложения с ИИ-учителями и репетиторами. Эти наработки помогают развивать решения для бизнеса и повседневных задач.</p>
+      <div class="about-points"><div><span>01</span><b>Понятная ценность</b><small>Решаем задачу, а не продаём термин.</small></div><div><span>02</span><b>Модульный подход</b><small>Решение можно изменять и расширять.</small></div><div><span>03</span><b>Контроль качества</b><small>Проверяем результат на рабочих сценариях.</small></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section contact-section" id="contacts">
+  <div class="container contact-shell">
+    <div class="contact-primary">
+      <span class="section-kicker kicker-on-dark">05 / СВЯЗАТЬСЯ С НАМИ</span>
+      <h2>Есть задача?<br><span>Обсудим решение.</span></h2>
+      <p>Расскажите, какой процесс нужно оцифровать, какое приложение разработать или как улучшить присутствие бизнеса в поиске и ИИ-сервисах.</p>
+      <div class="contact-buttons">
+        <a class="button button-white" href="mailto:mirvixai@mail.ru?subject=%D0%97%D0%B0%D0%BF%D1%80%D0%BE%D1%81%20%D0%BD%D0%B0%20%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%20MIRVIX%20AI">Написать нам <span aria-hidden="true">↗</span></a>
+        <button type="button" class="button button-outline-white" data-phone-open>Позвонить или скопировать номер <span aria-hidden="true">☎</span></button>
+      </div>
+      <span class="pricing-note">Стоимость работ рассчитывается индивидуально. Напишите на почту или позвоните.</span>
+    </div>
+    <aside class="contact-card">
+      <span class="contact-card-caption">ВАШ КОНТАКТ</span>
+      <div class="contact-lead"><span class="contact-avatar" aria-hidden="true">ЮК</span><div><span>Директор направления</span><strong>Катаускайте Юлия Альгисовна</strong></div></div>
+      <div class="contact-divider"></div>
+      <div class="contact-row"><span class="contact-icon" aria-hidden="true">☎</span><button type="button" data-phone-open aria-label="Выбрать звонок или копирование номера 8 960 253 79 79">8 960 253 79 79 <span aria-hidden="true">↗</span></button></div>
+      <div class="contact-row"><span class="contact-icon" aria-hidden="true">✉</span><a href="mailto:mirvixai@mail.ru">mirvixai@mail.ru <span aria-hidden="true">↗</span></a></div>
+      <div class="contact-row"><span class="contact-icon" aria-hidden="true">⌖</span><span>Санкт-Петербург, ул. Смоленская, д. 18</span></div>
+    </aside>
+  </div>
+</section>
+
+<section class="mini-faq">
+  <div class="container faq-layout">
+    <div><span class="section-kicker">КОРОТКО О ГЛАВНОМ</span><h2>Вопросы и ответы</h2></div>
+    <div class="faq-items">
+      <details><summary>Сколько стоят услуги?<span aria-hidden="true">+</span></summary><p>Стоимость зависит от задачи и объёма работ. Для предварительного обсуждения напишите на <a href="mailto:mirvixai@mail.ru">mirvixai@mail.ru</a> или <button type="button" data-phone-open>позвоните</button>.</p></details>
+      <details><summary>Всегда ли нужен ИИ?<span aria-hidden="true">+</span></summary><p>Нет. Часто задачу эффективнее решить обычной автоматизацией, хорошим интерфейсом и понятным учётом данных. Подход подбираем под ситуацию.</p></details>
+      <details><summary>Можно доработать уже существующий продукт?<span aria-hidden="true">+</span></summary><p>Да. Рассматриваем аудит, интеграции, улучшение пользовательских сценариев и добавление отдельных функций.</p></details>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <a class="brand footer-brand" href="#top" aria-label="MIRVIX AI, наверх">
+      <img class="brand-symbol" src="assets/brand-symbol.png" alt="" width="53" height="38">
+      <span class="brand-text"><img class="brand-wordmark" src="assets/brand-wordmark.png" alt="MIRVIX AI" width="155" height="23"><span class="brand-tagline">Цифровые технологии и ИИ разработки</span></span>
+    </a>
+    <span>© 2026 MIRVIX AI</span>
+    <div class="footer-nav"><a href="#services">Услуги</a><a href="#projects">Разработки</a><a href="#contacts">Контакты</a></div>
+  </div>
+</footer>
+
+<div class="phone-modal" id="phone-modal" hidden aria-hidden="true">
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="phone-title" aria-describedby="phone-help">
+    <button class="modal-close" type="button" data-phone-close aria-label="Закрыть окно">×</button>
+    <div class="modal-kicker">СВЯЗАТЬСЯ С MIRVIX AI</div>
+    <h2 id="phone-title">Как удобнее связаться?</h2>
+    <p id="phone-help">Номер директора направления</p>
+    <div class="modal-number">8 960 253 79 79</div>
+    <div class="modal-actions"><button type="button" class="button button-light" data-phone-copy>Скопировать номер</button><a class="button button-primary" href="tel:+79602537979">Позвонить <span aria-hidden="true">↗</span></a></div>
+    <p class="copy-feedback" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<div class="mobile-action-bar" aria-label="Быстрая связь">
+  <a href="mailto:mirvixai@mail.ru?subject=%D0%92%D0%BE%D0%BF%D1%80%D0%BE%D1%81%20%D0%B4%D0%BB%D1%8F%20MIRVIX%20AI">✉ Написать</a>
+  <button type="button" data-phone-open>☎ Позвонить</button>
+</div>
+<script>
+/* MIRVIX AI — offline-capable interaction layer. No tracking, external APIs, or forms. */
+(() => {
+  'use strict';
+  document.documentElement.classList.add('has-js');
+
+  const menuButton = document.querySelector('[data-menu-toggle]');
+  const menu = document.getElementById('mobile-nav');
+  function setMenu(open) {
+    if (!menu || !menuButton) return;
+    menu.hidden = !open;
+    menuButton.classList.toggle('is-open', open);
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+  }
+  if (menu && menuButton) {
+    menuButton.addEventListener('click', () => setMenu(menu.hidden));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  }
+
+  const filters = Array.from(document.querySelectorAll('[data-filter]'));
+  const groups = Array.from(document.querySelectorAll('[data-category]'));
+  function selectFilter(category) {
+    filters.forEach(button => {
+      const active = button.dataset.filter === category;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    groups.forEach(group => {
+      group.hidden = category !== 'all' && group.dataset.category !== category;
+    });
+  }
+  filters.forEach(button => button.addEventListener('click', () => selectFilter(button.dataset.filter)));
+
+  // Decorative entrance is progressive; content is always readable with JS disabled or reduced motion.
+  const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const revealNodes = document.querySelectorAll('[data-reveal]');
+  if ('IntersectionObserver' in window && !prefersReducedMotion) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px 40px 0px' });
+    revealNodes.forEach(node => observer.observe(node));
+  } else {
+    revealNodes.forEach(node => node.classList.add('is-visible'));
+  }
+
+  const progress = document.querySelector('.scroll-progress');
+  let ticking = false;
+  const updateProgress = () => {
+    if (progress) {
+      const total = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      progress.style.width = Math.min(100, Math.max(0, 100 * scrollY / total)) + '%';
+    }
+    ticking = false;
+  };
+  addEventListener('scroll', () => {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(updateProgress);
+    }
+  }, {passive: true});
+  updateProgress();
+
+  const modal = document.getElementById('phone-modal');
+  const modalClose = modal && modal.querySelector('[data-phone-close]');
+  const copyButton = modal && modal.querySelector('[data-phone-copy]');
+  const feedback = modal && modal.querySelector('.copy-feedback');
+  let returnFocus = null;
+  const focusable = () => [...modal.querySelectorAll('button, a[href]')].filter(n => !n.disabled);
+
+  function closePhone() {
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    if (returnFocus && returnFocus.isConnected) returnFocus.focus();
+  }
+  function openPhone() {
+    if (!modal) return;
+    returnFocus = document.activeElement;
+    if (feedback) feedback.textContent = '';
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    modalClose.focus();
+  }
+  document.querySelectorAll('[data-phone-open]').forEach(button => button.addEventListener('click', openPhone));
+  if (modal && modalClose && copyButton) {
+    modalClose.addEventListener('click', closePhone);
+    modal.addEventListener('click', e => { if (e.target === modal) closePhone(); });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (!modal.hidden) closePhone();
+        else if (menu && !menu.hidden) setMenu(false);
+      }
+      if (modal.hidden || e.key !== 'Tab') return;
+      const controls = focusable();
+      if (!controls.length) return;
+      const first = controls[0], last = controls[controls.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+    copyButton.addEventListener('click', async () => {
+      const number = '+79602537979';
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(number);
+        } else {
+          const el = document.createElement('textarea');
+          el.value = number;
+          el.style.position = 'fixed';
+          el.style.top = '-9999px';
+          document.body.appendChild(el);
+          el.select();
+          const copied = document.execCommand('copy');
+          el.remove();
+          if (!copied) throw new Error('Clipboard unavailable');
+        }
+        if (feedback) feedback.textContent = 'Номер +7 960 253 79 79 скопирован.';
+      } catch {
+        if (feedback) feedback.textContent = 'Выделите номер выше и скопируйте его вручную.';
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
