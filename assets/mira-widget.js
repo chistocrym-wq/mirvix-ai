@@ -82,7 +82,7 @@
     deliveryPanel.hidden = true;
     speechCheck.hidden = true;
     history.replaceChildren();
-    say('Здравствуйте! Я MIRA. Расскажите голосом или текстом, что вы хотите сделать. Я внимательно выслушаю, красиво сформулирую задачу и помогу передать её специалисту. Для оформления с помощью ИИ отметьте согласие под перепиской.');
+    say('Здравствуйте! Я MIRA. Расскажите голосом или текстом, что вы хотите сделать. Я внимательно выслушаю, красиво сформулирую задачу и помогу передать её специалисту.');
     updateControls();
   }
 
@@ -94,12 +94,8 @@
     const original = rawTask();
     const progress = say('Бережно оформляю вашу задачу…');
     let brief = localBrief();
-    let fallbackReason = '';
-    if (!aiConsent.checked) {
-      fallbackReason = 'Для полной ИИ-формулировки отметьте согласие под чатом. Я подготовила базовое описание без добавления требований.';
-    } else if (contactPattern.test(original)) {
-      fallbackReason = 'Контактные данные не отправлены ИИ-сервису. Я оформила задачу локально.';
-    } else {
+    // Use the local brief without distracting visitors with provider status messages.
+    if (aiConsent.checked && !contactPattern.test(original)) {
       try {
         const response = await fetch('/api/mira-brief', {
           method: 'POST',
@@ -112,11 +108,11 @@
         if (polished.length < 16 || polished.length > 1900) throw new Error('incomplete');
         brief = polished;
       } catch {
-        fallbackReason = 'Полноценное ИИ-перефразирование сейчас недоступно. Я оформила задачу локально, сохранив слова клиента.';
+        // Keep the local brief; never imply model-generated text when unavailable.
       }
     }
     state.brief = brief;
-    progress.textContent = (fallbackReason ? fallbackReason + '\n\n' : '') + 'Вот как я поняла вашу задачу:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то добавить или исправить, напишите это.';
+    progress.textContent = 'Вот как я поняла вашу задачу:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то добавить или исправить, напишите это.';
     state.phase = 'review';
     state.busy = false;
     updateControls();
