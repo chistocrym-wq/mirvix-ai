@@ -75,7 +75,8 @@ async function checkHost(url) {
   if (!addresses.length || addresses.some((item) => !publicIp(item.address))) {
     throw new Error('Сайт не имеет подтверждённого публичного адреса.');
   }
-  return addresses[0];
+  // Prefer a validated IPv4 record: serverless runtimes may not route IPv6 reliably.
+  return addresses.find((item) => item.family === 4) || addresses[0];
 }
 
 // DNS is pinned to a publicly validated IP. In modern Node.js, HTTPS
@@ -93,7 +94,7 @@ function pinnedLookup(resolved) {
 
 // DNS answer is pinned to the HTTPS socket. Rebinding cannot silently
 // re-resolve the hostname to localhost or a private address on fetch().
-async function pinnedFetch(url, limit) {
+async function pinnedFetch(url, limit, timeoutMs = 14000) {
   const resolved = await checkHost(url);
   return await new Promise((resolve, reject) => {
     let settled = false;
@@ -104,11 +105,11 @@ async function pinnedFetch(url, limit) {
       if (err) reject(err);
       else resolve(value);
     };
-    const guard = setTimeout(() => request.destroy(new Error('Сайт не ответил за 8 секунд.')), 8000);
+    const guard = setTimeout(() => request.destroy(new Error('Превышено время автоматической проверки (' + Math.ceil(timeoutMs/1000) + ' с).')), timeoutMs);
     const request = https.request(url, {
       method: 'GET',
       agent: false,
-      timeout: 7500,
+      timeout: timeoutMs,
       lookup: pinnedLookup(resolved),
       headers: {
         'user-agent': 'MIRVIX-Audit/1.1 (+https://mirvixai.com/audit/)',
@@ -136,17 +137,20 @@ async function pinnedFetch(url, limit) {
       response.on('end', done);
       response.on('error', (err) => { if (!settled) finish(null, err); });
     });
-    request.on('timeout', () => request.destroy(new Error('Сайт не ответил за 8 секунд.')));
+    request.on('timeout', () => request.destroy(new Error('Превышено время автоматической проверки (' + Math.ceil(timeoutMs/1000) + ' с).')));
     request.on('error', (err) => finish(null, err));
     request.end();
   });
 }
 
-async function getText(start, limit = 950000) {
+async function getText(start, limit = 950000, timeoutMs = 14000) {
   let current = start;
   const root = start.hostname.replace(/^www\./, '');
+  const deadline = Date.now() + timeoutMs;
   for (let hop = 0; hop < 4; hop++) {
-    const response = await pinnedFetch(current, limit);
+    const remaining = deadline - Date.now();
+    if (remaining <= 500) throw new Error('Превышено время автоматической проверки (' + Math.ceil(timeoutMs/1000) + ' с).');
+    const response = await pinnedFetch(current, limit, remaining);
     if (response.status >= 300 && response.status < 400 && response.headers.get('location')) {
       const next = new URL(response.headers.get('location'), current);
       if (next.protocol !== 'https:' || next.port || next.username || next.password ||
