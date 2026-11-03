@@ -2,7 +2,7 @@ import {isStaffRequest} from '../lib/cabinet-session.mjs';
 import crypto from 'node:crypto';
 
 const PROVIDERS = Object.freeze({
-  openai: { title: 'OpenAI (ответы API с веб-поиском)', env: 'OPENAI_API_KEY', model: 'gpt-5.5' },
+  openai: { title: 'OpenAI (веб-поиск, экономичный режим)', env: 'OPENAI_API_KEY', model: 'gpt-6-luna' },
   gemini: { title: 'Gemini (Google Search grounding)', env: 'GEMINI_API_KEY', model: 'gemini-3.8-flash' },
   perplexity: { title: 'Perplexity Sonar', env: 'PERPLEXITY_API_KEY', model: 'sonar' }
 });
@@ -143,7 +143,7 @@ async function callOpenai(prompt, key) {
     input: prompt,
     tools: [{ type: 'web_search', search_context_size: 'low' }],
     tool_choice: 'required',
-    max_output_tokens: 1800,
+    max_output_tokens: 1300,
     reasoning: { effort: 'low' },
     store: false,
     include: ['web_search_call.action.sources']
