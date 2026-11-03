@@ -242,9 +242,10 @@ async function audit(raw, brand) {
   if (homepage.status < 200 || homepage.status >= 300 || !/<html\b/i.test(homepage.text)) {
     throw new Error('Главная страница не вернула доступный HTML (HTTP ' + homepage.status + ').');
   }
-  const [robots, sitemap] = await Promise.all([
+  const [robots, sitemap, llms] = await Promise.all([
     getText(new URL('/robots.txt', homepage.url), 140000).catch(() => null),
-    getText(new URL('/sitemap.xml', homepage.url), 200000).catch(() => null)
+    getText(new URL('/sitemap.xml', homepage.url), 200000).catch(() => null),
+    getText(new URL('/llms.txt', homepage.url), 90000).catch(() => null)
   ]);
   const tags = extract(homepage.text);
   const robotsAvailable = robots && robots.status === 200 && /user-agent\s*:/i.test(robots.text);
@@ -260,7 +261,31 @@ async function audit(raw, brand) {
   }
   const sitemapOk = !!(finalMap && finalMap.status === 200 &&
     /<(?:\w+:)?(?:urlset|sitemapindex)\b/i.test(finalMap.text));
+  const botNames = ['OAI-SearchBot', 'PerplexityBot', 'Claude-SearchBot', 'Googlebot', 'Bingbot'];
+  const botAccess = botNames.map((name) => ({
+    name,
+    state: robotsAvailable ? (botBlocked(robots.text, name) ? 'blocked' : 'not-blocked') : 'unknown',
+    note: 'Только разбор robots.txt для главной страницы, не проверка фактического обхода.'
+  }));
+  const access = (name) => botAccess.find((b) => b.name === name);
   const block = robotsAvailable ? botBlocked(robots.text, 'OAI-SearchBot') : null;
+  const llmsOk = !!(llms && llms.status === 200 && llms.text.trim() &&
+    !/<html\\b/i.test(llms.text) && !/<!doctype html/i.test(llms.text));
+  const root = new URL(homepage.url).origin;
+  const files = [
+    { id:'robots', name:'robots.txt', url: root + '/robots.txt',
+      state: robots === null ? 'unknown' : robotsAvailable ? 'ok' : 'missing',
+      httpStatus: robots?.status ?? null, required: false,
+      note: 'Файл правил для поисковых роботов. Его отсутствие само по себе не запрещает обход.' },
+    { id:'sitemap', name:'sitemap.xml', url: finalMap?.url?.href || root + '/sitemap.xml',
+      state: finalMap === null ? 'unknown' : sitemapOk ? 'ok' : 'missing',
+      httpStatus: finalMap?.status ?? null, required: false,
+      note: 'Полезная XML-карта адресов; помогает обнаружению страниц, но не гарантирует индексацию.' },
+    { id:'llms', name:'llms.txt', url: root + '/llms.txt',
+      state: llms === null ? 'unknown' : llmsOk ? 'ok' : 'missing',
+      httpStatus: llms?.status ?? null, required: false, optional: true,
+      note: 'Необязательная экспериментальная подсказка для ИИ-агентов, не условие присутствия в ChatGPT.' }
+  ];
   const noindex = /\bnoindex\b/i.test(tags.robotsMeta + '; ' + (homepage.headers.get('x-robots-tag') || ''));
   const brandFound = brand ? tags.brandContent.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) ||
     tags.title.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) : null;
@@ -294,7 +319,20 @@ async function audit(raw, brand) {
       block === null ? 'Нельзя надёжно определить по robots.txt.' :
         block ? 'В robots.txt есть правило, запрещающее корневую страницу OAI-SearchBot.' :
           'Явной блокировки корневой страницы OAI-SearchBot не выявлено.',
-      'Проверить блокировку OAI-SearchBot. Правила других ботов и страниц требуют отдельной проверки.', 'high')
+      'Проверить блокировку OAI-SearchBot. Правила других ботов и страниц требуют отдельной проверки.', 'high'),
+    ...[
+      ['PerplexityBot','PerplexityBot (поиск Perplexity)'],
+      ['Claude-SearchBot','Claude-SearchBot (поиск Claude)'],
+      ['Googlebot','Googlebot (Google Search)'],
+      ['Bingbot','Bingbot (Bing Search)']
+    ].map(([agent, title]) => check('bot-' + agent.toLowerCase(), title,
+      access(agent).state === 'unknown' ? null : access(agent).state === 'not-blocked',
+      access(agent).state === 'unknown'
+        ? 'Не удалось определить правила в robots.txt.'
+        : access(agent).state === 'blocked'
+          ? 'Правила robots.txt блокируют главную страницу для ' + agent + '.'
+          : 'Явной блокировки главной страницы по robots.txt не найдено.',
+      'Проверить robots.txt для ' + agent + '. Это не измеряет реальный обход сайта.', 'high'))
   ];
   const known = checks.filter((c) => c.state !== 'unknown');
   const passed = known.filter((c) => c.state === 'ok').length;
@@ -317,7 +355,7 @@ async function audit(raw, brand) {
     score: Math.round((passed / Math.max(known.length, 1)) * 100),
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
-    checks, recommendations,
+    checks, recommendations, files, botAccess,
     extras: { brandFound, h1Count: tags.h1s.length, title: tags.title, description: tags.description,
       phoneLink: tags.tel, jsonldCount: tags.jsonld },
     caveat: 'Экспресс-аудит не показывает позиции в Google/Яндексе и не измеряет упоминания в ChatGPT, Алисе и других ИИ. Это отдельные проверки.'
