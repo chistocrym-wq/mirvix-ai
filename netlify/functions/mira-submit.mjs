@@ -1,4 +1,4 @@
-// MIRVIX AI / MIRA. Deliver only visitor-confirmed requests to the owner's Telegram bot.
+// MIRVIX AI / MIRA. Deliver an explicitly approved customer brief to the configured owner Telegram chat.
 // Set MIRA_TELEGRAM_BOT_TOKEN and MIRA_TELEGRAM_CHAT_ID in Netlify environment variables.
 // Never expose those values in JavaScript served to browsers or in source control.
 const reply = (data, status = 200) => Response.json(data, {
@@ -34,7 +34,8 @@ export default async function handler(request) {
   if (data.website) return reply({ delivered: false }, 200); // invisible honeypot
   const task = typeof data.task === 'string' ? data.task.trim() : '';
   const original = typeof data.original === 'string' ? data.original.trim() : '';
-  if (task.length < 12 || task.length > 2300 || original.length < 8 || original.length > 1100) {
+  const contact = typeof data.contact === 'string' ? data.contact.trim() : '';
+  if (task.length < 12 || task.length > 1900 || original.length < 8 || original.length > 1900 || contact.length < 5 || contact.length > 180) {
     return reply({ error: 'Опишите задачу подробнее или немного сократите текст.' }, 400);
   }
   const token = process.env.MIRA_TELEGRAM_BOT_TOKEN;
@@ -52,8 +53,12 @@ export default async function handler(request) {
     '💬 Исходные слова клиента:',
     original,
     '',
+    '📞 Предпочтительный способ связи и контакт:',
+    contact,
+    '',
     '🕒 ' + new Date().toISOString() + ' (UTC)',
   ].join('\n');
+  if (message.length > 4096) return reply({ error: 'Обращение слишком длинное для Telegram.' }, 413);
   try {
     const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
       method: 'POST',
