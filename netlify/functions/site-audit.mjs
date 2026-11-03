@@ -278,6 +278,46 @@ function check(id, title, ok, detail, tip, importance = 'medium') {
     tip: ok === null || ok ? '' : tip, importance };
 }
 
+
+// Optional public third-party renderer. It is used ONLY for public root URLs
+// when the site's own server does not provide usable HTML to this Netlify function.
+// Never interpret the reader's HTTP 200 as the origin website's HTTP 200.
+async function readPublicHtmlThroughReader(target, timeoutMs = 15000) {
+  const original = validateTarget(target.href);
+  const endpoint = 'https://r.jina.ai/' + original.href;
+  const controller = new AbortController();
+  const guard = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'GET', signal: controller.signal, redirect: 'error',
+      headers: {
+        'Accept': 'text/plain',
+        'X-Respond-With': 'html',
+        'X-Respond-Timing': 'html',
+        'X-Cache-Tolerance': '60',
+        ...(process.env.JINA_API_KEY ? {'Authorization':'Bearer ' + process.env.JINA_API_KEY} : {})
+      }
+    });
+    if (!response.ok) throw new Error('Внешний ридер недоступен: HTTP ' + response.status);
+    const raw = (await response.text()).slice(0, 950000);
+    const pos = raw.search(/<html\b/i);
+    if (pos < 0) throw new Error('Внешний ридер не вернул пригодный HTML.');
+    const html = raw.slice(pos);
+    if (!/<head\b/i.test(html) || !/<(?:title|meta|h1)\b/i.test(html)) {
+      throw new Error('HTML ридера не содержит проверяемых метаданных.');
+    }
+    if (/(?:<title[^>]*>\s*(?:access denied|just a moment|403 forbidden|attention required))/i.test(html)) {
+      throw new Error('Ридер получил страницу защиты вместо сайта.');
+    }
+    return {
+      text: html, sourceUrl: endpoint,
+      note: 'Вторичный источник: Jina Reader, полученный публичный HTML/DOM. Не подтверждает HTTP-статус и доступ поисковых роботов к оригиналу.'
+    };
+  } catch (error) {
+    throw new Error('Резервное чтение HTML: ' + (error?.name === 'AbortError' ? 'тайм-аут ' + Math.ceil(timeoutMs/1000) + ' с' : error.message));
+  } finally { clearTimeout(guard); }
+}
+
 function resourceFileState(reply, valid) {
   if (!reply || [401,403,408,429].includes(reply.status) || reply.status >= 500) return 'unknown';
   if (reply.status === 404 || reply.status === 410) return 'missing';
@@ -306,12 +346,23 @@ async function audit(raw, brand) {
   const item = i => settled[i].status === 'fulfilled' ? settled[i].value : null;
   const error = i => settled[i].status === 'rejected' ? settled[i].reason : null;
   const homepage = item(0), robots = item(1), sitemap = item(2), llms = item(3);
-  const elapsedMs = Date.now() - startMs;
-  const htmlOk = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
+  const directHtmlOk = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
     /<html\b/i.test(homepage.text));
-  const homepageMessage = htmlOk ? ('HTTP '+homepage.status+' · '+homepage.url) :
+  const directMessage = directHtmlOk ? ('HTTP '+homepage.status+' · '+homepage.url) :
     partialResourceInfo(homepage,error(0),'главную страницу');
-  const tags = extract(htmlOk ? homepage.text : '');
+  let fallbackHtml = null, fallbackError = '';
+  if (!directHtmlOk) {
+    try { fallbackHtml = await readPublicHtmlThroughReader(start, 14000); }
+    catch (err) { fallbackError = String(err?.message || 'Резервный источник недоступен').slice(0,220); }
+  }
+  const htmlOk = directHtmlOk || !!fallbackHtml;
+  const extractionMode = directHtmlOk ? 'origin' : fallbackHtml ? 'reader' : 'unavailable';
+  const htmlBody = directHtmlOk ? homepage.text : fallbackHtml?.text || '';
+  const homepageMessage = directHtmlOk ? directMessage :
+    fallbackHtml ? 'Прямой доступ: '+directMessage+'. HTML получен через независимый публичный ридер; исходный HTTP-статус не подтверждён.' :
+      directMessage+'. '+fallbackError;
+  const elapsedMs = Date.now() - startMs;
+  const tags = extract(htmlBody);
   const robotsAvailable = !!(robots && robots.status === 200 && /user-agent\s*:/i.test(robots.text));
   let finalMap = sitemap;
   const sitemapDeclared = robotsAvailable ? match(robots.text, /^\s*Sitemap:\s*(\S+)/im) : '';
@@ -350,12 +401,15 @@ async function audit(raw, brand) {
       httpStatus: llms?.status ?? null, required: false, optional: true,
       note: 'Необязательная экспериментальная подсказка для ИИ-агентов, не условие присутствия в ChatGPT.' }
   ];
-  const noindex = htmlOk ? /\bnoindex\b/i.test(tags.robotsMeta + '; ' + (homepage.headers.get('x-robots-tag') || '')) : null;
+  const metaNoindex = htmlOk ? /\bnoindex\b/i.test(tags.robotsMeta) : false;
+  const noindex = htmlOk ? (metaNoindex ||
+    (directHtmlOk && /\bnoindex\b/i.test(homepage.headers.get('x-robots-tag') || ''))) : null;
+  const indexKnown = directHtmlOk || (htmlOk && metaNoindex);
   const brandFound = brand && htmlOk ? tags.brandContent.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) ||
     tags.title.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) : null;
   const checks = [
-    check('response','Доступ главной страницы по HTTPS', htmlOk ? true : (homepage && homepage.status === 404 ? false : null), homepageMessage, 'Проверить доступность главной страницы с разрешённого клиента; коды 401/403 и тайм-ауты не являются оценкой SEO.', 'high'),
-    check('index','Индексация не запрещена', htmlOk ? !noindex : null, noindex ? 'Найдено указание noindex.' : 'Явных директив noindex в HTML и HTTP-заголовках нет.',
+    check('response','Прямой доступ главной страницы', directHtmlOk ? true : (homepage && homepage.status === 404 ? false : null), homepageMessage, 'Проверить доступность главной страницы с разрешённого клиента; коды 401/403 и тайм-ауты не являются оценкой SEO.', 'high'),
+    check('index','Noindex в HTML и HTTP-заголовках', indexKnown ? !noindex : null, noindex ? 'Найдено указание noindex.' : 'Явных директив noindex в HTML и HTTP-заголовках нет.',
       'Проверить meta robots и X-Robots-Tag: поисковики могут игнорировать страницу.', 'high'),
     check('title','Заголовок страницы (title)', htmlOk ? !!tags.title : null, tags.title || 'Тег title не обнаружен.',
       'Добавить уникальный title с услугой, городом и названием компании.', 'high'),
@@ -408,18 +462,24 @@ async function audit(raw, brand) {
   return {
     version: 1,
     checkedAt: new Date().toISOString(),
-    source: 'Независимая проверка главной страницы и служебных файлов; правила robots.txt проверены только для URL /',
+    source: 'Независимые запросы к служебным файлам и HTML (прямой, при недоступности — внешний публичный ридер); каждый источник отмечен отдельно',
     domain: start.hostname, url: homepage?.url || start.href, brand: brand || '', httpStatus: homepage?.status ?? null,
-    partial: !htmlOk, homepageMessage,
+    partial: !directHtmlOk, homepageMessage, extractionMode,
+    evidence: { htmlSource: fallbackHtml?.sourceUrl || (directHtmlOk ? homepage?.url : null),
+      htmlMethod: extractionMode === 'origin' ? 'Прямой HTML с сайта' :
+        extractionMode === 'reader' ? 'Публичный HTML/DOM через Jina Reader (вторичный источник)' : 'HTML не получен',
+      directHttpStatus: homepage?.status ?? null,
+      directMessage, readerError: fallbackError,
+      confidence: extractionMode === 'origin' ? 'direct' : extractionMode === 'reader' ? 'secondary' : 'unknown' },
     resourceChecks: targets.map((t,i)=>({name:t.label,url:t.url.href,httpStatus:item(i)?.status ?? null,message:partialResourceInfo(item(i),error(i),t.label)})),
     elapsedMs,
-    score: htmlOk ? Math.round((passed / Math.max(known.length, 1)) * 100) : null,
+    score: directHtmlOk ? Math.round((passed / Math.max(known.length, 1)) * 100) : null,
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
     checks, recommendations, files, botAccess,
     extras: { brandFound, h1Count: tags.h1s.length, title: tags.title, description: tags.description,
       phoneLink: tags.tel, jsonldCount: tags.jsonld },
-    caveat: 'Если главная страница недоступна для аудитора, общий балл не рассчитывается. Отдельные служебные файлы могут быть проверены независимо. Аудит не измеряет позиции и упоминания в ИИ.'
+    caveat: 'Если прямой HTML недоступен, общий балл не рассчитывается. HTML вторичного источника используется для отдельных метаданных, но не подтверждает доступность для поисковых роботов. Аудит не измеряет позиции и упоминания в ИИ.'
   };
 }
 
