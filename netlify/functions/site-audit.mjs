@@ -246,32 +246,41 @@ function check(id, title, ok, detail, tip, importance = 'medium') {
     tip: ok ? '' : tip, importance };
 }
 
+function resourceFileState(reply, valid) {
+  if (!reply || [401,403,408,429].includes(reply.status) || reply.status >= 500) return 'unknown';
+  if (reply.status === 404 || reply.status === 410) return 'missing';
+  if (reply.status === 200) return valid ? 'ok' : 'unknown';
+  return 'unknown';
+}
+function partialResourceInfo(reply, error, label) {
+  if (reply?.status === 401 || reply?.status === 403) return 'HTTP ' + reply.status + ': сайт не предоставил файл автоматическому аудитору';
+  if (reply?.status === 429) return 'HTTP 429: ограничено число автоматических запросов';
+  if (reply && reply.status >= 500) return 'HTTP ' + reply.status + ': ошибка сервера при получении ' + label;
+  if (reply) return 'HTTP ' + reply.status;
+  return error?.message || 'Не удалось получить ' + label;
+}
+
 async function audit(raw, brand) {
   const start = validateTarget(raw);
-  let homepage;
   const startMs = Date.now();
-  try {
-    homepage = await getText(start);
-  } catch (e) {
-    throw new Error('Не удалось получить страницу: ' + (e.message || 'ошибка соединения'));
-  }
+  // Every resource is independent: a blocked home page must not hide available robots or sitemap.
+  const targets = [
+    {url:start, limit:800000, timeout:10000, label:'главную страницу'},
+    {url:new URL('/robots.txt',start), limit:140000, timeout:8500, label:'robots.txt'},
+    {url:new URL('/sitemap.xml',start), limit:180000, timeout:8500, label:'sitemap.xml'},
+    {url:new URL('/llms.txt',start), limit:90000, timeout:8500, label:'llms.txt'}
+  ];
+  const settled = await Promise.allSettled(targets.map(t=>getText(t.url,t.limit,t.timeout)));
+  const item = i => settled[i].status === 'fulfilled' ? settled[i].value : null;
+  const error = i => settled[i].status === 'rejected' ? settled[i].reason : null;
+  const homepage = item(0), robots = item(1), sitemap = item(2), llms = item(3);
   const elapsedMs = Date.now() - startMs;
-  if (homepage.status === 401 || homepage.status === 403) {
-    throw new Error('HTTP ' + homepage.status + ': сервер не предоставляет публичный HTML нашему автоматическому аудитору. Это ограничение доступа, а не недостаток SEO или сайта.');
-  }
-  if (homepage.status === 429) {
-    throw new Error('HTTP 429: сайт временно ограничил число автоматических запросов. Технические критерии не проверены.');
-  }
-  if (homepage.status < 200 || homepage.status >= 300 || !/<html\b/i.test(homepage.text)) {
-    throw new Error('Главная страница не вернула доступный HTML (HTTP ' + homepage.status + '). Показатели не проверены.');
-  }
-  const [robots, sitemap, llms] = await Promise.all([
-    getText(new URL('/robots.txt', homepage.url), 140000).catch(() => null),
-    getText(new URL('/sitemap.xml', homepage.url), 200000).catch(() => null),
-    getText(new URL('/llms.txt', homepage.url), 90000).catch(() => null)
-  ]);
-  const tags = extract(homepage.text);
-  const robotsAvailable = robots && robots.status === 200 && /user-agent\s*:/i.test(robots.text);
+  const htmlOk = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
+    /<html\\b/i.test(homepage.text));
+  const homepageMessage = htmlOk ? ('HTTP '+homepage.status+' · '+homepage.url) :
+    partialResourceInfo(homepage,error(0),'главную страницу');
+  const tags = extract(htmlOk ? homepage.text : '');
+  const robotsAvailable = !!(robots && robots.status === 200 && /user-agent\\s*:/i.test(robots.text));
   let finalMap = sitemap;
   const sitemapDeclared = robotsAvailable ? match(robots.text, /^\s*Sitemap:\s*(\S+)/im) : '';
   if (!(sitemap && sitemap.status === 200 && /<\??(?:urlset|sitemapindex)\b/i.test(sitemap.text)) && sitemapDeclared) {
@@ -294,49 +303,49 @@ async function audit(raw, brand) {
   const block = robotsAvailable ? botBlocked(robots.text, 'OAI-SearchBot') : null;
   const llmsOk = !!(llms && llms.status === 200 && llms.text.trim() &&
     !/<html\b/i.test(llms.text) && !/<!doctype html/i.test(llms.text));
-  const root = new URL(homepage.url).origin;
+  const root = start.origin;
   const files = [
     { id:'robots', name:'robots.txt', url: root + '/robots.txt',
-      state: robots === null ? 'unknown' : robotsAvailable ? 'ok' : 'missing',
+      state: resourceFileState(robots, robotsAvailable),
       httpStatus: robots?.status ?? null, required: false,
       note: 'Файл правил для поисковых роботов. Его отсутствие само по себе не запрещает обход.' },
-    { id:'sitemap', name:'sitemap.xml', url: finalMap?.url?.href || root + '/sitemap.xml',
-      state: finalMap === null ? 'unknown' : sitemapOk ? 'ok' : 'missing',
+    { id:'sitemap', name:'sitemap.xml', url: finalMap?.url || root + '/sitemap.xml',
+      state: resourceFileState(finalMap, sitemapOk),
       httpStatus: finalMap?.status ?? null, required: false,
       note: 'Полезная XML-карта адресов; помогает обнаружению страниц, но не гарантирует индексацию.' },
     { id:'llms', name:'llms.txt', url: root + '/llms.txt',
-      state: llms === null ? 'unknown' : llmsOk ? 'ok' : 'missing',
+      state: resourceFileState(llms, llmsOk),
       httpStatus: llms?.status ?? null, required: false, optional: true,
       note: 'Необязательная экспериментальная подсказка для ИИ-агентов, не условие присутствия в ChatGPT.' }
   ];
-  const noindex = /\bnoindex\b/i.test(tags.robotsMeta + '; ' + (homepage.headers.get('x-robots-tag') || ''));
-  const brandFound = brand ? tags.brandContent.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) ||
+  const noindex = htmlOk ? /\bnoindex\b/i.test(tags.robotsMeta + '; ' + (homepage.headers.get('x-robots-tag') || '')) : null;
+  const brandFound = brand && htmlOk ? tags.brandContent.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) ||
     tags.title.toLocaleLowerCase('ru').includes(brand.toLocaleLowerCase('ru')) : null;
   const checks = [
-    check('response','Сайт доступен по HTTPS', true, 'HTTP ' + homepage.status + ' · ' + homepage.url, '', 'high'),
-    check('index','Индексация не запрещена', !noindex, noindex ? 'Найдено указание noindex.' : 'Явных директив noindex в HTML и HTTP-заголовках нет.',
+    check('response','Доступ главной страницы по HTTPS', htmlOk ? true : (homepage && homepage.status === 404 ? false : null), homepageMessage, 'Проверить доступность главной страницы с разрешённого клиента; коды 401/403 и тайм-ауты не являются оценкой SEO.', 'high'),
+    check('index','Индексация не запрещена', htmlOk ? !noindex : null, noindex ? 'Найдено указание noindex.' : 'Явных директив noindex в HTML и HTTP-заголовках нет.',
       'Проверить meta robots и X-Robots-Tag: поисковики могут игнорировать страницу.', 'high'),
-    check('title','Заголовок страницы (title)', !!tags.title, tags.title || 'Тег title не обнаружен.',
+    check('title','Заголовок страницы (title)', htmlOk ? !!tags.title : null, tags.title || 'Тег title не обнаружен.',
       'Добавить уникальный title с услугой, городом и названием компании.', 'high'),
-    check('description','Описание (meta description)', !!tags.description, tags.description || 'Метаописание не обнаружено.',
+    check('description','Описание (meta description)', htmlOk ? !!tags.description : null, tags.description || 'Метаописание не обнаружено.',
       'Подготовить ясное описание услуг и преимуществ компании.', 'medium'),
-    check('h1','Основной заголовок H1', tags.h1s.length > 0, tags.h1s.length ? tags.h1s.join(' | ') : 'H1 не найден.',
+    check('h1','Основной заголовок H1', htmlOk ? tags.h1s.length > 0 : null, tags.h1s.length ? tags.h1s.join(' | ') : 'H1 не найден.',
       'Добавить видимый заголовок H1 о ключевой услуге.', 'medium'),
-    check('canonical','Канонический адрес', !!tags.canonical, tags.canonical || 'Canonical не обнаружен.',
+    check('canonical','Канонический адрес', htmlOk ? !!tags.canonical : null, tags.canonical || 'Canonical не обнаружен.',
       'Добавить rel=canonical на основную версию страницы.', 'medium'),
-    check('lang','Язык страницы', !!tags.lang, tags.lang ? 'lang="' + tags.lang + '"' : 'Атрибут lang не найден.',
+    check('lang','Язык страницы', htmlOk ? !!tags.lang : null, tags.lang ? 'lang="' + tags.lang + '"' : 'Атрибут lang не найден.',
       'Задать атрибут lang у HTML.', 'low'),
-    check('viewport','Мобильная адаптация (viewport)', !!tags.viewport, tags.viewport || 'Viewport не найден.',
+    check('viewport','Мобильная адаптация (viewport)', htmlOk ? !!tags.viewport : null, tags.viewport || 'Viewport не найден.',
       'Добавить meta viewport и проверить реальное отображение на телефоне.', 'medium'),
-    check('robots','Файл robots.txt', robots === null ? null : !!robotsAvailable,
-      robots === null ? 'Не удалось получить robots.txt.' : robotsAvailable ? 'Доступен: ' + new URL(homepage.url).origin + '/robots.txt' : 'Файл robots.txt не найден или формат не распознан.',
+    check('robots','Файл robots.txt', resourceFileState(robots,robotsAvailable)==='unknown'?null:robotsAvailable,
+      robots === null ? 'Не удалось получить robots.txt.' : robotsAvailable ? 'Доступен: ' + start.origin + '/robots.txt' : 'Файл robots.txt не найден или формат не распознан.',
       'Создать или проверить robots.txt. Это рекомендация, не обязательное условие индексации.', 'medium'),
-    check('sitemap','XML-карта сайта', finalMap === null ? null : sitemapOk,
+    check('sitemap','XML-карта сайта', resourceFileState(finalMap,sitemapOk)==='unknown'?null:sitemapOk,
       finalMap === null ? 'Не удалось проверить sitemap.' : sitemapOk ? 'Карта сайта найдена.' : 'Карта сайта по стандартному адресу или robots.txt не обнаружена.',
       'Создать sitemap.xml и указать его в robots.txt и кабинетах вебмастеров.', 'medium'),
-    check('structured','Структурированные данные JSON-LD', tags.jsonld > 0, tags.jsonld ? 'Найдено JSON-LD блоков: ' + tags.jsonld + '. Корректность данных не проверялась.' : 'JSON-LD на главной не найден.',
+    check('structured','Структурированные данные JSON-LD', htmlOk ? tags.jsonld > 0 : null, tags.jsonld ? 'Найдено JSON-LD блоков: ' + tags.jsonld + '. Корректность данных не проверялась.' : 'JSON-LD на главной не найден.',
       'Добавить достоверную разметку Organization, LocalBusiness или подходящий тип Schema.org.', 'medium'),
-    check('og','Превью для социальных сетей', tags.openGraph, tags.openGraph ? 'Найдены Open Graph title и description.' : 'Не обнаружена полная пара og:title / og:description.',
+    check('og','Превью для социальных сетей', htmlOk ? tags.openGraph : null, tags.openGraph ? 'Найдены Open Graph title и description.' : 'Не обнаружена полная пара og:title / og:description.',
       'Настроить Open Graph для корректного отображения ссылок.', 'low'),
     check('airobots','Доступность OAI-SearchBot', block === null ? null : !block,
       block === null ? 'Нельзя надёжно определить по robots.txt.' :
@@ -372,16 +381,18 @@ async function audit(raw, brand) {
   return {
     version: 1,
     checkedAt: new Date().toISOString(),
-    source: 'Прямая проверка публичного HTML и служебных файлов; без доступа к кабинетам вебмастеров',
-    domain: start.hostname, url: homepage.url, brand: brand || '', httpStatus: homepage.status,
+    source: 'Независимая проверка главной страницы и каждого служебного файла; недоступность не равна отсутствию',
+    domain: start.hostname, url: homepage?.url || start.href, brand: brand || '', httpStatus: homepage?.status ?? null,
+    partial: !htmlOk, homepageMessage,
+    resourceChecks: targets.map((t,i)=>({name:t.label,url:t.url.href,httpStatus:item(i)?.status ?? null,message:partialResourceInfo(item(i),error(i),t.label)})),
     elapsedMs,
-    score: Math.round((passed / Math.max(known.length, 1)) * 100),
+    score: htmlOk ? Math.round((passed / Math.max(known.length, 1)) * 100) : null,
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
     checks, recommendations, files, botAccess,
     extras: { brandFound, h1Count: tags.h1s.length, title: tags.title, description: tags.description,
       phoneLink: tags.tel, jsonldCount: tags.jsonld },
-    caveat: 'Экспресс-аудит не показывает позиции в Google/Яндексе и не измеряет упоминания в ChatGPT, Алисе и других ИИ. Это отдельные проверки.'
+    caveat: 'Если главная страница недоступна для аудитора, общий балл не рассчитывается. Отдельные служебные файлы могут быть проверены независимо. Аудит не измеряет позиции и упоминания в ИИ.'
   };
 }
 
