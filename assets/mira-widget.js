@@ -34,8 +34,8 @@
   const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
   // Conservative offline version; full semantic rewriting requires an active model.
   function localBrief() {
-    const original = rawTask().replace(/^Уточнение(?: или исправление)? клиента:\\s*/gim, '').trim();
-    let text = original.replace(/\\s+/g, ' ').trim();
+    const original = rawTask().replace(/^Уточнение(?: или исправление)? клиента:\s*/gim, '').trim();
+    let text = original.replace(/\s+/g, ' ').trim();
     const assistant = /(?:бот|чат-бот|ассистент|помощник)/i.test(text);
     let industry = '';
     if (/стоматолог/i.test(text)) industry='стоматологической клиники';
@@ -46,9 +46,9 @@
     else if (/фитнес|спортзал/i.test(text)) industry='фитнес-центра';
     const heading = assistant ? 'Необходим ИИ-ассистент' + (industry ? ' для ' + industry : '') : 'Требуется решение для бизнес-задачи';
     text=text.replace(/^(?:здравствуйте[,!. ]*|добрый день[,!. ]*)+/i,'')
-      .replace(/^(?:ну[, ]*)?(?:мне|нам|мы)\\s+(?:нужно|нужен|нужна|нужны|хочу|хотим|ищем)\\s*/i,'')
-      .replace(/^бот(?:а)?\\s+для\\s+(?:стоматологии|парикмахерской|салона красоты|ресторана|магазина|фитнес-центра)\\s*[,.;:-]?\\s*/i,'').trim();
-    if (text) text=text.charAt(0).toUpperCase()+text.slice(1).replace(/[.!?]\\s*$/,'')+'.';
+      .replace(/^(?:ну[, ]*)?(?:мне|нам|мы)\s+(?:нужно|нужен|нужна|нужны|хочу|хотим|ищем)\s*/i,'')
+      .replace(/^бот(?:а)?\s+для\s+(?:стоматологии|парикмахерской|салона красоты|ресторана|магазина|фитнес-центра)\s*[,.;:-]?\s*/i,'').trim();
+    if (text) text=text.charAt(0).toUpperCase()+text.slice(1).replace(/[.!?]\s*$/,'')+'.';
     return 'Задача: '+heading+'.'+(text?' Пожелания клиента: '+text:'');
   }
 
@@ -152,7 +152,7 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.delivered !== true) throw new Error(data.error || 'Нет подтверждения отправки.');
-      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\\n\\nСогласованная задача:\\n' + state.brief + '\\n\\nСпособ связи: ' + state.contact + '\\n\\nС вами в кратчайшие сроки свяжется наш специалист. Хорошего вам дня!';
+      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\n\nСогласованная задача:\n' + state.brief + '\n\nСпособ связи: ' + state.contact + '\n\nС вами в кратчайшие сроки свяжется наш специалист. Хорошего вам дня!';
       state.phase = 'sent';
       deliveryPanel.hidden = true;
     } catch {
