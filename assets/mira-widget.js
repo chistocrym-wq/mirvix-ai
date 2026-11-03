@@ -112,7 +112,7 @@
       }
     }
     state.brief = brief;
-    progress.textContent = 'Вот как я поняла вашу задачу:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то добавить или исправить, напишите это.';
+    progress.textContent = 'Сформулированная задача:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то исправить или добавить, напишите об этом.';
     state.phase = 'review';
     state.busy = false;
     updateControls();
