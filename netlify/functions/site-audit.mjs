@@ -276,11 +276,11 @@ async function audit(raw, brand) {
   const homepage = item(0), robots = item(1), sitemap = item(2), llms = item(3);
   const elapsedMs = Date.now() - startMs;
   const htmlOk = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
-    /<html\\b/i.test(homepage.text));
+    /<html\b/i.test(homepage.text));
   const homepageMessage = htmlOk ? ('HTTP '+homepage.status+' · '+homepage.url) :
     partialResourceInfo(homepage,error(0),'главную страницу');
   const tags = extract(htmlOk ? homepage.text : '');
-  const robotsAvailable = !!(robots && robots.status === 200 && /user-agent\\s*:/i.test(robots.text));
+  const robotsAvailable = !!(robots && robots.status === 200 && /user-agent\s*:/i.test(robots.text));
   let finalMap = sitemap;
   const sitemapDeclared = robotsAvailable ? match(robots.text, /^\s*Sitemap:\s*(\S+)/im) : '';
   if (!(sitemap && sitemap.status === 200 && /<\??(?:urlset|sitemapindex)\b/i.test(sitemap.text)) && sitemapDeclared) {
