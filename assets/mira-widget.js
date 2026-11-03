@@ -2,7 +2,7 @@
   'use strict';
   const root = document.getElementById('mira-widget');
   if (!root) return;
-  const by = (name) => root.querySelector('[data-mira="' + name + '"]');
+  const by = name => root.querySelector('[data-mira="' + name + '"]');
   const launch = by('launch');
   const dialog = by('dialog');
   const close = by('close');
@@ -10,280 +10,245 @@
   const input = by('input');
   const send = by('send');
   const mic = by('mic');
-  const check = by('voicecheck');
+  const speechCheck = by('voicecheck');
   const transcript = by('transcript');
-  const handoff = by('handoff');
   const aiConsent = by('ai-consent');
   const deliveryConsent = by('delivery-consent');
   const deliveryPanel = by('delivery-panel');
-  const mailLink = by('mail-link');
-  const state = {
-    mode: 'chat',
-    messages: [],
-    tasks: [],
-    name: '',
-    contact: '',
-    recognition: null,
-    sending: false,
-  };
-  const sensitive = /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
-  const addBubble = (value, own = false) => {
+  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const contactPattern = /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
+  const yesPattern = /^(?:да|да\s+все\s+верно|да\s+все\s+правильно|все\s+верно|все\s+правильно|верно|правильно|все\s+так|именно|отлично|подтверждаю|согласен|согласна)$/i;
+  const noPattern = /^(?:нет|не\s+совсем|неправильно|нужно\s+исправить|исправить|не\s+верно)$/i;
+  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null };
+
+  function bubble(text, own = false) {
     const node = document.createElement('div');
     node.className = 'mira-bubble' + (own ? ' mine' : '');
-    node.textContent = String(value || '');
+    node.textContent = String(text || '');
     history.appendChild(node);
     history.scrollTop = history.scrollHeight;
     return node;
-  };
-  const say = (v) => addBubble(v);
-  const actions = (options) => {
-    const row = document.createElement('div');
-    row.className = 'mira-quick';
-    options.forEach(([title, callback]) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.textContent = title;
-      button.addEventListener('click', callback);
-      row.appendChild(button);
-    });
-    history.appendChild(row);
-    history.scrollTop = history.scrollHeight;
-  };
-  function makeTaskText() {
-    const list = state.tasks.slice(-7);
-    return list.map((text, index) => (index + 1) + '. ' + text).join('\n');
   }
-  const summary = () => ['Всё верно? Проверьте обращение:', '', makeTaskText() || 'Задача не указана', '', 'Как обращаться: ' + state.name, 'Контакт: ' + state.contact].join('\n');
+  const say = text => bubble(text);
+  const rawTask = () => state.original.join('\n\n').trim();
+  const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
+  // Conservative offline version; full semantic rewriting requires an active model.
+  function localBrief() {
+    const original = rawTask().replace(/^Уточнение(?: или исправление)? клиента:\s*/gim, '').trim();
+    let text = original.replace(/\s+/g, ' ').trim();
+    const assistant = /(?:бот|чат-бот|ассистент|помощник)/i.test(text);
+    let industry = '';
+    if (/стоматолог/i.test(text)) industry='стоматологической клиники';
+    else if (/парикмахерск/i.test(text)) industry='парикмахерской';
+    else if (/салон(?:а|е)? красоты/i.test(text)) industry='салона красоты';
+    else if (/ресторан/i.test(text)) industry='ресторана';
+    else if (/магазин/i.test(text)) industry='магазина';
+    else if (/фитнес|спортзал/i.test(text)) industry='фитнес-центра';
+    const heading = assistant ? 'Необходим ИИ-ассистент' + (industry ? ' для ' + industry : '') : 'Требуется решение для бизнес-задачи';
+    text=text.replace(/^(?:здравствуйте[,!. ]*|добрый день[,!. ]*)+/i,'')
+      .replace(/^(?:ну[, ]*)?(?:мне|нам|мы)\s+(?:нужно|нужен|нужна|нужны|хочу|хотим|ищем)\s*/i,'')
+      .replace(/^бот(?:а)?\s+для\s+(?:стоматологии|парикмахерской|салона красоты|ресторана|магазина|фитнес-центра)\s*[,.;:-]?\s*/i,'').trim();
+    if (text) text=text.charAt(0).toUpperCase()+text.slice(1).replace(/[.!?]\s*$/,'')+'.';
+    return 'Задача: '+heading+'.'+(text?' Пожелания клиента: '+text:'');
+  }
+
+  function updateControls() {
+    const isBusy = state.busy || !speechCheck.hidden;
+    input.disabled = isBusy;
+    send.disabled = isBusy;
+    mic.disabled = isBusy || !Speech;
+    const prompts = {
+      task: 'Расскажите о своей задаче',
+      review: 'Напишите «да» или что нужно изменить',
+      amend: 'Что нужно добавить или исправить?',
+      contact: 'Напишите мессенджер или телефон и контакт',
+      ready: 'Нажмите ➤ для отправки',
+      sent: 'Новая задача? Напишите её здесь',
+    };
+    input.placeholder = prompts[state.phase] || 'Напишите сообщение';
+    send.title = state.phase === 'ready' ? 'Отправить согласованную задачу специалисту' : 'Отправить сообщение MIRA';
+    send.setAttribute('aria-label', send.title);
+  }
+
   function reset() {
-    state.mode = 'chat';
-    state.messages = [];
-    state.tasks = [];
-    state.name = '';
+    state.phase = 'task';
+    state.original = [];
+    state.brief = '';
     state.contact = '';
+    state.busy = false;
+    input.value = '';
+    aiConsent.checked = false;
     deliveryConsent.checked = false;
     deliveryPanel.hidden = true;
-    mailLink.hidden = true;
+    speechCheck.hidden = true;
     history.replaceChildren();
-    say('Здравствуйте! Я MIRA. Расскажите, какая задача стоит перед вашим бизнесом. Можете написать или надиктовать — я выслушаю, уточню детали и помогу передать обращение специалисту.');
-    actions([
-      ['Нужен помощник на сайт', () => setExample('Нужен помощник для сайта, который отвечает посетителям круглосуточно.')],
-      ['Автоматизация процессов', () => setExample('Хотим автоматизировать обработку заявок и связать сервисы с CRM.')],
-      ['Видимость в поиске и ИИ', () => setExample('Хотим улучшить видимость компании в поиске и ИИ-рекомендациях.')],
-    ]);
-    input.placeholder = 'Расскажите о задаче';
-    handoff.hidden = false;
-    input.focus();
+    say('Здравствуйте! Я MIRA. Расскажите голосом или текстом, что вы хотите сделать. Я внимательно выслушаю, красиво сформулирую задачу и помогу передать её специалисту. Для оформления с помощью ИИ отметьте согласие под перепиской.');
+    updateControls();
   }
-  function setExample(message) {
-    input.value = message;
-    input.focus();
-  }
-  function startHandoff() {
-    if (state.sending) return;
-    if (state.tasks.length === 0) {
-      state.mode = 'collect-task';
-      say('Начнём с задачи. Опишите её своими словами — я сохраню эту формулировку для специалиста.');
+
+  async function reformulate() {
+    state.phase = 'formulating';
+    state.busy = true;
+    deliveryPanel.hidden = true;
+    updateControls();
+    const original = rawTask();
+    const progress = say('Бережно оформляю вашу задачу…');
+    let brief = localBrief();
+    let fallbackReason = '';
+    if (!aiConsent.checked) {
+      fallbackReason = 'Для полной ИИ-формулировки отметьте согласие под чатом. Я подготовила базовое описание без добавления требований.';
+    } else if (contactPattern.test(original)) {
+      fallbackReason = 'Контактные данные не отправлены ИИ-сервису. Я оформила задачу локально.';
     } else {
-      state.mode = 'collect-name';
-      say('Я подготовила описание задачи. Как к вам обращаться?');
+      try {
+        const response = await fetch('/api/mira-brief', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: original, consent: true }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || typeof data.formulated !== 'string') throw new Error('unavailable');
+        const polished = data.formulated.trim();
+        if (polished.length < 16 || polished.length > 1900) throw new Error('incomplete');
+        brief = polished;
+      } catch {
+        fallbackReason = 'Полноценное ИИ-перефразирование сейчас недоступно. Я оформила задачу локально, сохранив слова клиента.';
+      }
     }
-    handoff.hidden = true;
-    input.focus();
+    state.brief = brief;
+    progress.textContent = (fallbackReason ? fallbackReason + '\n\n' : '') + 'Вот как я поняла вашу задачу:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то добавить или исправить, напишите это.';
+    state.phase = 'review';
+    state.busy = false;
+    updateControls();
+    history.scrollTop = history.scrollHeight;
   }
-  function showReview() {
-    state.mode = 'review';
-    deliveryPanel.hidden = false;
-    say(summary());
-    actions([
-      ['Подтвердить и отправить', submitLead],
-      ['Исправить описание', () => { state.mode = 'edit-task'; say('Напишите, как правильно сформулировать задачу. Имя и контакт останутся прежними.'); }],
-      ['Отправить письмом', openMail],
-    ]);
-    input.placeholder = 'Можно написать «отправить» или «исправить»';
+
+  function validContact(value) {
+    const v = value.trim();
+    if (v.length < 5 || v.length > 180) return false;
+    if (contactPattern.test(v)) return true;
+    if (/\b(?:telegram|телеграм|макс|max|whatsapp|ватсап|телефон|позвонить|почта|email|e-mail)\b/i.test(v)) return false;
+    // Accept a meaningful other contact such as a public social profile URL.
+    return /^https:\/\/\S{8,}$/i.test(v);
   }
-  function mailBody() {
-    return ['Здравствуйте, команда MIRVIX AI!', '', 'Задача:', makeTaskText(), '', 'Как обращаться: ' + state.name, 'Контакт: ' + state.contact, '', 'Я подтверждаю передачу этого обращения для ответа специалиста.'].join('\n');
-  }
-  function openMail() {
-    if (!state.name || !state.contact || !state.tasks.length) {
-      say('Сначала уточним задачу и контакты — нажмите «Передать задачу».');
-      return;
-    }
-    const url = 'mailto:mirvixai@mail.ru?subject=' + encodeURIComponent('Обращение через MIRA | MIRVIX AI') + '&body=' + encodeURIComponent(mailBody());
-    window.location.href = url;
-    say('Я открыла подготовленное письмо. Чтобы передать обращение команде, отправьте его из своей почтовой программы.');
-  }
-  async function submitLead() {
-    if (state.sending || state.mode !== 'review') return;
+  async function deliver() {
+    if (state.busy || !['ready', 'contact'].includes(state.phase) || !state.contact) return;
     if (!deliveryConsent.checked) {
-      say('Пожалуйста, подтвердите согласие на передачу заявки в блоке над полем ввода.');
+      state.phase = 'ready';
+      say('Я подготовила обращение полностью. Для отправки специалисту отметьте согласие на передачу данных под чатом и нажмите стрелку ➤.');
+      updateControls();
       deliveryConsent.focus();
       return;
     }
-    state.sending = true;
-    send.disabled = true;
-    const progress = say('Передаю обращение специалисту...');
+    state.phase = 'sending';
+    state.busy = true;
+    updateControls();
+    const progress = say('Передаю согласованное обращение специалисту…');
     try {
       const response = await fetch('/api/mira-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: makeTaskText(), name: state.name, contact: state.contact, consent: true, website: '' }),
+        body: JSON.stringify({ task: state.brief, original: rawTask(), contact: state.contact, consent: true, website: '' }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.delivered !== true) throw Error(data.error || 'Передача заявки недоступна.');
-      progress.textContent = 'Готово. Ваше обращение доставлено команде MIRVIX AI. Спасибо!';
-      state.mode = 'done';
+      if (!response.ok || data.delivered !== true) throw new Error(data.error || 'Нет подтверждения отправки.');
+      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\n\nСогласованная задача:\n' + state.brief + '\n\nСпособ связи: ' + state.contact + '\n\nС вами в кратчайшие сроки свяжется наш специалист. Хорошего вам дня!';
+      state.phase = 'sent';
       deliveryPanel.hidden = true;
-      handoff.hidden = true;
-      actions([['Новое обращение', reset]]);
-    } catch (error) {
-      progress.textContent = (error.message || 'Автоматическая доставка недоступна.') + ' Я могу подготовить письмо для отправки.';
-      mailLink.hidden = false;
-      actions([['Открыть письмо для отправки', openMail], ['Исправить задачу', () => { state.mode = 'edit-task'; say('Напишите исправленное описание задачи.'); }]]);
+    } catch {
+      state.phase = 'ready';
+      progress.textContent = 'Telegram не подтвердил доставку обращения. Повторите отправку стрелкой ➤. Пока подтверждения нет, заявка не считается отправленной.';
     } finally {
-      state.sending = false;
-      send.disabled = false;
+      state.busy = false;
+      updateControls();
     }
   }
-  async function askAI(message) {
-    if (!aiConsent.checked) {
-      say('Чтобы обсудить задачу с MIRA в свободном диалоге, отметьте согласие на обработку текста сообщения. Не указывайте в беседе личные данные. Если хотите просто оставить заявку, нажмите «Передать задачу».');
-      return;
-    }
-    if (sensitive.test(message)) {
-      say('Вижу контактные данные. Ради вашей конфиденциальности я не отправляю их ИИ-модели. Нажмите «Передать задачу», и укажете контакт отдельно. Пока можно описать только задачу.');
-      return;
-    }
-    state.messages.push({ role: 'user', content: message.slice(0, 1600) });
-    const progress = say('MIRA обдумывает ответ...');
-    send.disabled = true;
-    try {
-      const response = await fetch('/api/mira-chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ consent: true, messages: state.messages.slice(-10) }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || typeof data.reply !== 'string') throw Error(data.error || 'Свободный диалог временно недоступен.');
-      const answer = data.reply.trim();
-      if (!answer) throw Error('Ответ не получен.');
-      progress.textContent = answer;
-      state.messages.push({ role: 'assistant', content: answer });
-    } catch (error) {
-      progress.textContent = (error.message || 'Сервис временно недоступен.') + ' Я могу сохранить вашу задачу и подготовить обращение специалисту.';
-      actions([['Передать задачу', startHandoff]]);
-      // Avoid long chains of user-only messages if the AI endpoint is temporarily unavailable.
-      state.messages = state.messages.slice(0, -1);
-    } finally {
-      send.disabled = false;
-      history.scrollTop = history.scrollHeight;
-    }
-  }
-  function accept(raw) {
-    if (state.sending) return;
-    const message = String(raw || '').trim().slice(0, 2500);
+
+  async function accept(raw) {
+    if (state.busy) return;
+    const message = String(raw || '').trim();
+    if (!message && state.phase === 'ready') return deliver();
     if (!message) return;
+    if (message.length > 1800) { say('Пожалуйста, сократите сообщение до 1800 символов, чтобы я могла сохранить его целиком.'); return; }
+    if (state.phase === 'sent') reset();
     input.value = '';
-    addBubble(message, true);
-    switch (state.mode) {
-      case 'chat':
-        if (!sensitive.test(message)) state.tasks.push(message.slice(0, 900));
-        askAI(message);
-        break;
-      case 'collect-task':
-        state.tasks.push(message.slice(0, 1500));
-        state.mode = 'collect-name';
-        say('Спасибо, записала. Как к вам обращаться?');
-        break;
-      case 'collect-name':
-        state.name = message.slice(0, 100);
-        state.mode = 'collect-contact';
-        say('Как с вами удобнее связаться — телефон, e-mail или Telegram? Здесь контакт не отправляется ИИ-модели.');
-        break;
-      case 'collect-contact':
-        state.contact = message.slice(0, 180);
-        showReview();
-        break;
-      case 'edit-task':
-        state.tasks = [message.slice(0, 1800)];
-        showReview();
-        break;
-      case 'review':
-        if (/^(да|всё верно|все верно|отправить|подтверждаю)/i.test(message)) submitLead();
-        else if (/исправить|изменить|нет/i.test(message)) { state.mode = 'edit-task'; say('Напишите исправленную формулировку задачи.'); }
-        else say('Чтобы отправить, нажмите «Подтвердить и отправить», а для исправления — «Исправить описание».');
-        break;
+    bubble(message, true);
+    switch (state.phase) {
+      case 'task':
+        state.original = [message];
+        return reformulate();
+      case 'review': {
+        const decision = normalize(message);
+        if (yesPattern.test(decision)) {
+          state.phase = 'contact';
+          deliveryPanel.hidden = false;
+          say('Спасибо, теперь всё ясно! Как с вами удобнее связаться — по телефону или в Telegram, MAX, WhatsApp либо по электронной почте? Напишите удобный способ и ваш контакт.');
+          updateControls();
+          return;
+        }
+        if (noPattern.test(decision)) {
+          state.phase = 'amend';
+          say('Спасибо, что уточнили. Напишите или надиктуйте, что нужно поправить или добавить в описание.');
+          updateControls();
+          return;
+        }
+        // Any substantive reply at review stage is a correction, not an order to send.
+        if (rawTask().length + message.length > 1900) { say('Описание уже подробное. Пожалуйста, напишите краткое уточнение.'); return; }
+        state.original.push('Уточнение клиента: ' + message);
+        return reformulate();
+      }
+      case 'amend':
+        if (rawTask().length + message.length > 1900) { say('Пожалуйста, сократите уточнение.'); return; }
+        state.original.push('Уточнение или исправление клиента: ' + message);
+        return reformulate();
+      case 'contact':
+        if (!validContact(message)) {
+          say('Напишите, пожалуйста, сам номер телефона, адрес электронной почты или @имя в мессенджере, чтобы специалист действительно смог вам ответить.');
+          return;
+        }
+        state.contact = message;
+        state.phase = 'ready';
+        updateControls();
+        return deliver();
+      case 'ready':
+        if (yesPattern.test(normalize(message)) || /^(?:отправить|готово|подтверждаю)$/i.test(normalize(message))) return deliver();
+        if (validContact(message)) { state.contact = message; say('Контакт обновила.'); return deliver(); }
+        say('Я готова отправить ваше обращение. Проверьте согласие под чатом и нажмите стрелку ➤.');
+        return;
       default:
-        say('Обращение уже подготовлено. Для нового диалога нажмите кнопку ниже.');
-        actions([['Новое обращение', reset]]);
+        return;
     }
   }
-  function open() { dialog.hidden = false; launch.setAttribute('aria-expanded', 'true'); input.focus(); }
-  function hide() { dialog.hidden = true; launch.setAttribute('aria-expanded', 'false'); if (state.recognition) state.recognition.abort(); }
+
+  function open() { dialog.hidden = false; launch.setAttribute('aria-expanded','true'); input.focus(); }
+  function hide() { dialog.hidden = true; launch.setAttribute('aria-expanded','false'); if (state.recognition) state.recognition.abort(); }
   launch.addEventListener('click', () => (dialog.hidden ? open() : hide()));
   close.addEventListener('click', hide);
   send.addEventListener('click', () => accept(input.value));
-  handoff.addEventListener('click', startHandoff);
-  mailLink.addEventListener('click', openMail);
-  input.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); accept(input.value); }
-  });
-  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); accept(input.value); } });
   if (Speech) {
     mic.addEventListener('click', () => {
       if (state.recognition) { state.recognition.stop(); return; }
-      const rec = new Speech();
-      state.recognition = rec;
-      rec.lang = 'ru-RU';
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
-      mic.classList.add('mira-listening');
-      mic.setAttribute('aria-label', 'Завершить диктовку');
-      rec.onresult = (event) => {
-        const value = event.results?.[0]?.[0]?.transcript || '';
-        if (value) {
-          transcript.value = value;
-          check.hidden = false;
-          input.disabled = true;
-          send.disabled = true;
-        }
+      const rec = new Speech(); state.recognition = rec; rec.lang = 'ru-RU'; rec.interimResults = false; rec.maxAlternatives = 1;
+      mic.classList.add('mira-listening'); mic.setAttribute('aria-label','Завершить диктовку');
+      rec.onresult = e => {
+        const text = e.results?.[0]?.[0]?.transcript || '';
+        if (text) { transcript.value = text; speechCheck.hidden = false; updateControls(); }
       };
-      rec.onerror = () => say('Не получилось распознать голос. Попробуйте ещё раз или напишите текстом.');
-      rec.onend = () => {
-        state.recognition = null;
-        mic.classList.remove('mira-listening');
-        mic.setAttribute('aria-label', 'Надиктовать сообщение');
-      };
-      try { rec.start(); } catch { state.recognition = null; }
+      rec.onerror = () => say('Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.');
+      rec.onend = () => { state.recognition = null; mic.classList.remove('mira-listening'); mic.setAttribute('aria-label','Надиктовать сообщение'); updateControls(); };
+      try { rec.start(); } catch { state.recognition = null; updateControls(); }
     });
-  } else {
-    mic.disabled = true;
-    mic.title = 'Браузер не поддерживает голосовой ввод';
-    mic.setAttribute('aria-label', 'Голосовой ввод недоступен');
-  }
+  } else { mic.title = 'Голосовой ввод в этом браузере недоступен'; mic.setAttribute('aria-label',mic.title); }
   by('confirm').addEventListener('click', () => {
-    const text = transcript.value.trim();
-    if (!text) return;
-    check.hidden = true;
-    input.disabled = false;
-    send.disabled = false;
-    transcript.value = '';
-    accept(text);
-    input.focus();
+    const text = transcript.value.trim(); if (!text) return;
+    transcript.value = ''; speechCheck.hidden = true; updateControls(); accept(text); input.focus();
   });
   by('retry').addEventListener('click', () => {
-    check.hidden = true;
-    transcript.value = '';
-    input.disabled = false;
-    send.disabled = false;
-    if (!mic.disabled) mic.click();
+    transcript.value = ''; speechCheck.hidden = true; updateControls(); if (Speech) mic.click();
   });
   by('cancel').addEventListener('click', () => {
-    check.hidden = true;
-    transcript.value = '';
-    input.disabled = false;
-    send.disabled = false;
-    input.focus();
+    transcript.value = ''; speechCheck.hidden = true; updateControls(); input.focus();
   });
   reset();
 })();

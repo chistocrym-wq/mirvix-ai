@@ -1,1 +1,12 @@
-.mira-tools{background:#fff;padding:8px 12px 10px;border-top:1px solid #e1eaf6;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.mira-handoff{border:1px solid #b8cfef;border-radius:10px;color:#124b9f;background:#eff6ff;font:760 12px Inter,"Segoe UI",sans-serif;padding:10px 12px;cursor:pointer}.mira-handoff:hover{background:#dcecff}.mira-tools small{color:#687e9c;font-size:10px;line-height:1.45;max-width:166px}.mira-consent{padding:7px 12px;border-top:1px solid #e0e9f7;background:#f8fbff;display:flex;align-items:flex-start;gap:8px;color:#526c8b;font-size:10.5px;line-height:1.45}.mira-consent input{flex-shrink:0;margin-top:2px;accent-color:#1a72d8}.mira-consent a{color:#1263c1;text-decoration:underline}.mira-delivery-panel{background:#fff8e6;border-top:1px solid #f0daae;padding:10px 12px;color:#5b4b2c;font-size:11px;line-height:1.5}.mira-delivery-panel[hidden],.mira-handoff[hidden],.mira-mail[hidden]{display:none}.mira-delivery-panel label{display:flex;align-items:flex-start;gap:8px;cursor:pointer}.mira-delivery-panel input{margin-top:2px;flex-shrink:0;accent-color:#1769d0}.mira-delivery-panel a{color:#185dc0;text-decoration:underline}.mira-mail{background:#f5f8ff;border:1px solid #c5d9f6;border-radius:10px;color:#1453a8;font-size:12px;font-weight:750;padding:10px 12px;cursor:pointer;margin:4px 13px 0}@media(max-width:420px){.mira-tools{gap:5px}.mira-tools small{max-width:150px}}
+/* MIRA: one message field, microphone and send arrow. No separate 'send to specialist' button. */
+.mira-consent{display:flex;align-items:flex-start;gap:8px;margin:0;padding:8px 12px;background:#f8fbff;border-top:1px solid #e0e9f7;color:#526c8b;font-size:10.5px;line-height:1.43}
+.mira-consent input{flex-shrink:0;margin-top:2px;accent-color:#1a72d8}
+.mira-consent a,.mira-delivery-panel a{color:#1263c1;text-decoration:underline;text-underline-offset:2px}
+.mira-delivery-panel{background:#fff8e6;border-top:1px solid #efd9ae;padding:9px 12px;color:#5b4b2c;font-size:11px;line-height:1.5}
+.mira-delivery-panel[hidden]{display:none}
+.mira-delivery-panel label{display:flex;align-items:flex-start;gap:8px;cursor:pointer}
+.mira-delivery-panel input{margin-top:2px;flex-shrink:0;accent-color:#1769d0}
+.mira-fallback{display:block;align-self:flex-start;color:#1453ab;font-weight:760;font-size:12px;padding:10px 13px;border:1px solid #b8d5fa;border-radius:12px;background:#fff;text-decoration:underline}
+.mira-inputbar{padding-top:10px}
+.mira-foot{font-size:10px;color:#657d9c}
+@media(max-width:600px){.mira-chat{height:min(650px,calc(100dvh - 93px));bottom:78px;right:8px}.mira-history{padding:13px 12px}}
