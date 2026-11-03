@@ -1,13 +1,17 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Экспресс-аудит — MIRVIX AI</title><style>
 *{box-sizing:border-box}body{margin:0;font:15px/1.55 Arial,sans-serif;color:#1b2d4d;background:#f3f7fd}header{padding:22px 5%;background:white;border-bottom:1px solid #dfe6f2;display:flex;justify-content:space-between;align-items:center}header strong{font-size:24px;color:#152b5a}a{color:#1267dd;text-decoration:none}.hero{padding:55px 5% 85px;color:#fff;background:linear-gradient(125deg,#0f2e68,#17265c 65%,#43247f)}.hero h1{font-size:clamp(32px,5vw,54px);letter-spacing:-.04em;line-height:1.1;max-width:760px;margin:10px 0}.hero p{color:#d8e6fb;max-width:700px}.container{max-width:1100px;margin:-48px auto 70px;padding:0 16px;position:relative}.panel,.block,.metric{background:#fff;border:1px solid #dee7f3;border-radius:18px;padding:25px;box-shadow:0 12px 30px #1737680b}.fields{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px}label{display:block;font-size:12px;font-weight:bold;color:#6b7e98;margin-bottom:7px}input{width:100%;height:48px;border:1px solid #cdd9ed;border-radius:9px;padding:10px;font-size:14px}.buttons{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:17px 0 0}button{padding:13px 18px;font-size:14px;font-weight:bold;border:0;border-radius:9px;cursor:pointer;background:linear-gradient(105deg,#1079ed,#6140d7);color:white}button.alt{background:white;color:#173e7a;border:1px solid #cad9f0}button:disabled{opacity:.5}.muted{color:#6c7d95;font-size:12px}.error{color:#b82c39}.hide{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:16px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:15px}.metric{padding:18px}.metric b{display:block;font-size:29px;color:#10285c;letter-spacing:-.05em}.metric span{color:#6a7a94;font-size:12px}.line{border-bottom:1px solid #edf1f7;padding:11px 0;display:flex;justify-content:space-between;gap:10px}.line b{font-size:13px}.line p{color:#687991;font-size:12px;margin:2px 0;overflow-wrap:anywhere}.pill{border-radius:18px;padding:5px 9px;font-size:11px;white-space:nowrap;height:max-content;background:#f1f4f9;color:#69788d}.ok{background:#e5f7ee;color:#197a5e}.issue{background:#fff0da;color:#a56810}.recommendation{border:1px solid #e1eaf6;background:#f8faff;border-radius:11px;padding:13px;margin-top:10px}.recommendation p{margin:4px 0 0;color:#667992;font-size:12px}.warning{background:#edf3ff;border-radius:12px;padding:15px;font-size:13px;color:#3d5378;margin-top:14px}#report{margin-top:27px}#report h2{font-size:27px;letter-spacing:-.04em;margin:10px 0 3px}@media(max-width:760px){.fields,.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.hero{padding-top:35px}}@media print{header,.hero,.panel,.buttons,.no-print{display:none!important}body{background:#fff}.container{margin:0;max-width:100%;padding:0}#report{margin:0}.grid{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:repeat(4,1fr)}.metric,.block{box-shadow:none;break-inside:avoid;padding:12px}.line{padding:5px 0}.recommendation{padding:7px}}
+
+.compare-input{margin-top:22px;padding:20px;background:#f5f8ff;border:1px solid #dce8f7;border-radius:14px}.compare-title{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}.compare-title strong{font-size:15px}.compare-fields{display:grid;grid-template-columns:1fr 1.2fr;gap:14px}#comparison{margin-top:26px}.comparison-heading h2{font-size:28px;margin:7px 0}.compare-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}.compare-card{background:#fff;border-radius:15px;border:1px solid #dce5f3;padding:20px}.compare-card h3{margin:0 0 10px}.compare-card b{font-size:26px;color:#123f82}.comparison-scroll{overflow-x:auto;background:white;border-radius:16px;border:1px solid #dce5f3}.compare-table{border-collapse:collapse;min-width:620px;width:100%}.compare-table th,.compare-table td{padding:13px 15px;border-bottom:1px solid #e6edf6;text-align:left;vertical-align:top;font-size:13px;overflow-wrap:anywhere}.compare-table th{background:#eaf2ff;color:#193d75;position:sticky;top:0}.compare-table th:first-child{width:33%}.compare-table td:first-child{font-weight:700}.compare-table tr:last-child td{border:0}.compare-table .fine{font-size:11px;display:block;color:#637b9c;margin-top:3px}.compare-status{font-weight:700}.compare-status.ok{color:#197a5e;background:transparent}.compare-status.issue{color:#b46a10;background:transparent}.compare-status.unknown{color:#677a98}.compare-cards p{overflow-wrap:anywhere}.no-print{margin-top:12px}@media(max-width:760px){.compare-fields,.compare-cards{grid-template-columns:1fr}.compare-input{padding:15px}}@media print{#comparison{break-before:page}#comparison .comparison-scroll{overflow:visible}.compare-table{min-width:0}.compare-table th,.compare-table td{padding:6px 7px;font-size:10px}.compare-card{break-inside:avoid}.compare-input{display:none}}
 </style></head><body>
 <header><strong>MIRVIX AI</strong><a href="/geo-live/">Собственная аналитика нейросетей ↗</a> <a href="/">← На главную</a></header>
 <div class="hero"><h1>Проверим, насколько ваш сайт готов к поиску и ИИ</h1><p>Реальный экспресс-аудит публичного сайта. Покажем технические сильные стороны, проблемы и понятный план действий прямо на встрече.</p></div>
 <main class="container">
-<form class="panel" id="form"><div class="fields"><div><label for="brand">Компания</label><input id="brand" placeholder="Название организации" maxlength="120"></div><div><label for="url">Адрес сайта *</label><input id="url" placeholder="https://example.ru" required maxlength="240"></div><div><label for="city">Город</label><input id="city" value="Санкт-Петербург" maxlength="90"></div></div><div class="buttons"><button type="submit" id="submit">Проверить сайт →</button><button type="button" class="alt" id="demo">Показать пример отчёта</button><span class="muted">Проверка только открытых страниц</span></div><p id="status" class="muted" role="status" aria-live="polite">Введите адрес компании и нажмите «Проверить сайт».</p></form>
+<form class="panel" id="form"><div class="fields"><div><label for="brand">Компания</label><input id="brand" placeholder="Название организации" maxlength="120"></div><div><label for="url">Адрес сайта *</label><input id="url" placeholder="https://example.ru" required maxlength="240"></div><div><label for="city">Город</label><input id="city" value="Санкт-Петербург" maxlength="90"></div></div><div class="compare-input"><div class="compare-title"><strong>Сравнить с конкурентом</strong><span class="muted">Необязательно. Оба сайта проверяются по одинаковым критериям.</span></div><div class="compare-fields"><div><label for="competitor-brand">Название конкурента</label><input id="competitor-brand" maxlength="120" placeholder="Название конкурента"></div><div><label for="competitor-url">Сайт конкурента</label><input id="competitor-url" maxlength="240" placeholder="https://competitor.ru"></div></div></div>
+<div class="buttons"><button type="submit" id="submit">Проверить сайт →</button><button type="button" class="alt" id="demo">Показать пример отчёта</button><span class="muted">Проверка только открытых страниц</span></div><p id="status" class="muted" role="status" aria-live="polite">Введите адрес компании и нажмите «Проверить сайт».</p></form>
 <section id="report" class="hide"><div><span id="mark" class="muted"></span><h2 id="name"></h2><span id="meta" class="muted"></span><div class="buttons no-print"><button class="alt" type="button" onclick="window.print()">Печать / PDF</button><button class="alt" type="button" id="copy">Скопировать рекомендации</button></div></div>
 <div class="metrics"><div class="metric"><span>Техническая готовность*</span><b id="score">—</b><span>Доля выполненных критериев</span></div><div class="metric"><span>Пройдено</span><b id="passed">—</b><span>Технических проверок</span></div><div class="metric"><span>Замечаний</span><b id="issues">—</b><span>Что можно исправить</span></div><div class="metric"><span>Упоминания в ИИ</span><b style="font-size:18px">Не измерены</b><span>Нужен отдельный сбор ответов</span></div></div>
 <div class="grid"><div class="block"><h3>Детали технической проверки</h3><p class="muted">Данные получены из публичного HTML, robots.txt и sitemap.xml.</p><div id="checks"></div></div><div class="block"><h3>Что сделать в первую очередь</h3><div id="recs"></div><div class="warning"><b>Важное уточнение</b><p>Эта проверка не измеряет выдачу ChatGPT, Алисы, Gemini или поисковые позиции. Для реальных процентов нужны запросы к каждой системе и зафиксированные ответы. Мы не подменяем их догадками.</p></div><div class="warning"><b>MIRVIX AI</b><p>Поможем улучшить готовность сайта, структурировать информацию о компании и провести полноценный аудит ИИ-видимости.</p></div></div></div><p class="muted" id="foot">*Техническая оценка не является SEO-рейтингом и не гарантирует рекомендации ИИ.</p></section>
+<section id="comparison" class="hide"><div class="comparison-heading"><span class="muted">MIRVIX AI · сравнение сайтов</span><h2>Компания и конкурент: техническая готовность</h2><p class="muted">Одинаковые проверки главной страницы, robots.txt, sitemap.xml и llms.txt. Баллы — доля пройденных критериев, не позиции в поиске и не вероятность попасть в ответы ИИ.</p><div class="buttons no-print"><button class="alt" id="compare-print" type="button">Распечатать сравнение / PDF</button><button class="alt" id="compare-copy" type="button">Скопировать результаты</button></div></div><div id="compare-summary" class="compare-cards"></div><div class="comparison-scroll"><table class="compare-table"><thead><tr><th>Показатель</th><th id="compare-first">Компания</th><th id="compare-second">Конкурент</th></tr></thead><tbody id="compare-rows"></tbody></table></div><div class="block" style="margin-top:18px"><h3>Технические файлы и доступ ИИ-поиска</h3><p class="muted">llms.txt показан справочно — его наличие не требуется для индексации или рекомендаций в ChatGPT. Анализ robots.txt не подтверждает фактический обход ботов.</p><div id="compare-notes"></div></div></section>
 </main><script>
 (function(){
 const q=s=>document.querySelector(s);let current=null;
@@ -16,8 +20,91 @@ function render(d,example){current={d,example};q('#report').classList.remove('hi
 const el=q('#checks');el.replaceChildren();for(const c of d.checks){const line=document.createElement('div');line.className='line';const left=document.createElement('div');const b=document.createElement('b');b.textContent=c.title;const p=document.createElement('p');p.textContent=c.detail;left.append(b,p);const s=document.createElement('span');s.className='pill '+c.state;s.textContent=c.state==='ok'?'Пройдено':c.state==='issue'?'Улучшить':'Не проверено';line.append(left,s);el.append(line)}
 const r=q('#recs');r.replaceChildren();for(const c of d.recommendations){const x=document.createElement('div');x.className='recommendation';const b=document.createElement('b');b.textContent=c.title;const p=document.createElement('p');p.textContent=c.text;x.append(b,p);r.append(x)}
 q('#foot').textContent=(example?'Все данные — учебный пример, не результат проверки компании. ':'')+'*Техническая оценка — доля выполненных критериев среди проверенных; не рейтинг в Google, Яндексе или ИИ.';q('#report').scrollIntoView({behavior:'smooth'})}
-q('#demo').onclick=()=>render(sample,true);
-q('#form').onsubmit=async e=>{e.preventDefault();const b=q('#submit');b.disabled=true;b.textContent='Проверяем…';q('#status').textContent='Получаем HTML, robots.txt и sitemap.xml…';q('#status').classList.remove('error');try{const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),29000);let response;try{response=await fetch('/.netlify/functions/site-audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:q('#url').value,brand:q('#brand').value}),signal:ctrl.signal})}finally{clearTimeout(tm)}const data=await response.json();if(!response.ok)throw Error(data.error||'Ошибка проверки');render(data,false);q('#status').textContent='Проверка завершена.'}catch(err){q('#status').classList.add('error');q('#status').textContent=err.message||'Не удалось получить ответ.'}finally{b.disabled=false;b.textContent='Проверить сайт →'}};
+
+// MIRVIX AI: same-method two-domain technical comparison, no fabricated SEO/AI rankings.
+let compareCurrent=null;
+const labelStatus=(state)=>state==='ok'?'Есть / доступно':state==='issue'?'Проблема':state==='missing'?'Не обнаружено':state==='blocked'?'Блокировка':'Не удалось проверить';
+const addText=(parent,tag,text,cls)=>{const n=document.createElement(tag);n.textContent=String(text??'—');if(cls)n.className=cls;parent.append(n);return n};
+function comparedValue(r,id){
+ if(id==='score')return r.score+'% · '+r.passed+'/'+r.checked+' критериев';
+ if(id==='issues')return r.issuesCount+' замечаний';
+ if(id==='response')return 'HTTP '+r.httpStatus+' · '+r.elapsedMs+' мс (примерное время загрузки HTML)';
+ if(id==='llms') {const f=(r.files||[]).find(x=>x.id==='llms');return f?.state==='ok'?'Найден (необязательный файл)':f?.state==='missing'?'Не обнаружен (не ошибка)':'Не удалось проверить';}
+ const ch=(r.checks||[]).find(x=>x.id===id);
+ if(!ch)return 'Нет данных';
+ return {ok:'Пройдено',issue:'Требует внимания',unknown:'Не проверено'}[ch.state]+' · '+ch.detail;
+}
+function renderComparison(a,b){
+ compareCurrent=[a,b];
+ q('#comparison').classList.remove('hide');
+ q('#report').classList.add('hide');
+ q('#compare-first').textContent=a.brand||a.domain;
+ q('#compare-second').textContent=b.brand||b.domain;
+ const cards=q('#compare-summary');cards.replaceChildren();
+ for(const item of [a,b]){
+  const x=addText(cards,'div','','compare-card');
+  addText(x,'h3',item.brand||item.domain);
+  addText(x,'b',item.score+'%');
+  addText(x,'p',item.domain+' · '+item.passed+'/'+item.checked+' проверок пройдено, '+item.issuesCount+' замечаний.');
+  addText(x,'p','Проверено: '+new Date(item.checkedAt).toLocaleString('ru-RU'),'muted');
+ }
+ const rows=[
+ ['score','Технические критерии'],['issues','Замечания'],['response','Доступность и время ответа'],
+ ['index','Индексация разрешена'],['title','Title'],['description','Meta description'],['h1','H1'],
+ ['canonical','Canonical'],['lang','Язык HTML'],['viewport','Мобильный viewport'],
+ ['robots','robots.txt'],['sitemap','sitemap.xml'],['llms','llms.txt (необязательно)'],
+ ['structured','JSON-LD / Schema.org'],['og','Open Graph'],
+ ['airobots','OAI-SearchBot'],
+ ['bot-perplexitybot','PerplexityBot'],['bot-claude-searchbot','Claude-SearchBot'],
+ ['bot-googlebot','Googlebot'],['bot-bingbot','Bingbot']
+ ];
+ const target=q('#compare-rows');target.replaceChildren();
+ for(const [id,title] of rows){
+   const tr=document.createElement('tr');addText(tr,'td',title);
+   for(const item of [a,b]){let t=addText(tr,'td',comparedValue(item,id));}
+   target.append(tr);
+ }
+ const notes=q('#compare-notes');notes.replaceChildren();
+ for(const item of [a,b]){
+  const sec=addText(notes,'div','','recommendation');addText(sec,'b',item.brand||item.domain);
+  const fixes=(item.recommendations||[]).slice(0,5);
+  for(const f of fixes)addText(sec,'p',f.title+': '+f.text);
+  for(const file of item.files||[])addText(sec,'p',file.name+': '+(file.state==='ok'?'найден':file.state==='missing'?'не обнаружен':'не удалось проверить')+'. '+file.note);
+ }
+ q('#comparison').scrollIntoView({behavior:'smooth'});
+}
+q('#compare-print').onclick=()=>window.print();
+q('#compare-copy').onclick=async()=>{
+ if(!compareCurrent)return;
+ const [a,b]=compareCurrent;const lines=['MIRVIX AI — Сравнение технической готовности сайтов',a.domain+' / '+b.domain,'Время проверки: '+new Date().toLocaleString('ru-RU'),''];
+ for(const id of ['score','issues','response','index','title','description','h1','canonical','lang','robots','sitemap','llms','structured','airobots','bot-perplexitybot','bot-googlebot','bot-bingbot']){
+  lines.push(id.toUpperCase()+': '+comparedValue(a,id)+' | '+comparedValue(b,id));
+ }
+ lines.push('Метод: открытые HTML, robots.txt, sitemap.xml и llms.txt. Не является SEO-позициями или рейтингом ИИ.');
+ try{await navigator.clipboard.writeText(lines.join('\n'));q('#compare-copy').textContent='Скопировано ✓'}catch{alert('Не удалось скопировать. Используйте печать / PDF.')}
+};
+
+q('#demo').onclick=()=>{q('#comparison').classList.add('hide');render(sample,true)};
+q('#form').onsubmit=async e=>{
+ e.preventDefault();const b=q('#submit'),url=q('#url').value.trim(),other=q('#competitor-url').value.trim();
+ b.disabled=true;b.textContent='Проверяем…';q('#status').classList.remove('error');
+ const audit=async (site,brand)=>{
+  const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),30000);
+  try{const response=await fetch('/.netlify/functions/site-audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:site,brand}),signal:ctrl.signal});const data=await response.json();if(!response.ok)throw Error((data.error||'Ошибка проверки')+' ('+site+')');return data;}finally{clearTimeout(tm);}
+ };
+ try{
+  q('#status').textContent=other?'Проверяем оба сайта по одинаковым правилам…':'Проверяем HTML, robots.txt, sitemap.xml и llms.txt…';
+  if(other){
+   const same=x=>{try{return new URL(/^https?:\/\//i.test(x)?x:'https://'+x).hostname.replace(/^www\./,'').toLowerCase()}catch{return x}};
+   if(same(url)===same(other))throw Error('Укажите разные сайты компании и конкурента.');
+   const results=await Promise.allSettled([audit(url,q('#brand').value),audit(other,q('#competitor-brand').value)]);
+   if(results.some(x=>x.status==='rejected'))throw Error(results.map((x,i)=>x.status==='rejected'?(['Компания','Конкурент'][i]+': '+x.reason.message):'').filter(Boolean).join(' · '));
+   renderComparison(results[0].value,results[1].value);
+  }else{const data=await audit(url,q('#brand').value);q('#comparison').classList.add('hide');render(data,false);}
+  q('#status').textContent='Проверка завершена.';
+ }catch(err){q('#status').classList.add('error');q('#status').textContent=err.message||'Не удалось выполнить проверку.'}
+ finally{b.disabled=false;b.textContent='Проверить сайт →';}
+};
 q('#copy').onclick=async()=>{if(!current)return;const d=current.d;const lines=[current.example?'УЧЕБНЫЙ ПРИМЕР':'РЕАЛЬНЫЙ ТЕХНИЧЕСКИЙ АУДИТ','MIRVIX AI — '+(d.brand||d.domain),d.domain,'Технические критерии: '+d.score+'% ('+d.passed+'/'+d.checked+')','Замечаний: '+d.issuesCount,'Видимость в ИИ: не измерена','Рекомендации:'];d.recommendations.forEach((r,i)=>lines.push((i+1)+'. '+r.title+': '+r.text));try{await navigator.clipboard.writeText(lines.join('\n'));q('#copy').textContent='Скопировано ✓'}catch{alert('Копирование не поддерживается. Используйте печать PDF.')}};
 })();
 </script></body></html>
