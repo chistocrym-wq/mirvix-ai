@@ -78,6 +78,19 @@ async function checkHost(url) {
   return addresses[0];
 }
 
+// DNS is pinned to a publicly validated IP. In modern Node.js, HTTPS
+// may ask the custom lookup() callback for { all: true }; that callback
+// MUST return an array, otherwise net.connect raises Invalid IP address: undefined.
+function pinnedLookup(resolved) {
+  return (_hostname, options, callback) => {
+    if (options && options.all) {
+      callback(null, [{ address: resolved.address, family: resolved.family }]);
+    } else {
+      callback(null, resolved.address, resolved.family);
+    }
+  };
+}
+
 // DNS answer is pinned to the HTTPS socket. Rebinding cannot silently
 // re-resolve the hostname to localhost or a private address on fetch().
 async function pinnedFetch(url, limit) {
@@ -96,7 +109,7 @@ async function pinnedFetch(url, limit) {
       method: 'GET',
       agent: false,
       timeout: 7500,
-      lookup: (_name, _options, cb) => cb(null, resolved.address, resolved.family),
+      lookup: pinnedLookup(resolved),
       headers: {
         'user-agent': 'MIRVIX-Audit/1.1 (+https://mirvixai.com/audit/)',
         accept: 'text/html,application/xml,text/plain;q=0.9,*/*;q=0.5'
@@ -376,4 +389,4 @@ export const handler = async (event) => {
   }
 };
 
-export const _test = { validateTarget, publicIp, extract, botBlocked, audit };
+export const _test = { validateTarget, publicIp, extract, botBlocked, pinnedLookup, audit };
