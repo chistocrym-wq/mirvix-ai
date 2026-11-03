@@ -16,10 +16,10 @@
 (function(){
 const q=s=>document.querySelector(s);let current=null;
 const sample={brand:'Пример компании',domain:'example.ru',checkedAt:new Date().toISOString(),checked:5,passed:3,issuesCount:2,score:60,checks:[{title:'HTTPS',detail:'HTTP 200',state:'ok'},{title:'Title',detail:'Найден',state:'ok'},{title:'H1',detail:'Найден',state:'ok'},{title:'Meta description',detail:'Отсутствует',state:'issue'},{title:'Sitemap',detail:'Не обнаружен',state:'issue'}],recommendations:[{title:'Описание страницы',text:'Добавить информативное meta description.'},{title:'XML-карта',text:'Создать sitemap.xml и отправить в поисковые системы.'}]};
-function render(d,example){current={d,example};q('#report').classList.remove('hide');q('#mark').textContent=example?'ДЕМОНСТРАЦИОННЫЕ ДАННЫЕ — НЕ РЕАЛЬНАЯ ПРОВЕРКА':'РЕАЛЬНЫЙ ТЕХНИЧЕСКИЙ АУДИТ';q('#name').textContent=d.brand||d.domain;q('#meta').textContent=d.domain+' · '+new Date(d.checkedAt).toLocaleString('ru-RU');q('#score').textContent=d.score+'%';q('#passed').textContent=d.passed+' / '+d.checked;q('#issues').textContent=d.issuesCount;
+function render(d,example){current={d,example};q('#report').classList.remove('hide');q('#mark').textContent=example?'ДЕМОНСТРАЦИОННЫЕ ДАННЫЕ — НЕ РЕАЛЬНАЯ ПРОВЕРКА':'РЕАЛЬНЫЙ ТЕХНИЧЕСКИЙ АУДИТ';q('#name').textContent=d.brand||d.domain;q('#meta').textContent=d.domain+' · '+new Date(d.checkedAt).toLocaleString('ru-RU');q('#score').textContent=d.score===null?'—':d.score+'%';q('#passed').textContent=d.passed+' / '+d.checked;q('#issues').textContent=d.issuesCount;
 const el=q('#checks');el.replaceChildren();for(const c of d.checks){const line=document.createElement('div');line.className='line';const left=document.createElement('div');const b=document.createElement('b');b.textContent=c.title;const p=document.createElement('p');p.textContent=c.detail;left.append(b,p);const s=document.createElement('span');s.className='pill '+c.state;s.textContent=c.state==='ok'?'Пройдено':c.state==='issue'?'Улучшить':'Не проверено';line.append(left,s);el.append(line)}
 const r=q('#recs');r.replaceChildren();for(const c of d.recommendations){const x=document.createElement('div');x.className='recommendation';const b=document.createElement('b');b.textContent=c.title;const p=document.createElement('p');p.textContent=c.text;x.append(b,p);r.append(x)}
-q('#foot').textContent=(example?'Все данные — учебный пример, не результат проверки компании. ':'')+'*Техническая оценка — доля выполненных критериев среди проверенных; не рейтинг в Google, Яндексе или ИИ.';q('#report').scrollIntoView({behavior:'smooth'})}
+q('#foot').textContent=(d.partial?'Частичный отчёт: общая оценка недоступна без HTML главной страницы. ':'')+(example?'Все данные — учебный пример, не результат проверки компании. ':'')+'*Техническая оценка — доля выполненных критериев среди проверенных; не рейтинг в Google, Яндексе или ИИ.';q('#report').scrollIntoView({behavior:'smooth'})}
 
 // MIRVIX AI: same-method two-domain technical comparison, no fabricated SEO/AI rankings.
 let compareCurrent=null;
@@ -27,9 +27,9 @@ const labelStatus=(state)=>state==='ok'?'Есть / доступно':state==='i
 const addText=(parent,tag,text,cls)=>{const n=document.createElement(tag);n.textContent=String(text??'—');if(cls)n.className=cls;parent.append(n);return n};
 function comparedValue(r,id){
  if(r.unavailable)return id==='response'?(r.reason||'Публичный HTML недоступен для этой проверки'):'Не проверено';
- if(id==='score')return r.score+'% · '+r.passed+'/'+r.checked+' критериев';
- if(id==='issues')return r.issuesCount+' замечаний';
- if(id==='response')return 'HTTP '+r.httpStatus+' · '+r.elapsedMs+' мс (примерное время загрузки HTML)';
+ if(id==='score')return r.score===null?'Не рассчитывается — главная страница недоступна':r.score+'% · '+r.passed+'/'+r.checked+' критериев';
+ if(id==='issues')return r.issuesCount+' подтверждённых замечаний ('+r.unknown+' неизвестных)';
+ if(id==='response')return r.homepageMessage || (r.httpStatus?'HTTP '+r.httpStatus:'Не удалось проверить главную страницу');
  if(id==='llms') {const f=(r.files||[]).find(x=>x.id==='llms');return f?.state==='ok'?'Найден (необязательный файл)':f?.state==='missing'?'Не обнаружен (не ошибка)':'Не удалось проверить';}
  const ch=(r.checks||[]).find(x=>x.id===id);
  if(!ch)return 'Нет данных';
@@ -45,9 +45,9 @@ function renderComparison(a,b){
  for(const item of [a,b]){
   const x=addText(cards,'div','','compare-card');
   addText(x,'h3',item.brand||item.domain);
-  addText(x,'b',item.unavailable?'Не проверено':item.score+'%');
-  addText(x,'p',item.unavailable?item.reason:item.domain+' · '+item.passed+'/'+item.checked+' проверок пройдено, '+item.issuesCount+' замечаний.');
-  addText(x,'p',item.unavailable?'Недоступность для автоматического аудита не означает недостаток сайта.':'Проверено: '+new Date(item.checkedAt).toLocaleString('ru-RU'),'muted');
+  addText(x,'b',item.unavailable||item.score===null?'Нет общего балла':item.score+'%');
+  addText(x,'p',item.unavailable?item.reason:item.domain+' · '+item.passed+'/'+item.checked+' доступных проверок пройдено, '+item.unknown+' неизвестных.');
+  addText(x,'p',item.unavailable||item.score===null?'Частичный отчёт: недоступность главной страницы не означает недостаток сайта.':'Проверено: '+new Date(item.checkedAt).toLocaleString('ru-RU'),'muted');
  }
  const rows=[
  ['score','Технические критерии'],['issues','Замечания'],['response','Доступность и время ответа'],
@@ -69,9 +69,10 @@ function renderComparison(a,b){
  for(const item of [a,b]){
   const sec=addText(notes,'div','','recommendation');addText(sec,'b',item.brand||item.domain);
   if(item.unavailable)addText(sec,'p','Автоматическая проверка недоступна: '+item.reason+'. Критерии неизвестны; качество сайта по этому ответу не оценивается.');
+  else if(item.partial)addText(sec,'p','Частичная проверка: '+item.homepageMessage+'. HTML-зависимые критерии неизвестны, доступные файлы проверены отдельно.');
   const fixes=(item.recommendations||[]).slice(0,5);
   for(const f of fixes)addText(sec,'p',f.title+': '+f.text);
-  for(const file of item.files||[])addText(sec,'p',file.name+': '+(file.state==='ok'?'найден':file.state==='missing'?'не обнаружен':'не удалось проверить')+'. '+file.note);
+  for(const file of item.files||[])addText(sec,'p',file.name+': '+(file.state==='ok'?'найден':file.state==='missing'?'не обнаружен (HTTP 404/410)':'не удалось проверить')+'. '+file.note);
  }
  q('#comparison').scrollIntoView({behavior:'smooth'});
 }
@@ -112,6 +113,6 @@ q('#form').onsubmit=async e=>{
  }catch(err){q('#status').classList.add('error');q('#status').textContent=err.message||'Не удалось выполнить проверку.'}
  finally{b.disabled=false;b.textContent='Проверить сайт →';}
 };
-q('#copy').onclick=async()=>{if(!current)return;const d=current.d;const lines=[current.example?'УЧЕБНЫЙ ПРИМЕР':'РЕАЛЬНЫЙ ТЕХНИЧЕСКИЙ АУДИТ','MIRVIX AI — '+(d.brand||d.domain),d.domain,'Технические критерии: '+d.score+'% ('+d.passed+'/'+d.checked+')','Замечаний: '+d.issuesCount,'Видимость в ИИ: не измерена','Рекомендации:'];d.recommendations.forEach((r,i)=>lines.push((i+1)+'. '+r.title+': '+r.text));try{await navigator.clipboard.writeText(lines.join('\n'));q('#copy').textContent='Скопировано ✓'}catch{alert('Копирование не поддерживается. Используйте печать PDF.')}};
+q('#copy').onclick=async()=>{if(!current)return;const d=current.d;const lines=[current.example?'УЧЕБНЫЙ ПРИМЕР':'РЕАЛЬНЫЙ ТЕХНИЧЕСКИЙ АУДИТ','MIRVIX AI — '+(d.brand||d.domain),d.domain,'Технические критерии: '+(d.score===null?'балл не рассчитывается':d.score+'%')+' ('+d.passed+'/'+d.checked+')','Замечаний: '+d.issuesCount,'Видимость в ИИ: не измерена','Рекомендации:'];d.recommendations.forEach((r,i)=>lines.push((i+1)+'. '+r.title+': '+r.text));try{await navigator.clipboard.writeText(lines.join('\n'));q('#copy').textContent='Скопировано ✓'}catch{alert('Копирование не поддерживается. Используйте печать PDF.')}};
 })();
 </script></body></html>
