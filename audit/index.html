@@ -26,6 +26,7 @@ let compareCurrent=null;
 const labelStatus=(state)=>state==='ok'?'Есть / доступно':state==='issue'?'Проблема':state==='missing'?'Не обнаружено':state==='blocked'?'Блокировка':'Не удалось проверить';
 const addText=(parent,tag,text,cls)=>{const n=document.createElement(tag);n.textContent=String(text??'—');if(cls)n.className=cls;parent.append(n);return n};
 function comparedValue(r,id){
+ if(r.unavailable)return id==='response'?(r.reason||'Публичный HTML недоступен для этой проверки'):'Не проверено';
  if(id==='score')return r.score+'% · '+r.passed+'/'+r.checked+' критериев';
  if(id==='issues')return r.issuesCount+' замечаний';
  if(id==='response')return 'HTTP '+r.httpStatus+' · '+r.elapsedMs+' мс (примерное время загрузки HTML)';
@@ -44,9 +45,9 @@ function renderComparison(a,b){
  for(const item of [a,b]){
   const x=addText(cards,'div','','compare-card');
   addText(x,'h3',item.brand||item.domain);
-  addText(x,'b',item.score+'%');
-  addText(x,'p',item.domain+' · '+item.passed+'/'+item.checked+' проверок пройдено, '+item.issuesCount+' замечаний.');
-  addText(x,'p','Проверено: '+new Date(item.checkedAt).toLocaleString('ru-RU'),'muted');
+  addText(x,'b',item.unavailable?'Не проверено':item.score+'%');
+  addText(x,'p',item.unavailable?item.reason:item.domain+' · '+item.passed+'/'+item.checked+' проверок пройдено, '+item.issuesCount+' замечаний.');
+  addText(x,'p',item.unavailable?'Недоступность для автоматического аудита не означает недостаток сайта.':'Проверено: '+new Date(item.checkedAt).toLocaleString('ru-RU'),'muted');
  }
  const rows=[
  ['score','Технические критерии'],['issues','Замечания'],['response','Доступность и время ответа'],
@@ -67,6 +68,7 @@ function renderComparison(a,b){
  const notes=q('#compare-notes');notes.replaceChildren();
  for(const item of [a,b]){
   const sec=addText(notes,'div','','recommendation');addText(sec,'b',item.brand||item.domain);
+  if(item.unavailable)addText(sec,'p','Автоматическая проверка недоступна: '+item.reason+'. Критерии неизвестны; качество сайта по этому ответу не оценивается.');
   const fixes=(item.recommendations||[]).slice(0,5);
   for(const f of fixes)addText(sec,'p',f.title+': '+f.text);
   for(const file of item.files||[])addText(sec,'p',file.name+': '+(file.state==='ok'?'найден':file.state==='missing'?'не обнаружен':'не удалось проверить')+'. '+file.note);
@@ -89,7 +91,7 @@ q('#form').onsubmit=async e=>{
  e.preventDefault();const b=q('#submit'),url=q('#url').value.trim(),other=q('#competitor-url').value.trim();
  b.disabled=true;b.textContent='Проверяем…';q('#status').classList.remove('error');
  const audit=async (site,brand)=>{
-  const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),30000);
+  const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),45000);
   try{const response=await fetch('/.netlify/functions/site-audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:site,brand}),signal:ctrl.signal});const data=await response.json();if(!response.ok)throw Error((data.error||'Ошибка проверки')+' ('+site+')');return data;}finally{clearTimeout(tm);}
  };
  try{
@@ -98,10 +100,15 @@ q('#form').onsubmit=async e=>{
    const same=x=>{try{return new URL(/^https?:\/\//i.test(x)?x:'https://'+x).hostname.replace(/^www\./,'').toLowerCase()}catch{return x}};
    if(same(url)===same(other))throw Error('Укажите разные сайты компании и конкурента.');
    const results=await Promise.allSettled([audit(url,q('#brand').value),audit(other,q('#competitor-brand').value)]);
-   if(results.some(x=>x.status==='rejected'))throw Error(results.map((x,i)=>x.status==='rejected'?(['Компания','Конкурент'][i]+': '+x.reason.message):'').filter(Boolean).join(' · '));
-   renderComparison(results[0].value,results[1].value);
+   const choices=[{site:url,brand:q('#brand').value},{site:other,brand:q('#competitor-brand').value}];
+   const values=results.map((r,i)=>r.status==='fulfilled'?r.value:{
+     unavailable:true,brand:choices[i].brand,domain:choices[i].site,
+     checkedAt:new Date().toISOString(),reason:r.reason.message,
+     files:[],checks:[],recommendations:[]
+   });
+   renderComparison(values[0],values[1]);
   }else{const data=await audit(url,q('#brand').value);q('#comparison').classList.add('hide');render(data,false);}
-  q('#status').textContent='Проверка завершена.';
+  q('#status').textContent=other?'Сравнение завершено. Недоступные для автоматического аудита показатели отмечены как неизвестные.':'Проверка завершена.';
  }catch(err){q('#status').classList.add('error');q('#status').textContent=err.message||'Не удалось выполнить проверку.'}
  finally{b.disabled=false;b.textContent='Проверить сайт →';}
 };
