@@ -44,8 +44,8 @@
 <section id="comparison" class="hide">
  <div class="comparison-heading">
   <span class="report-kicker">MIRVIX AI / Аналитический отчёт</span>
-  <h2>Техническая готовность: сравнение компаний</h2>
-  <p class="muted">Прозрачная проверка открытого HTML и служебных файлов. Недоступные данные не считаются ошибками сайта, проценты не выдумываются.</p>
+  <h2>Техническая готовность и источники данных</h2>
+  <p class="muted">Проверяем главные страницы и файлы, а при ограничении прямого доступа используем отдельный публичный источник. Для каждого результата указан метод получения; непроверенные показатели остаются неизвестными.</p>
   <div id="compare-date" class="report-date"></div>
   <div class="report-legend"><span class="report-chip">● Подтверждено</span><span class="report-chip">● Нужна проверка</span><span class="report-chip">● Нет данных</span></div>
   <div class="buttons no-print"><button class="alt" id="compare-print" type="button">Печать / сохранить PDF</button><button class="alt" id="compare-copy" type="button">Скопировать заключение</button></div>
@@ -83,7 +83,7 @@ function comparedValue(r,id){
  if(r.unavailable)return {status:'unknown',value:id==='response'?(r.reason||'Сайт недоступен для автоматической проверки'):'Не проверено',detail:''};
  if(id==='score')return {status:r.score===null?'unknown':'ok',value:r.score===null?'Не рассчитывается':r.score+'%',detail:r.score===null?'HTML главной страницы недоступен':r.passed+' из '+r.checked+' проверок пройдено'};
  if(id==='issues')return {status:'unknown',value:r.issuesCount+' подтверждённых',detail:r.unknown+' параметров не проверено'};
- if(id==='response')return {status:r.httpStatus >= 200 && r.httpStatus < 300?'ok':'unknown',value:r.httpStatus >= 200 && r.httpStatus < 300?'Доступен (HTTP '+r.httpStatus+')':'Не удалось получить HTML',detail:r.homepageMessage || ''};
+ if(id==='response')return {status:r.httpStatus >= 200 && r.httpStatus < 300?'ok':'unknown',value:r.httpStatus >= 200 && r.httpStatus < 300?'Доступен (HTTP '+r.httpStatus+')':r.extractionMode==='reader'?'Прямой доступ ограничен; есть резервный HTML':'Прямой HTML не получен',detail:r.homepageMessage || ''};
  if(id==='llms') {
    const f=(r.files||[]).find(x=>x.id==='llms');
    return {status:'unknown',value:f?.state==='ok'?'Найден':f?.state==='missing'?'Не найден (необязательно)':'Не проверено',detail:'llms.txt не является обязательным условием попадания в ИИ-поиск'};
@@ -122,12 +122,14 @@ function renderComparison(a,b){
   addText(x,'p',item.domain,'report-domain');
   addText(x,'b',item.unavailable||item.score===null?'Нет общего балла':item.score+'%');
   addText(x,'p',item.unavailable?'Сервер не смог получить сведения.':item.passed+' подтверждённых успешных проверок · '+item.issuesCount+' замечаний · '+item.unknown+' неизвестных','report-measure');
-  addText(x,'p',item.partial?'Главная страница недоступна нашему аудитору. Это не свидетельствует о проблемах SEO.':'','report-measure');
+  addText(x,'p',item.evidence?.htmlMethod || (item.partial?'HTML главной недоступен':'Прямой HTML'),'report-measure');
+  if(item.evidence?.htmlSource) {const a=document.createElement('a');a.href=item.evidence.htmlSource;a.textContent='Источник HTML ↗';a.target='_blank';a.rel='noopener noreferrer';x.append(a);}
+  if(item.partial)addText(x,'p',item.extractionMode==='reader'?'HTML получен через внешний сервис. Прямой HTTP-ответ сайта не подтверждён, общий балл не вычисляется.':'Главная страница недоступна нашему аудитору. Это не свидетельствует о проблемах SEO.','report-measure');
  }
  const html=q('#compare-html-rows'),files=q('#compare-files-rows'),bots=q('#compare-bots-rows');
  [html,files,bots].forEach(x=>x.replaceChildren());
  for(const [id,label] of [
-  ['response','Главная страница / доступность HTML'],
+  ['response','Прямой доступ к главной странице'],
   ['index','Индексация / noindex'],
   ['title','Title страницы'],
   ['description','Meta description'],
@@ -151,6 +153,7 @@ function renderComparison(a,b){
   addText(x,'b',item.brand||item.domain);
   if(item.unavailable)addText(x,'p','Доступный автоматический аудит не состоялся: '+item.reason);
   if(item.partial)addText(x,'p','Ограничение: '+item.homepageMessage+'. Отсутствующие HTML-данные не учитываются как ошибка.');
+  if(item.evidence?.htmlMethod)addText(x,'p','Источник метаданных: '+item.evidence.htmlMethod+(item.evidence.htmlSource?' — '+item.evidence.htmlSource:''));
   const issues=(item.checks||[]).filter(c=>c.state==='issue');
   if(issues.length){
    addText(x,'p','Подтверждённые замечания:');
@@ -163,7 +166,7 @@ function renderComparison(a,b){
  const conclusion=q('#compare-conclusion');conclusion.replaceChildren();
  addText(conclusion,'h3','Вывод MIRVIX AI');
  const partial=[a,b].some(r=>r.partial||r.unavailable);
- addText(conclusion,'p',partial?'Сравнение частичное. По одному или обоим сайтам HTML не получен — нельзя объявить один сайт технически лучше другого. Достоверны только отдельно проверенные параметры.':'Данные сайтов получены, сравнение ограничено открытыми техническими критериями. Реальные позиции, трафик и цитирование нейросетями здесь не измеряются.');
+ addText(conclusion,'p',partial?'Сравнение частичное: у одного или обоих сайтов прямой HTML недоступен. Отдельные метаданные могут поступать из внешнего ридера, но общий балл и сравнительный рейтинг не вычисляются.':'Данные сайтов получены напрямую. Сравнение ограничено открытыми техническими критериями; реальные позиции, трафик и цитирование нейросетями здесь не измеряются.');
  addText(conclusion,'p','Для полноценного заключения дополните проверку: доступом к Search Console / Яндекс Вебмастеру владельца, проверкой продуктовых страниц и фактическими ответами ИИ на одинаковые запросы.');
  q('#comparison').scrollIntoView({behavior:'smooth'});
 }
@@ -177,7 +180,9 @@ q('#compare-copy').onclick=async()=>{
   ['Служебные файлы',[['robots','robots.txt'],['sitemap','sitemap.xml'],['llms','llms.txt']]],
   ['Доступ поисковых ботов по robots.txt',[['airobots','OAI-SearchBot'],['bot-perplexitybot','PerplexityBot'],['bot-googlebot','Googlebot'],['bot-bingbot','Bingbot']]]];
  for(const [title,rows] of groups){lines.push(title);for(const [id,name] of rows){const l=comparedValue(a,id),r=comparedValue(b,id);lines.push(name+': '+l.value+(l.detail?' ('+l.detail+')':'')+' | '+r.value+(r.detail?' ('+r.detail+')':''));}lines.push('');}
- lines.push('Вывод: '+(a.partial||b.partial?'Сравнение частичное: недостаточно данных для рейтинга сайтов.':'Данные ограничены публичной технической проверкой.'));
+ lines.push('HTML-источник компании: '+(a.evidence?.htmlMethod||'не получен')+' '+(a.evidence?.htmlSource||''));
+ lines.push('HTML-источник конкурента: '+(b.evidence?.htmlMethod||'не получен')+' '+(b.evidence?.htmlSource||''));
+ lines.push('Вывод: '+(a.partial||b.partial?'Сравнение частичное: прямой HTML ограничен, резервные данные не подтверждают индексацию и доступ ботов.':'Данные ограничены публичной технической проверкой.'));
  lines.push('MIRVIX AI · Не является измерением позиций Google/Яндекс или рейтинга нейросетей.');
  try{await navigator.clipboard.writeText(lines.join('\n'));q('#compare-copy').textContent='Скопировано ✓'}catch{alert('Не удалось скопировать. Используйте печать / PDF.')}
 };
