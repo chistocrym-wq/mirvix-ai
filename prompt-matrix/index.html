@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Матрица промптов и конкурентные ниши — MIRVIX AI</title>
+  <meta name="description" content="Внутренний инструмент MIRVIX AI: матрица покупательских запросов, проверка упоминаний брендов и поиск возможностей в ИИ.">
+  <link rel="icon" href="/assets/favicon-32.png" type="image/png">
+  <link rel="stylesheet" href="/prompt-matrix/matrix.css">
+  <script src="/prompt-matrix/matrix.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="shell nav">
+      <a class="brand" href="/cabinet/"><span class="brand-dot">M</span> MIRVIX AI <span class="divider">/</span> Матрица промптов</a>
+      <div class="nav-links"><a href="/geo-live/">GEO-анализ</a><a href="/audit/">Техаудит</a><a href="/cabinet/">Кабинет</a></div>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro">
+      <span class="eyebrow">АНАЛИТИКА ИИ-ВИДИМОСТИ · ДЛЯ СОТРУДНИКОВ</span>
+      <h1>Где конкуренты уже видны в ИИ, а у клиента есть возможность роста?</h1>
+      <p>Создайте матрицу покупательских вопросов, проверьте ответы нейросетей и выявите запросы для приоритетной работы. Никаких придуманных результатов: только реальные ответы API или вручную внесённые наблюдения.</p>
+      <div class="pills"><span>30 редактируемых запросов</span><span>Сравнение брендов</span><span>JSON / CSV / печать</span></div>
+    </section>
+
+    <section class="panel" id="access-panel" aria-live="polite">
+      <h2>Проверка доступа</h2>
+      <p id="access-message">Проверяем вашу сессию MIRVIX AI…</p>
+      <button id="recheck" class="secondary" type="button">Проверить повторно</button>
+      <a href="/cabinet/" class="btn-link">Войти как сотрудник</a>
+    </section>
+
+    <div id="workspace" hidden>
+      <section class="panel config-panel">
+        <div class="section-title"><div><span class="eyebrow">ШАГ 1</span><h2>Компания и конкуренты</h2></div><span class="hint">Сначала задайте условия одной проверки</span></div>
+        <div class="fields">
+          <label>Название компании <input id="brand" maxlength="120" placeholder="Например, Шурик Маркет" autocomplete="off"></label>
+          <label>Сайт компании <input id="domain" maxlength="160" placeholder="shurik.market" autocomplete="off"></label>
+          <label>Отрасль / категория <input id="industry" maxlength="65" placeholder="строительные материалы" autocomplete="off"></label>
+          <label>Город / район <input id="city" maxlength="90" value="Санкт-Петербург" autocomplete="off"></label>
+          <label class="span-2">Конкуренты (через запятую) <input id="competitors" maxlength="800" placeholder="Петрович, Максидом" autocomplete="off"></label>
+          <label>Ключевой товар или услуга <input id="focus" maxlength="85" placeholder="ОСП-3 9 мм, доставка стройматериалов" autocomplete="off"></label>
+          <label>Другие написания бренда <input id="aliases" maxlength="420" placeholder="Шурик, Shurik Market" autocomplete="off"></label>
+        </div>
+        <div class="actions">
+          <button id="generate" type="button">Создать 30 промптов</button>
+          <button id="example" class="secondary" type="button">Заполнить пример «Шурик»</button>
+          <button id="reset" class="ghost" type="button">Очистить матрицу</button>
+        </div>
+        <p class="hint">В автоматически созданных вопросах не упоминается клиентский бренд — проверяется непредвзятое появление в рекомендациях. Любой вопрос можно отредактировать перед запуском.</p>
+      </section>
+
+      <section class="panel" id="matrix-section">
+        <div class="section-title">
+          <div><span class="eyebrow">ШАГ 2</span><h2>Матрица запросов <small id="prompt-counter">0 вопросов</small></h2></div>
+          <div class="toolbar">
+            <button id="select-all" class="secondary small" type="button">Выделить первые 10</button>
+            <button id="deselect" class="ghost small" type="button">Снять выделение</button>
+          </div>
+        </div>
+        <div class="filter-line">
+          <label for="filter">Показывать</label>
+          <select id="filter"><option value="all">Все вопросы</option><option value="gap">Конкуренты видны, клиент — нет</option><option value="candidate">Кандидаты на свободную нишу</option><option value="ours">Клиент упоминается</option><option value="unchecked">Без данных</option></select>
+          <span class="hint" id="selected-count">Выбрано: 0</span>
+        </div>
+        <div class="table-wrap">
+          <table aria-label="Матрица покупательских промптов">
+            <thead><tr><th scope="col">✓</th><th scope="col">Группа</th><th scope="col">Покупательский вопрос (редактируется)</th><th scope="col">Результат проверки</th></tr></thead>
+            <tbody id="prompt-rows"><tr><td colspan="4" class="empty">Сначала создайте матрицу промптов.</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel run-panel">
+        <div class="section-title"><div><span class="eyebrow">ШАГ 3</span><h2>Проверить в нейросетях</h2></div><span class="hint">Не более 20 платных API-запросов за запуск</span></div>
+        <p class="hint">Доступные API берутся из действующих серверных настроек MIRVIX AI. Проверка через API с веб-поиском <strong>не равна</strong> персонализированной выдаче приложения ChatGPT или Алисы.</p>
+        <div class="providers" id="providers"><span class="hint">Проверяем подключённые API…</span></div>
+        <div class="actions">
+          <button id="run" type="button">Проверить выделенные запросы</button>
+          <button id="stop" type="button" class="ghost" disabled>Остановить после текущего ответа</button>
+        </div>
+        <p class="status" id="run-status" role="status">Готово к проверке.</p>
+        <div class="progress"><div id="progress-fill"></div></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title"><div><span class="eyebrow">ДОПОЛНИТЕЛЬНО</span><h2>Проверка вручную — Алиса, GigaChat и приложения</h2></div></div>
+        <p class="hint">Если нужной платформы нет среди API, скопируйте вопрос в неё, затем внесите полученный ответ. Система проверит упоминания клиента и заданных конкурентов, сохранив метод «вручную».</p>
+        <div class="fields">
+          <label>Промпт <select id="manual-prompt"><option value="">Сначала создайте матрицу</option></select></label>
+          <label>Где проверено <select id="manual-provider">
+            <option value="alisa-app">Алиса (приложение, вручную)</option>
+            <option value="gigachat-app">GigaChat (приложение, вручную)</option>
+            <option value="chatgpt-app">ChatGPT (приложение, вручную)</option>
+            <option value="gemini-app">Gemini (приложение, вручную)</option>
+            <option value="perplexity-app">Perplexity (приложение, вручную)</option>
+          </select></label>
+          <label class="span-2">Текст ответа нейросети <textarea id="manual-answer" rows="4" maxlength="12000" placeholder="Вставьте дословный ответ с рекомендациями компаний."></textarea></label>
+          <label class="span-2">Ссылки из ответа (по одной на строку, необязательно) <textarea id="manual-sources" rows="2" maxlength="2400" placeholder="https://example.ru/..."></textarea></label>
+        </div>
+        <div class="actions"><button class="secondary" id="save-manual" type="button">Учесть ручную проверку</button><span class="hint" id="manual-status" role="status"></span></div>
+      </section>
+
+      <section class="panel report-panel" id="report">
+        <div class="section-title"><div><span class="eyebrow">ШАГ 4</span><h2>Карта возможностей и отчёт</h2></div><span class="hint">Считаем только полученные ответы без ошибок</span></div>
+        <div class="stats">
+          <div class="stat"><strong id="stat-checks">0</strong><span>успешных ответов</span></div>
+          <div class="stat"><strong id="stat-visibility">—</strong><span>доля ответов с брендом</span></div>
+          <div class="stat"><strong id="stat-gaps">0</strong><span>запросов, где конкурент виден</span></div>
+          <div class="stat"><strong id="stat-candidates">0</strong><span>кандидатов на свободную нишу</span></div>
+        </div>
+        <div id="opportunities" class="opportunity-list"><p class="empty">После проверки здесь появятся приоритетные вопросы и рекомендации.</p></div>
+        <div class="actions">
+          <button id="download-json" class="secondary" type="button">Сохранить историю (JSON)</button>
+          <button id="download-csv" class="secondary" type="button">Таблица для Excel (CSV)</button>
+          <label class="upload">Загрузить прежнюю проверку (JSON)<input id="import-json" type="file" accept=".json,application/json"></label>
+          <button id="print" class="ghost" type="button">Печать / PDF</button>
+        </div>
+        <p class="hint">Результаты хранятся только в открытой вкладке. Для повторной проверки через неделю сохраните JSON и затем загрузите его сюда. Импорт не отправляет файл на сервер.</p>
+        <p class="disclaimer"><strong>Методика.</strong> «Кандидат на свободную нишу» означает, что в проверенной выборке не обнаружен ни ваш бренд, ни <em>перечисленные вами</em> конкуренты. Это не доказательство отсутствия остальных компаний и не оценка спроса. Один ответ модели — не устойчивый рейтинг. Сначала проверьте частотность, ассортимент и коммерческий смысл запроса.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
