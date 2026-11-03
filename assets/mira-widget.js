@@ -32,7 +32,25 @@
   const say = text => bubble(text);
   const rawTask = () => state.original.join('\n\n').trim();
   const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
-  const localBrief = () => 'Задача клиента:\n' + rawTask();
+  // Conservative offline version; full semantic rewriting requires an active model.
+  function localBrief() {
+    const original = rawTask().replace(/^Уточнение(?: или исправление)? клиента:\\s*/gim, '').trim();
+    let text = original.replace(/\\s+/g, ' ').trim();
+    const assistant = /(?:бот|чат-бот|ассистент|помощник)/i.test(text);
+    let industry = '';
+    if (/стоматолог/i.test(text)) industry='стоматологической клиники';
+    else if (/парикмахерск/i.test(text)) industry='парикмахерской';
+    else if (/салон(?:а|е)? красоты/i.test(text)) industry='салона красоты';
+    else if (/ресторан/i.test(text)) industry='ресторана';
+    else if (/магазин/i.test(text)) industry='магазина';
+    else if (/фитнес|спортзал/i.test(text)) industry='фитнес-центра';
+    const heading = assistant ? 'Необходим ИИ-ассистент' + (industry ? ' для ' + industry : '') : 'Требуется решение для бизнес-задачи';
+    text=text.replace(/^(?:здравствуйте[,!. ]*|добрый день[,!. ]*)+/i,'')
+      .replace(/^(?:ну[, ]*)?(?:мне|нам|мы)\\s+(?:нужно|нужен|нужна|нужны|хочу|хотим|ищем)\\s*/i,'')
+      .replace(/^бот(?:а)?\\s+для\\s+(?:стоматологии|парикмахерской|салона красоты|ресторана|магазина|фитнес-центра)\\s*[,.;:-]?\\s*/i,'').trim();
+    if (text) text=text.charAt(0).toUpperCase()+text.slice(1).replace(/[.!?]\\s*$/,'')+'.';
+    return 'Задача: '+heading+'.'+(text?' Пожелания клиента: '+text:'');
+  }
 
   function updateControls() {
     const isBusy = state.busy || !speechCheck.hidden;
@@ -78,9 +96,9 @@
     let brief = localBrief();
     let fallbackReason = '';
     if (!aiConsent.checked) {
-      fallbackReason = 'Чтобы MIRA могла переформулировать текст с помощью ИИ, отметьте согласие внизу чата. Пока я сохраню ваши слова без изменений.';
+      fallbackReason = 'Для полной ИИ-формулировки отметьте согласие под чатом. Я подготовила базовое описание без добавления требований.';
     } else if (contactPattern.test(original)) {
-      fallbackReason = 'В тексте есть контакты, поэтому я не передаю его ИИ-сервису и сохраняю без изменений.';
+      fallbackReason = 'Контактные данные не отправлены ИИ-сервису. Я оформила задачу локально.';
     } else {
       try {
         const response = await fetch('/api/mira-brief', {
@@ -94,7 +112,7 @@
         if (polished.length < 16 || polished.length > 1900) throw new Error('incomplete');
         brief = polished;
       } catch {
-        fallbackReason = 'Сейчас автоматическое оформление недоступно, поэтому я сохранила ваше описание без изменений.';
+        fallbackReason = 'Полноценное ИИ-перефразирование сейчас недоступно. Я оформила задачу локально, сохранив слова клиента.';
       }
     }
     state.brief = brief;
@@ -113,27 +131,6 @@
     // Accept a meaningful other contact such as a public social profile URL.
     return /^https:\/\/\S{8,}$/i.test(v);
   }
-  function quoteForTask(text) {
-    const words = text.toLocaleLowerCase('ru');
-    if (/время|заявк|рутин|автомат|бот|crm|запис|эффективн/.test(words)) {
-      return 'На прощание — мысль Бенджамина Франклина: «Время — деньги». Пусть новое решение освободит больше времени для вашего главного дела.';
-    }
-    if (/сайт|поиск|seo|информац|образован|обучен|данн/.test(words)) {
-      return 'На прощание — слова Фрэнсиса Бэкона: «Знание — сила». Пусть ваш опыт и знания станут заметнее клиентам.';
-    }
-    return 'На прощание — мысль Лао-цзы: «Путь в тысячу ли начинается с первого шага». Желаю вашему проекту хорошего начала!';
-  }
-  function emailFallback() {
-    const subject = encodeURIComponent('Заявка от клиента через MIRA — MIRVIX AI');
-    const body = encodeURIComponent('Здравствуйте, MIRVIX AI!\n\nСогласованная задача:\n' + state.brief + '\n\nСлова клиента:\n' + rawTask() + '\n\nПредпочтительный контакт:\n' + state.contact);
-    const a = document.createElement('a');
-    a.className = 'mira-fallback';
-    a.href = 'mailto:mirvixai@mail.ru?subject=' + subject + '&body=' + body;
-    a.textContent = 'Открыть подготовленное письмо для отправки ↗';
-    history.appendChild(a);
-    history.scrollTop = history.scrollHeight;
-  }
-
   async function deliver() {
     if (state.busy || !['ready', 'contact'].includes(state.phase) || !state.contact) return;
     if (!deliveryConsent.checked) {
@@ -155,13 +152,12 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.delivered !== true) throw new Error(data.error || 'Нет подтверждения отправки.');
-      progress.textContent = 'Готово! Ваше обращение доставлено специалисту MIRVIX AI.\n\n' + state.brief + '\n\nКак с вами связаться: ' + state.contact + '\n\nБлагодарю за обращение! Специалист свяжется с вами по указанному контакту.\n\n' + quoteForTask(rawTask());
+      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\\n\\nСогласованная задача:\\n' + state.brief + '\\n\\nСпособ связи: ' + state.contact + '\\n\\nС вами в кратчайшие сроки свяжется наш специалист. Хорошего вам дня!';
       state.phase = 'sent';
       deliveryPanel.hidden = true;
     } catch {
       state.phase = 'ready';
-      progress.textContent = 'Ваше обращение готово, но Telegram пока не подтвердил его доставку. Я не буду утверждать, что оно отправлено. Вы можете отправить подготовленный текст на электронную почту:';
-      emailFallback();
+      progress.textContent = 'Telegram не подтвердил доставку обращения. Повторите отправку стрелкой ➤. Пока подтверждения нет, заявка не считается отправленной.';
     } finally {
       state.busy = false;
       updateControls();
