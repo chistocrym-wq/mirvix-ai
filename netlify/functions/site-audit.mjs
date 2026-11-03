@@ -256,8 +256,14 @@ async function audit(raw, brand) {
     throw new Error('Не удалось получить страницу: ' + (e.message || 'ошибка соединения'));
   }
   const elapsedMs = Date.now() - startMs;
+  if (homepage.status === 401 || homepage.status === 403) {
+    throw new Error('HTTP ' + homepage.status + ': сервер не предоставляет публичный HTML нашему автоматическому аудитору. Это ограничение доступа, а не недостаток SEO или сайта.');
+  }
+  if (homepage.status === 429) {
+    throw new Error('HTTP 429: сайт временно ограничил число автоматических запросов. Технические критерии не проверены.');
+  }
   if (homepage.status < 200 || homepage.status >= 300 || !/<html\b/i.test(homepage.text)) {
-    throw new Error('Главная страница не вернула доступный HTML (HTTP ' + homepage.status + ').');
+    throw new Error('Главная страница не вернула доступный HTML (HTTP ' + homepage.status + '). Показатели не проверены.');
   }
   const [robots, sitemap, llms] = await Promise.all([
     getText(new URL('/robots.txt', homepage.url), 140000).catch(() => null),
