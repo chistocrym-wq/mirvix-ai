@@ -270,7 +270,7 @@ async function audit(raw, brand) {
   const access = (name) => botAccess.find((b) => b.name === name);
   const block = robotsAvailable ? botBlocked(robots.text, 'OAI-SearchBot') : null;
   const llmsOk = !!(llms && llms.status === 200 && llms.text.trim() &&
-    !/<html\\b/i.test(llms.text) && !/<!doctype html/i.test(llms.text));
+    !/<html\b/i.test(llms.text) && !/<!doctype html/i.test(llms.text));
   const root = new URL(homepage.url).origin;
   const files = [
     { id:'robots', name:'robots.txt', url: root + '/robots.txt',
