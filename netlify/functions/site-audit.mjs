@@ -204,19 +204,18 @@ function extract(html) {
     jsonld, tel, brandContent };
 }
 
-function botBlocked(content, name) {
+function robotsDecision(content, name, path = '/') {
   if (!content) return null;
   const groups = [];
   let current = null;
   for (const line of content.split(/\r?\n/)) {
     const value = line.split('#')[0].trim();
-    if (!value) continue;
     const pos = value.indexOf(':');
     if (pos < 0) continue;
     const key = value.slice(0, pos).trim().toLowerCase();
     const val = value.slice(pos + 1).trim();
     if (key === 'user-agent') {
-      if (!current || current.rules.length) {
+      if (!current || current.rules.length > 0) {
         current = { agents: [], rules: [] };
         groups.push(current);
       }
@@ -225,25 +224,58 @@ function botBlocked(content, name) {
       current.rules.push({ key, val });
     }
   }
-  const matching = groups.filter((g) => g.agents.includes(name.toLowerCase()));
-  const fallback = matching.length ? matching : groups.filter((g) => g.agents.includes('*'));
-  let chosen = null;
-  for (const group of fallback) {
-    for (const rule of group.rules) {
-      if (!rule.val || !'/'.startsWith(rule.val.replace(/\*.*$/, ''))) continue;
-      if (!chosen || rule.val.length > chosen.val.length ||
-          (rule.val.length === chosen.val.length && rule.key === 'allow')) {
-        chosen = rule;
+  const crawler = name.toLowerCase();
+  let maxAgentLength = -1;
+  for (const group of groups) {
+    for (const agent of group.agents) {
+      if (agent !== '*' && crawler.startsWith(agent)) {
+        maxAgentLength = Math.max(maxAgentLength, agent.length);
       }
     }
   }
-  return chosen ? chosen.key === 'disallow' : false;
+  const selected = groups.filter((g) => g.agents.some((agent) =>
+    maxAgentLength >= 0
+      ? agent !== '*' && crawler.startsWith(agent) && agent.length === maxAgentLength
+      : agent === '*'));
+  const escapeRegex = (segment) => Array.from(segment).map((ch) =>
+    '.+?^$()[]{}|\\'.includes(ch) ? '\\' + ch : ch).join('');
+  let winner = null;
+  for (const group of selected) {
+    for (const rule of group.rules) {
+      if (!rule.val) continue; // Empty Disallow never blocks anything
+      const end = rule.val.endsWith('$');
+      const raw = end ? rule.val.slice(0, -1) : rule.val;
+      try {
+        const pattern = '^' + raw.split('*').map(escapeRegex).join('.*') + (end ? '$' : '');
+        if (!new RegExp(pattern).test(path)) continue;
+        const specificity = raw.replace(/\*/g, '').length + (end ? 1 : 0);
+        if (!winner || specificity > winner.specificity ||
+            (specificity === winner.specificity && rule.key === 'allow')) {
+          winner = { ...rule, specificity };
+        }
+      } catch { /* Unsupported malformed directive; do not make a negative claim */ }
+    }
+  }
+  return {
+    blocked: !!winner && winner.key === 'disallow',
+    rule: winner ? winner.key.charAt(0).toUpperCase() + winner.key.slice(1) + ': ' + winner.val :
+      'Нет правила, запрещающего главную страницу',
+    group: maxAgentLength >= 0 ? 'специальная группа ' + name : 'общая группа *',
+    scope: 'Только правила robots.txt для URL /; доступность HTML и реальный обход не измерены.'
+  };
+}
+
+function botBlocked(content, name) {
+  return robotsDecision(content, name)?.blocked ?? null;
 }
 
 function check(id, title, ok, detail, tip, importance = 'medium') {
+  const htmlOnly = ['index','title','description','h1','canonical','lang','viewport','structured','og'];
   return { id, title, state: ok === null ? 'unknown' : ok ? 'ok' : 'issue',
-    detail: String(detail || '').slice(0, 240),
-    tip: ok ? '' : tip, importance };
+    detail: ok === null && htmlOnly.includes(id)
+      ? 'Нет данных: HTML главной страницы не получен. Нельзя судить о наличии или отсутствии элемента.'
+      : String(detail || '').slice(0, 240),
+    tip: ok === null || ok ? '' : tip, importance };
 }
 
 function resourceFileState(reply, valid) {
@@ -294,13 +326,13 @@ async function audit(raw, brand) {
   const sitemapOk = !!(finalMap && finalMap.status === 200 &&
     /<(?:\w+:)?(?:urlset|sitemapindex)\b/i.test(finalMap.text));
   const botNames = ['OAI-SearchBot', 'PerplexityBot', 'Claude-SearchBot', 'Googlebot', 'Bingbot'];
-  const botAccess = botNames.map((name) => ({
-    name,
-    state: robotsAvailable ? (botBlocked(robots.text, name) ? 'blocked' : 'not-blocked') : 'unknown',
-    note: 'Только разбор robots.txt для главной страницы, не проверка фактического обхода.'
-  }));
+  const botAccess = botNames.map((name) => {
+    const decision = robotsAvailable ? robotsDecision(robots.text, name, '/') : null;
+    return { name, state: decision ? (decision.blocked ? 'blocked' : 'not-blocked') : 'unknown',
+      rule: decision?.rule || '', group: decision?.group || '',
+      note: 'Правила robots.txt для главной страницы. Не подтверждает доступность HTML или фактический обход.' };
+  });
   const access = (name) => botAccess.find((b) => b.name === name);
-  const block = robotsAvailable ? botBlocked(robots.text, 'OAI-SearchBot') : null;
   const llmsOk = !!(llms && llms.status === 200 && llms.text.trim() &&
     !/<html\b/i.test(llms.text) && !/<!doctype html/i.test(llms.text));
   const root = start.origin;
@@ -347,24 +379,19 @@ async function audit(raw, brand) {
       'Добавить достоверную разметку Organization, LocalBusiness или подходящий тип Schema.org.', 'medium'),
     check('og','Превью для социальных сетей', htmlOk ? tags.openGraph : null, tags.openGraph ? 'Найдены Open Graph title и description.' : 'Не обнаружена полная пара og:title / og:description.',
       'Настроить Open Graph для корректного отображения ссылок.', 'low'),
-    check('airobots','Доступность OAI-SearchBot', block === null ? null : !block,
-      block === null ? 'Нельзя надёжно определить по robots.txt.' :
-        block ? 'В robots.txt есть правило, запрещающее корневую страницу OAI-SearchBot.' :
-          'Явной блокировки корневой страницы OAI-SearchBot не выявлено.',
-      'Проверить блокировку OAI-SearchBot. Правила других ботов и страниц требуют отдельной проверки.', 'high'),
     ...[
-      ['PerplexityBot','PerplexityBot (поиск Perplexity)'],
-      ['Claude-SearchBot','Claude-SearchBot (поиск Claude)'],
-      ['Googlebot','Googlebot (Google Search)'],
-      ['Bingbot','Bingbot (Bing Search)']
-    ].map(([agent, title]) => check('bot-' + agent.toLowerCase(), title,
-      access(agent).state === 'unknown' ? null : access(agent).state === 'not-blocked',
-      access(agent).state === 'unknown'
-        ? 'Не удалось определить правила в robots.txt.'
-        : access(agent).state === 'blocked'
-          ? 'Правила robots.txt блокируют главную страницу для ' + agent + '.'
-          : 'Явной блокировки главной страницы по robots.txt не найдено.',
-      'Проверить robots.txt для ' + agent + '. Это не измеряет реальный обход сайта.', 'high'))
+      ['OAI-SearchBot','OAI-SearchBot (ChatGPT Search)','airobots'],
+      ['PerplexityBot','PerplexityBot','bot-perplexitybot'],
+      ['Claude-SearchBot','Claude-SearchBot','bot-claude-searchbot'],
+      ['Googlebot','Googlebot','bot-googlebot'],
+      ['Bingbot','Bingbot','bot-bingbot']
+    ].map(([agent, title, id]) => {
+      const entry = access(agent);
+      return check(id,title,entry.state === 'unknown' ? null : entry.state === 'not-blocked',
+        entry.state === 'unknown' ? 'Не удалось получить или разобрать robots.txt.' :
+        (entry.state === 'blocked' ? 'Запрет главной страницы по правилу ' : 'Запрета главной страницы не найдено; применено правило: ') + entry.rule,
+        'Проверить разрешения ' + agent + ' в robots.txt. Действие правил не гарантирует фактический обход сайта.', 'high');
+    })
   ];
   const known = checks.filter((c) => c.state !== 'unknown');
   const passed = known.filter((c) => c.state === 'ok').length;
@@ -410,4 +437,4 @@ export const handler = async (event) => {
   }
 };
 
-export const _test = { validateTarget, publicIp, extract, botBlocked, pinnedLookup, audit };
+export const _test = { validateTarget, publicIp, extract, botBlocked, robotsDecision, pinnedLookup, audit };
