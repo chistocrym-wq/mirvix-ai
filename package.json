@@ -1,0 +1,15 @@
+{
+  "name": "mirvix-ai",
+  "private": true,
+  "version": "0.2.0",
+  "description": "MIRVIX AI website and protected visibility tools",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.7"
+  },
+  "scripts": {
+    "check": "node --check netlify/functions/mirvix-tools.js && node --check cabinet/tools.js"
+  }
+}

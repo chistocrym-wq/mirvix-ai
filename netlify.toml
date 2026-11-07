@@ -1,6 +1,11 @@
-# MIRVIX AI: static site (no build step required)
+# MIRVIX AI — isolated Preview-ready Netlify deployment
 [build]
+  command = "npm install --no-audit --no-fund"
   publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
@@ -8,3 +13,9 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/cabinet/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
