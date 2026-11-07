@@ -1,6 +1,6 @@
 # MIRVIX AI — isolated Preview-ready Netlify deployment
 [build]
-  command = "npm install --no-audit --no-fund"
+  command = "npm run check"
   publish = "."
   functions = "netlify/functions"
 
@@ -16,6 +16,12 @@
 
 [[headers]]
   for = "/cabinet/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/geo-monitor/*"
   [headers.values]
     Cache-Control = "no-store"
     X-Robots-Tag = "noindex, nofollow"
