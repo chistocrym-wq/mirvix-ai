@@ -587,6 +587,18 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @media(max-width:700px){.hero.hero-ocean{min-height:680px}.hero-ocean .hero-layout{min-height:570px;padding:74px 0 65px}.hero-ocean .ocean-wave{height:23%;width:180%;left:-40%}.hero-ocean .hero-copy>p{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.hero-ocean .ocean-stage *{animation:none!important;transform:none!important}.hero-ocean .ocean-surface{transform:perspective(620px) rotateX(26deg) scale(1.32)!important}}
 
+
+/* MIRVIX OCEAN v2 — REAL OVERHEAD WATER / FOAM, NO HORIZON */
+.hero.hero-ocean{background:#063c49;min-height:680px}
+.hero-ocean .ocean-video-stage{position:absolute;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(ellipse at center,#287980 0%,#0a525f 52%,#063541 100%)}
+.hero-ocean .ocean-real-video{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;object-position:center center;transform:scale(1.025);filter:saturate(.83) brightness(.78) contrast(1.11)}
+.hero-ocean .ocean-video-tint{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,29,40,.43) 0%,rgba(3,44,51,.36) 43%,rgba(0,21,35,.52) 100%);pointer-events:none}
+.hero-ocean .hero-layout{min-height:600px}
+.hero-ocean .hero-noise{opacity:.045}
+.hero-ocean h1{font-weight:720;text-shadow:0 4px 23px rgba(0,16,30,.55)}
+.hero-ocean .gradient{background:linear-gradient(90deg,#fff 0%,#d4fbf8 55%,#fff 100%);-webkit-background-clip:text;background-clip:text}
+.hero-ocean .capability-row{background:rgba(0,30,38,.4)}
+@media(prefers-reduced-motion:reduce){.hero-ocean .ocean-real-video{display:none}.hero-ocean .ocean-video-stage{background:linear-gradient(132deg,#0e535f,#0a3d51,#08283e)}}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -626,16 +638,11 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 
 <main id="main">
 <section class="hero hero-ocean" id="top">
-  <div class="ocean-stage" aria-hidden="true">
-    <div class="ocean-sky"></div>
-    <div class="ocean-glow"></div>
-    <div class="ocean-horizon"></div>
-    <div class="ocean-surface"></div>
-    <div class="ocean-shimmer"></div>
-    <svg class="ocean-wave ocean-wave-back" viewBox="0 0 1440 250" preserveAspectRatio="none"><path d="M0,115 C115,78 235,148 360,120 S595,65 730,115 S990,164 1120,119 S1320,73 1440,112 L1440,250 L0,250Z"/></svg>
-    <svg class="ocean-wave ocean-wave-mid" viewBox="0 0 1440 270" preserveAspectRatio="none"><path d="M0,128 C130,175 245,90 365,133 S595,181 735,130 S980,92 1100,139 S1310,175 1440,126 L1440,270 L0,270Z"/></svg>
-    <svg class="ocean-wave ocean-wave-front" viewBox="0 0 1440 240" preserveAspectRatio="none"><path d="M0,136 C165,98 260,182 385,137 S610,102 730,143 S970,185 1110,139 S1310,100 1440,147 L1440,240 L0,240Z"/></svg>
-    <div class="ocean-vignette"></div>
+  <div class="ocean-video-stage" aria-hidden="true">
+    <video class="ocean-real-video" autoplay muted loop playsinline preload="metadata" poster="">
+      <source src="https://assets.mixkit.co/videos/preview/mixkit-turquoise-ocean-background-with-foaming-waves-2091-large.mp4" type="video/mp4">
+    </video>
+    <div class="ocean-video-tint"></div>
   </div>
   <div class="hero-noise" aria-hidden="true"></div>
   <div class="container hero-layout">
