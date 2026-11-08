@@ -554,6 +554,42 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @media(max-width:1130px){.contact-shell{gap:28px;padding:54px 35px}}
 @media(max-width:690px){.contact-shell{padding:35px 23px;gap:27px}.lead-panel{padding:20px 16px}.lead-fields{grid-template-columns:1fr}.lead-fields .lead-full{grid-column:auto}.lead-panel-head h3{font-size:22px}}
 .partner-cabinet-link{display:inline-flex!important;align-items:center;gap:7px;padding:10px 13px!important;border:1px solid #bed4f5;border-radius:10px;background:#e9f2ff;color:#135cae!important;font-size:12.3px!important;font-weight:800!important;line-height:1.4!important;transition:background .2s}.partner-cabinet-link:hover{background:#d7e7ff}
+
+/* MIRVIX 2026 — business-card blue, aqua and violet identity */
+:root{--navy:#183A8B;--ink:#182A65;--blue:#2868D4;--cyan:#2CB8E4;--violet:#7933A4;--soft-blue:#f1f6ff}
+body{background:#fff}
+.button-primary{background:linear-gradient(105deg,#2353bc 0%,#2868d4 58%,#7933a4 100%);box-shadow:0 11px 32px rgba(33,67,159,.20)}
+.gradient{background:linear-gradient(103deg,#2868d4,#2cb8e4 52%,#7933a4);-webkit-background-clip:text;background-clip:text}
+.hero.mirvix-ocean-hero{position:relative;isolation:isolate;background:#0a3474;color:#fff;overflow:hidden}
+.mirvix-ocean-hero::before,.mirvix-ocean-hero::after{display:none}
+.mirvix-ocean-media{position:absolute;inset:0;z-index:-1;overflow:hidden;background:#0c417a}
+.mirvix-ocean-film{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;filter:saturate(.95) contrast(1.08) hue-rotate(7deg) brightness(.86)}
+.mirvix-ocean-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(1,22,61,.38),rgba(1,24,67,.34) 48%,rgba(2,17,49,.54));pointer-events:none}
+.mirvix-ocean-hero .hero-layout{position:relative;z-index:1;min-height:calc(100svh - 96px);min-height:max(610px,calc(100svh - 96px));padding:90px 0}
+.mirvix-ocean-hero .hero-copy{width:100%;max-width:1100px;margin:0 auto;text-align:center}
+.mirvix-ocean-hero .eyebrow{justify-content:center;color:#d8eeff}
+.mirvix-ocean-hero h1{max-width:1120px;margin:25px auto;font-size:clamp(39px,5.5vw,76px);line-height:1.12;letter-spacing:-.055em;font-weight:790;color:#fff;text-shadow:0 3px 22px rgba(0,14,48,.44)}
+.mirvix-ocean-hero .ocean-headline-accent{color:#e2f4ff}
+.mirvix-ocean-hero .hero-copy>p{max-width:860px;margin:0 auto;color:#f0f6ff;font-size:clamp(16px,1.55vw,20px);line-height:1.65;text-shadow:0 2px 15px rgba(0,14,47,.53)}
+.mirvix-ocean-hero .hero-buttons{justify-content:center}
+.mirvix-ocean-hero .button-light{background:rgba(15,40,87,.40);border-color:rgba(221,244,255,.78);color:white;backdrop-filter:blur(6px)}
+.mirvix-ocean-hero .button-light:hover{background:#fff;color:#17326c}
+.mirvix-ocean-hero .capability-row{position:relative;color:#edf8ff;background:rgba(5,29,71,.4);border-top:1px solid rgba(255,255,255,.22)}
+.mirvix-platform-section{background:linear-gradient(125deg,#f4f8ff 0%,#fff 60%,#f6f2ff 100%);padding:96px 0}
+.mirvix-platform-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(280px,.82fr);align-items:center;gap:65px}
+.mirvix-platform-grid h2{font-size:clamp(33px,3.5vw,52px);letter-spacing:-.045em;line-height:1.12;margin:18px 0 25px}
+.mirvix-platform-grid p{font-size:17px;line-height:1.76;color:#485c7d}
+.mirvix-platform-grid p a{font-weight:750;text-decoration:underline;color:#265dc9}
+.mirvix-platform-buttons{display:flex;gap:11px;flex-wrap:wrap;margin-top:28px}
+.mirvix-platform-grid .mirvix-platform-footnote{font-size:13px;color:#7887a0;margin-top:20px}
+.mirvix-product-preview{padding:33px;border-radius:24px;background:linear-gradient(140deg,#193a8b,#2463b8 56%,#6136a0);color:white;box-shadow:0 20px 60px rgba(26,54,123,.19)}
+.mirvix-product-label{font-size:11px;font-weight:800;letter-spacing:.13em;color:#b9eaff;margin-bottom:28px}
+.mirvix-product-line{display:flex;gap:20px;align-items:center;border:1px solid rgba(226,245,255,.23);border-radius:12px;padding:17px;margin:10px 0;background:rgba(255,255,255,.06)}
+.mirvix-product-line b{color:#a4e5ff}.mirvix-product-line span{font-weight:600;font-size:14px}
+.mirvix-product-note{font-size:12px;color:#c1dafa;margin-top:27px}
+@media(max-width:760px){.mirvix-ocean-hero .hero-layout{min-height:680px;padding:84px 0 70px}.mirvix-ocean-hero h1{font-size:clamp(36px,7.8vw,54px)}.mirvix-ocean-film{object-position:center}.mirvix-platform-section{padding:64px 0}.mirvix-platform-grid{grid-template-columns:1fr;gap:32px}}
+@media(prefers-reduced-motion:reduce){.mirvix-ocean-film{display:none}.mirvix-ocean-media{background:#144b88}}
+
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -592,25 +628,26 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 </header>
 
 <main id="main">
-<section class="hero" id="top">
-  <div class="hero-noise" aria-hidden="true"></div>
+<section class="hero mirvix-ocean-hero" id="top">
+  <div class="mirvix-ocean-media" aria-hidden="true">
+    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+      <source src="https://assets.mixkit.co/videos/preview/mixkit-waves-crash-on-the-shore-1078-large.mp4" type="video/mp4">
+    </video>
+    <div class="mirvix-ocean-shade"></div>
+  </div>
   <div class="container hero-layout">
     <div class="hero-copy" data-reveal>
-      <div class="eyebrow"><span class="eyebrow-dot"></span> ТЕХНОЛОГИИ ДЛЯ РЕАЛЬНЫХ ЗАДАЧ</div>
-      <h1>Оцифровываем процессы.<br><span class="gradient">Создаём интеллект.</span></h1>
-      <p>Помогаем компаниям быть заметнее в поиске и ИИ-сервисах, внедряем ИИ-помощников для ответов клиентам 24/7, разрабатываем приложения и оцифровываем бизнес-процессы.</p>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> MIRVIX AI · ВИДИМОСТЬ В ЦИФРОВОМ МИРЕ</div>
+      <h1>Поможем вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее в океане ИИ и информации</span></h1>
+      <p>MIRVIX AI помогает компаниям быть заметнее там, где клиенты ищут информацию, товары и услуги — в поисковых системах, нейросетях и цифровых рекомендациях.</p>
       <div class="hero-buttons">
-        <a class="button button-primary" href="#contacts">Обсудить вашу задачу <span aria-hidden="true">↗</span></a>
-        <a class="button button-light" href="#projects">Смотреть разработки <span aria-hidden="true">↓</span></a>
-        <a class="button button-light" href="/audit/">Проверить сайт <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="hero-footnotes">
-        <span><i aria-hidden="true"></i> Продукты под задачу</span><span><i aria-hidden="true"></i> Человек контролирует ИИ</span>
+        <a class="button button-primary" href="/audit/">Проверить видимость <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </div>
   <div class="container capability-row" aria-label="Основные направления">
-    <span>Оцифровка бизнеса</span><b aria-hidden="true">/</b><span>Разработка приложений</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span><b aria-hidden="true">/</b><span>Поиск и продвижение</span>
+    <span>Видимость в ИИ</span><b aria-hidden="true">/</b><span>Цифровые карточки</span><b aria-hidden="true">/</b><span>Разработка платформ</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span>
   </div>
 </section>
 
@@ -757,6 +794,30 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   </div>
 </section>
 
+<section class="section mirvix-platform-section" id="platform">
+  <div class="container mirvix-platform-grid">
+    <div>
+      <span class="section-kicker">СОБСТВЕННАЯ РАЗРАБОТКА · РАННЕЕ УЧАСТИЕ</span>
+      <h2>Новая платформа MIRVIX: товары, услуги и умный поиск</h2>
+      <p>Мы разрабатываем цифровую платформу, на которой компании смогут размещать публичные карточки своих товаров и услуг, а покупатели — находить подходящие предложения с помощью ИИ-помощника.</p>
+      <p>Хотите понять, какие площадки важны вашему бренду и как заявить о себе в ИИ-поиске? <a href="#contacts">Свяжитесь с нами</a>. Если хотите стать одним из первых участников будущей платформы, оставьте заявку — мы сообщим об условиях и дальнейшем запуске.</p>
+      <div class="mirvix-platform-buttons">
+        <a class="button button-primary" href="#lead-form" id="platform-waitlist">Подать заявку на участие <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="mirvix-platform-footnote">Платформа в разработке. Оставленная заявка не означает автоматического подключения. Присутствие в ИИ-рекомендациях не гарантируется.</p>
+    </div>
+    <div class="mirvix-product-preview" aria-label="Направления будущей платформы">
+      <div class="mirvix-product-label">MIRVIX / ПЛАТФОРМА</div>
+      <div class="mirvix-product-line"><b>01</b><span>Карточки товаров и услуг</span></div>
+      <div class="mirvix-product-line"><b>02</b><span>Интеллектуальный поиск предложений</span></div>
+      <div class="mirvix-product-line"><b>03</b><span>Цифровое присутствие бизнеса</span></div>
+      <div class="mirvix-product-line"><b>04</b><span>Аналитика и инструменты продвижения</span></div>
+      <div class="mirvix-product-note">Концепция · готовим к запуску</div>
+    </div>
+  </div>
+</section>
+
 <section class="section contact-section" id="contacts">
   <div class="container contact-shell">
     <div class="contact-primary">
@@ -774,7 +835,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     <div class="lead-fields">
       <label>Как к вам обращаться? <span>*</span><input name="client_name" autocomplete="name" maxlength="100" placeholder="Ваше имя" required></label>
       <label>Как с вами связаться? <span>*</span><input name="client_contact" maxlength="160" placeholder="Телефон, почта или Telegram" required></label>
-      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option></select></label>
+      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option><option value="platform-waitlist">Раннее участие в платформе MIRVIX</option></select></label>
       <label class="lead-full">Опишите задачу<textarea name="message" rows="3" maxlength="3000" placeholder="Чем занимается компания и что хотелось бы улучшить?"></textarea></label>
     </div>
     <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я ознакомлен(а) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и согласен(на) передать указанные данные по электронной почте для ответа на обращение.</span></label>
@@ -1034,5 +1095,22 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 <div class="mira-foot">Голосовой ввод может использовать сервис распознавания браузера. Обращение передаётся только после вашего подтверждения. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
 </section></div>
 <script src="/assets/mira-widget.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var cta=document.getElementById('platform-waitlist');
+  var form=document.getElementById('mirvix-lead');
+  if(cta&&form){cta.addEventListener('click',function(){
+    var select=form.querySelector('select[name="plan"]');
+    var message=form.querySelector('textarea[name="message"]');
+    if(select)select.value='platform-waitlist';
+    if(message&&!message.value.trim())message.value='Хочу узнать об условиях раннего участия в платформе MIRVIX с карточками товаров и услуг.';
+  });}
+  var video=document.getElementById('mirvix-ocean-film');
+  if(video){var media=window.matchMedia('(prefers-reduced-motion: reduce)');
+    function sync(){if(media.matches){video.pause();video.style.display='none'}else{video.style.display='block';var p=video.play();if(p&&p.catch)p.catch(function(){})}}
+    sync();if(media.addEventListener)media.addEventListener('change',sync);
+  }
+});
+</script>
 </body>
 </html>
