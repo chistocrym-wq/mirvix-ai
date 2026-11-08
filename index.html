@@ -563,8 +563,8 @@ body{background:#fff}
 .hero.mirvix-ocean-hero{position:relative;isolation:isolate;background:#0a3474;color:#fff;overflow:hidden}
 .mirvix-ocean-hero::before,.mirvix-ocean-hero::after{display:none}
 .mirvix-ocean-media{position:absolute;inset:0;z-index:-1;overflow:hidden;background:#0c417a}
-.mirvix-ocean-film{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;filter:hue-rotate(28deg) saturate(1.03) contrast(1.12) brightness(.80)}
-.mirvix-ocean-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(1,22,61,.38),rgba(1,24,67,.34) 48%,rgba(2,17,49,.54));pointer-events:none}
+.mirvix-ocean-film{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;filter:hue-rotate(17deg) saturate(1.08) contrast(1.05) brightness(1.11)}
+.mirvix-ocean-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,26,65,.24),rgba(3,29,78,.21) 48%,rgba(2,20,57,.35));pointer-events:none}
 .mirvix-ocean-hero .hero-layout{position:relative;z-index:1;min-height:calc(100svh - 96px);min-height:max(610px,calc(100svh - 96px));padding:90px 0}
 .mirvix-ocean-hero .hero-copy{width:100%;max-width:1100px;margin:0 auto;text-align:center}
 .mirvix-ocean-hero .eyebrow{justify-content:center;color:#d8eeff}
@@ -630,7 +630,7 @@ body{background:#fff}
 <main id="main">
 <section class="hero mirvix-ocean-hero" id="top">
   <div class="mirvix-ocean-media" aria-hidden="true">
-    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="auto" aria-hidden="true">
       <source src="https://assets.mixkit.co/videos/preview/mixkit-turquoise-ocean-background-with-foaming-waves-2091-large.mp4" type="video/mp4">
     </video>
     <div class="mirvix-ocean-shade"></div>
@@ -1107,7 +1107,7 @@ document.addEventListener('DOMContentLoaded',function(){
   });}
   var video=document.getElementById('mirvix-ocean-film');
   if(video){var media=window.matchMedia('(prefers-reduced-motion: reduce)');
-    function sync(){if(media.matches){video.pause();video.style.display='none'}else{video.style.display='block';var p=video.play();if(p&&p.catch)p.catch(function(){})}}
+    function sync(){if(media.matches){video.pause();video.style.display='none'}else{video.style.display='block';video.playbackRate=0.78;var p=video.play();if(p&&p.catch)p.catch(function(){})}}
     sync();if(media.addEventListener)media.addEventListener('change',sync);
   }
 });
