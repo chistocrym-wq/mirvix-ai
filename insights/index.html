@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Аналитика сайтов и конкурентов — MIRVIX AI</title>
+  <meta name="description" content="Рабочий SEO-кабинет MIRVIX AI с проверкой технического состояния сайтов, сравнением конкурентов и анализом поисковых запросов.">
+  <link rel="icon" href="/assets/favicon-32.png" type="image/png">
+  <link rel="stylesheet" href="/insights/insights.css">
+  <script defer src="/insights/insights.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <a class="logo" href="/cabinet/" aria-label="MIRVIX AI — кабинет"><span class="logo-mark">M</span><span>MIRVIX <b>AI</b><small>INSIGHTS</small></span></a>
+      <p class="nav-caption">АНАЛИТИКА</p>
+      <nav aria-label="Разделы кабинета" class="nav-menu">
+        <button type="button" class="nav-button active" data-view="overview"><span class="nav-icon">▦</span> Обзор сайтов</button>
+        <button type="button" class="nav-button" data-view="comparison"><span class="nav-icon">⇄</span> Сравнение</button>
+        <button type="button" class="nav-button" data-view="search"><span class="nav-icon">⌕</span> Поисковые запросы</button>
+        <button type="button" class="nav-button" data-view="actions"><span class="nav-icon">✓</span> План исправлений</button>
+        <button type="button" class="nav-button" data-view="history"><span class="nav-icon">◷</span> История проверок</button>
+      </nav>
+      <p class="nav-caption">ДРУГИЕ ИНСТРУМЕНТЫ</p>
+      <nav class="nav-menu" aria-label="Другие инструменты MIRVIX">
+        <a class="nav-link" href="/prompt-matrix/">✦ &nbsp; Матрица промптов <span>↗</span></a>
+        <a class="nav-link" href="/geo-live/">◈ &nbsp; Проверка ИИ-ответов <span>↗</span></a>
+        <a class="nav-link" href="/audit/">▤ &nbsp; Техаудит <span>↗</span></a>
+        <a class="nav-link" href="/cabinet/">⌂ &nbsp; Кабинет сотрудника <span>↗</span></a>
+      </nav>
+      <div class="side-footer">MIRVIX AI · 2026<br><span>Данные проверок не заменяют Google Search Console и Яндекс Вебмастер.</span></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><button id="mobile-menu" type="button" aria-label="Показать меню">☰</button><span>Рабочее пространство / Аналитика сайтов</span><span class="top-right"><span class="dot"></span> Источники: открытые данные</span></header>
+      <div class="content">
+        <section id="auth" class="auth-panel" aria-live="polite"><h1>Вход в аналитический кабинет</h1><p id="auth-message">Проверяем сессию сотрудника MIRVIX AI…</p><a class="btn btn-primary" href="/cabinet/">Войти в кабинет сотрудника</a><button type="button" class="btn btn-light" id="retry-auth">Проверить доступ</button></section>
+        <div id="workspace" hidden>
+          <div class="heading-row"><div><p class="kicker">MIRVIX AI / САЙТЫ И КОНКУРЕНТЫ</p><h1>Оценка сайтов <span>без выдуманных цифр</span></h1><p class="subhead">Проверяйте HTML, индексацию, технические настройки и доступность ИИ-поиска. Сравнивайте сайты по одинаковым критериям.</p></div><button type="button" id="print" class="btn btn-light no-print">↓ Сохранить PDF</button></div>
+          <section class="form-panel no-print" aria-labelledby="form-heading">
+            <div class="form-title"><h2 id="form-heading">Новая проверка</h2><span>До 3 сайтов за один запуск</span></div>
+            <div class="site-form-grid">
+              <div class="site-input primary-site"><label for="site-1">САЙТ КОМПАНИИ *</label><input id="site-1" type="text" maxlength="240" placeholder="Например, shurik.market" autocomplete="url"><input id="brand-1" type="text" maxlength="120" placeholder="Название компании (необязательно)"></div>
+              <div class="site-input"><label for="site-2">КОНКУРЕНТ 1</label><input id="site-2" type="text" maxlength="240" placeholder="Например, petrovich.ru" autocomplete="off"><input id="brand-2" type="text" maxlength="120" placeholder="Название конкурента"></div>
+              <div class="site-input"><label for="site-3">КОНКУРЕНТ 2</label><input id="site-3" type="text" maxlength="240" placeholder="Например, maxidom.ru" autocomplete="off"><input id="brand-3" type="text" maxlength="120" placeholder="Название конкурента"></div>
+            </div>
+            <div class="form-actions"><button type="button" id="analyze" class="btn btn-primary">Провести анализ сайтов <span>↗</span></button><button type="button" id="clear" class="btn btn-light">Очистить поля</button><span class="micro">Проверяем только публичные HTTPS-ресурсы</span></div>
+            <div id="progress" role="status" aria-live="polite"></div>
+          </section>
+          <section class="view" data-panel="overview">
+            <div class="section-head"><div><h2>Обзор результатов</h2><p id="report-date">Здесь появятся результаты после первой проверки.</p></div><span class="tag-neutral">Реальные данные</span></div>
+            <div class="metrics" id="metrics">
+              <div class="metric"><small>Проверено сайтов</small><strong>—</strong><span>Нет результатов</span></div>
+              <div class="metric"><small>Готовность основного сайта</small><strong>—</strong><span>Доля подтверждённых критериев</span></div>
+              <div class="metric"><small>Замечаний</small><strong>—</strong><span>Только доказанные</span></div>
+              <div class="metric"><small>Не проверено</small><strong>—</strong><span>Недоступные сведения</span></div>
+            </div>
+            <div class="grid2">
+              <article class="panel"><div class="panel-head"><h3>Профили сайтов</h3><span class="micro">Технические критерии</span></div><div id="site-overview" class="empty">Введите домен для проверки.</div></article>
+              <article class="panel"><div class="panel-head"><h3>Методика и достоверность</h3></div><div class="explain"><div><span class="bullet bullet-ok"></span><p><b>Проверено</b><small>Сайт вернул данные, критерий подтверждён.</small></p></div><div><span class="bullet bullet-warning"></span><p><b>Требует внимания</b><small>Проверка обнаружила конкретное замечание.</small></p></div><div><span class="bullet bullet-unknown"></span><p><b>Нет данных</b><small>401/403, тайм-ауты и блокировки не считаются SEO-ошибкой.</small></p></div></div><p class="micro note">Баллы рассчитываются только для сайта, от которого получен прямой HTML. Это не оценка поисковых позиций, трафика или продаж.</p></article>
+            </div>
+            <article class="panel" id="metadata-card"><div class="panel-head"><h3>Что видит поисковик на главной странице</h3></div><div id="metadata-body" class="empty">Пока нет проверенных метаданных.</div></article>
+          </section>
+
+          <section class="view" data-panel="comparison" hidden>
+            <div class="section-head"><div><h2>Сравнение конкурентов</h2><p>Единые технические критерии для выбранных сайтов.</p></div></div>
+            <article class="panel"><div class="table-scroll"><table><thead id="compare-head"><tr><th>Параметр</th><th>Данные ещё не загружены</th></tr></thead><tbody id="compare-body"><tr><td colspan="2" class="empty">Запустите анализ, чтобы сравнить сайты.</td></tr></tbody></table></div></article>
+            <p class="method-note">Неизвестно ≠ отсутствует. Если автоматический аудитор не смог получить страницу, её SEO-показатели остаются «Не проверено».</p>
+          </section>
+
+          <section class="view" data-panel="search" hidden>
+            <div class="section-head"><div><h2>Поисковые запросы и семантика</h2><p>Бесплатный импорт отчёта Google Search Console для вашего сайта.</p></div><span class="tag-neutral">Без платной базы ключей</span></div>
+            <article class="panel">
+              <div class="import-grid">
+                <div><h3>Импорт запросов</h3><p>Экспортируйте таблицу «Запросы» из Search Console в CSV и загрузите сюда. Данные анализируются только в браузере; никуда не отправляются.</p><label class="btn btn-primary upload" for="gsc-file">Загрузить CSV Google Search Console</label><input id="gsc-file" type="file" accept=".csv,text/csv" hidden><button type="button" id="clear-gsc" class="btn btn-light">Очистить</button><p class="micro" id="gsc-message" role="status">Файл не загружен.</p></div>
+                <div class="callout"><b>Что нельзя увидеть бесплатно</b><p>Позиции и трафик произвольного конкурента по тысячам запросов — это отдельная поисковая база. Мы не будем подменять её оценками по заголовкам сайта.</p><p>Для конкурентов используйте собственную матрицу промптов и реальные доступные поисковые данные.</p><a href="/prompt-matrix/">Перейти к ИИ-матрице →</a></div>
+              </div>
+            </article>
+            <div class="metrics three" id="gsc-metrics"><div class="metric"><small>Клики</small><strong>—</strong></div><div class="metric"><small>Показы</small><strong>—</strong></div><div class="metric"><small>Запросы</small><strong>—</strong></div></div>
+            <article class="panel"><div class="panel-head"><h3>Запросы по данным вашего сайта</h3><input id="query-filter" placeholder="Фильтр по запросам…" aria-label="Фильтр по запросам" maxlength="100"></div><div class="table-scroll"><table><thead><tr><th>Поисковый запрос</th><th>Клики</th><th>Показы</th><th>CTR</th><th>Средняя позиция</th></tr></thead><tbody id="query-rows"><tr><td colspan="5" class="empty">Загрузите CSV с реальными запросами.</td></tr></tbody></table></div></article>
+          </section>
+
+          <section class="view" data-panel="actions" hidden>
+            <div class="section-head"><div><h2>План улучшений</h2><p>Сначала подтверждённые технические проблемы, затем поисковая и ИИ-видимость.</p></div><button type="button" id="copy-actions" class="btn btn-light no-print">Копировать план</button></div>
+            <div class="grid2"><article class="panel"><div class="panel-head"><h3>Что исправить</h3></div><div id="action-list" class="empty">Запустите проверку для получения рекомендаций.</div></article><article class="panel"><div class="panel-head"><h3>Следующие измерения</h3></div><div class="action-guide"><p><b>Поисковая видимость</b><span>Подключите Search Console или Яндекс Вебмастер и смотрите реальные запросы/клики.</span></p><p><b>ИИ-видимость</b><span>В матрице промптов запускайте повторные вопросы и сохраняйте реальные ответы.</span></p><p><b>Конверсия</b><span>Подключите Метрику и события заявок; реферер нейросети виден не всегда.</span></p><a class="btn btn-light" href="/prompt-matrix/">Открыть матрицу промптов ↗</a></div></article></div>
+          </section>
+
+          <section class="view" data-panel="history" hidden>
+            <div class="section-head"><div><h2>История проектов</h2><p>Последние проверки сохраняются только в этом браузере.</p></div><button type="button" class="btn btn-light" id="clear-history">Очистить историю</button></div>
+            <article class="panel"><div id="history-list" class="empty">В этом браузере история пока пуста.</div></article>
+            <p class="method-note">История не синхронизируется между компьютерами. Для длительного хранения и передачи заказчику используйте экспорт JSON.</p>
+          </section>
+          <div class="footer-actions no-print"><button type="button" id="export-json" class="btn btn-light">Экспорт текущего отчёта · JSON</button><button type="button" id="export-csv" class="btn btn-light">Экспорт сравнения · CSV</button><a href="/cabinet/">Вернуться в кабинет ↗</a></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
