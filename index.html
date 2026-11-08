@@ -603,6 +603,53 @@ body{background:#fff}
 @keyframes mirvix-intro-zoom{from{transform:scale(1)}to{transform:scale(var(--ocean-zoom))}}
 @keyframes mirvix-intro-copy{from{opacity:0;transform:translate3d(0,24px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
 @media(prefers-reduced-motion:reduce){.mirvix-ocean-hero .mirvix-ocean-media{animation:none!important;transform:none!important}.mirvix-ocean-hero .mirvix-ocean-film{display:none!important}.mirvix-ocean-hero .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero .hero-copy[data-reveal]{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* MIRVIX full-bleed ocean cinematic intro, brand-first storytelling */
+html:has(.mirvix-ocean-hero){scroll-padding-top:0}
+body:has(.mirvix-ocean-hero) .site-header{position:absolute;top:0;left:0;right:0;z-index:80;border:0;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body:has(.mirvix-ocean-hero) .site-header .brand{display:none}
+body:has(.mirvix-ocean-hero) .site-header .header-inner{height:78px;justify-content:flex-end}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav{margin-left:auto}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav a{color:#f2f8ff;text-shadow:0 1px 10px rgba(0,12,40,.7)}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav a:hover{color:#a9e9ff}
+body:has(.mirvix-ocean-hero) .site-header .header-contact{background:rgba(5,29,76,.45);border:1px solid rgba(255,255,255,.6);backdrop-filter:blur(8px)}
+body:has(.mirvix-ocean-hero) .site-header .mobile-toggle{background:rgba(8,38,93,.65);color:#fff;border-color:rgba(225,245,255,.6)}
+body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
+.hero.mirvix-ocean-hero{min-height:100svh;min-height:100vh}
+.mirvix-ocean-hero .hero-layout{min-height:100svh;min-height:100vh;padding:180px 0 104px;display:flex;align-items:center;justify-content:center}
+.mirvix-ocean-hero .capability-row{position:absolute;left:0;right:0;bottom:0;z-index:10;min-height:52px;display:flex;justify-content:center}
+.mirvix-ocean-hero .ocean-brand-intro{position:absolute;z-index:9;left:50%;top:37%;width:min(780px,90vw);display:flex;align-items:center;justify-content:center;gap:17px;color:white;opacity:0;transform:translate(-50%,-50%);animation:mirvix-brand-arrival 4.25s cubic-bezier(.24,.7,.3,1) .25s both;pointer-events:none}
+.ocean-brand-symbol{width:clamp(52px,7vw,100px);height:auto;max-height:90px;object-fit:contain;filter:drop-shadow(0 3px 14px rgba(0,8,45,.36))}
+.ocean-brand-name{font-size:clamp(50px,9vw,115px);letter-spacing:-.065em;line-height:1;font-weight:840;white-space:nowrap;text-shadow:0 5px 30px rgba(0,13,48,.45)}
+.ocean-brand-name span{color:#aee6ff}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{width:100%;max-width:1070px;margin:0 auto;padding-top:clamp(120px,18vh,195px);opacity:0;transform:translateY(26px);animation:mirvix-story-entrance 1.45s cubic-bezier(.2,.7,.2,1) 4.35s both}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(37px,5.1vw,69px);margin:14px auto 20px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .eyebrow{font-size:11px}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{animation:none;opacity:1;transform:translate(-50%,calc(-50% - min(19vh,170px))) scale(.66)}
+.mirvix-ocean-hero.ocean-intro-done .hero-copy.ocean-story-copy{animation:none;opacity:1;transform:none}
+@keyframes mirvix-brand-arrival{
+  0%{opacity:0;transform:translate(-50%,calc(-50% + 24px)) scale(.89)}
+  17%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  48%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(19vh,170px))) scale(.66)}
+}
+@keyframes mirvix-story-entrance{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@media(max-width:780px){
+ body:has(.mirvix-ocean-hero) .site-header .header-inner{height:68px}
+ .mirvix-ocean-hero .hero-layout{min-height:100svh;min-height:100vh;padding:165px 0 105px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:29%;gap:8px}
+ .ocean-brand-symbol{width:44px}
+ .ocean-brand-name{font-size:clamp(39px,10vw,75px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(120px,18vh,180px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(32px,7.6vw,48px)}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 9vh)) scale(.75)}
+}
+@media(max-width:430px){.mirvix-ocean-hero .capability-row{font-size:10px;gap:7px;flex-wrap:wrap}.mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:135px}}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro,.mirvix-ocean-hero .hero-copy.ocean-story-copy{animation:none!important;opacity:1!important}
+ .mirvix-ocean-hero .ocean-brand-intro{transform:translate(-50%,calc(-50% - 12vh)) scale(.75)!important}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{transform:none!important}
+}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -642,6 +689,10 @@ body{background:#fff}
 
 <main id="main">
 <section class="hero mirvix-ocean-hero" id="top">
+  <div class="ocean-brand-intro" aria-label="MIRVIX AI">
+    <img class="ocean-brand-symbol" src="assets/brand-symbol.png" alt="" width="84" height="84">
+    <span class="ocean-brand-name">MIRVIX <span>AI</span></span>
+  </div>
   <div class="mirvix-ocean-media" aria-hidden="true">
     <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="auto" aria-hidden="true">
       <source src="https://assets.mixkit.co/videos/preview/mixkit-turquoise-ocean-background-with-foaming-waves-2091-large.mp4" type="video/mp4">
@@ -649,7 +700,7 @@ body{background:#fff}
     <div class="mirvix-ocean-shade"></div>
   </div>
   <div class="container hero-layout">
-    <div class="hero-copy" data-reveal>
+    <div class="hero-copy ocean-story-copy">
       <div class="eyebrow"><span class="eyebrow-dot"></span> MIRVIX AI · ВИДИМОСТЬ В ЦИФРОВОМ МИРЕ</div>
       <h1>Поможем вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее в океане ИИ и информации</span></h1>
       <p>MIRVIX AI помогает компаниям быть заметнее там, где клиенты ищут информацию, товары и услуги — в поисковых системах, нейросетях и цифровых рекомендациях.</p>
@@ -1139,7 +1190,7 @@ document.addEventListener('DOMContentLoaded',function(){
       video.playbackRate=.72;
       var promise=video.play();
       if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
-      timer=setTimeout(finish,6400);
+      timer=setTimeout(finish,7200);
     };
     video.addEventListener('canplay',start,{once:true});
     video.addEventListener('error',function(){hero.classList.add('ocean-video-unavailable');start();},{once:true});
