@@ -650,6 +650,57 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
  .mirvix-ocean-hero .ocean-brand-intro{transform:translate(-50%,calc(-50% - 12vh)) scale(.75)!important}
  .mirvix-ocean-hero .hero-copy.ocean-story-copy{transform:none!important}
 }
+
+/* Compact complete hero: all brand, heading, description and CTAs fit within one viewport */
+.hero.mirvix-ocean-hero{height:100svh;min-height:520px;max-height:100svh;overflow:hidden}
+.mirvix-ocean-hero .hero-layout{height:100%;min-height:0;max-height:none;padding:90px 0 53px;box-sizing:border-box;align-items:center}
+.mirvix-ocean-hero .ocean-brand-intro{top:35%;gap:12px}
+.ocean-brand-symbol{width:clamp(40px,5.5vw,77px);max-height:72px}
+.ocean-brand-name{font-size:clamp(43px,6.9vw,88px)}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(90px,13vh,128px);max-width:970px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(30px,4.1vw,55px);line-height:1.13;margin:4px auto 12px;max-width:950px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(13px,1.2vw,17px);line-height:1.45;max-width:730px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:17px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:42px;padding:10px 19px}
+.mirvix-ocean-hero .capability-row{min-height:38px;font-size:12px}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - min(18vh,130px))) scale(.66)}
+@keyframes mirvix-brand-arrival-compact{
+  0%{opacity:0;transform:translate(-50%,calc(-50% + 22px)) scale(.9)}
+  17%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  49%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(18vh,130px))) scale(.66)}
+}
+.mirvix-ocean-hero .ocean-brand-intro{animation-name:mirvix-brand-arrival-compact}
+@media(max-width:780px){
+ .mirvix-ocean-hero .hero-layout{padding:74px 0 44px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:29%;gap:7px}
+ .ocean-brand-symbol{width:40px}
+ .ocean-brand-name{font-size:clamp(38px,9vw,68px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(80px,14vh,118px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,5.7vw,41px);line-height:1.12;margin-bottom:10px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,2.8vw,15px);line-height:1.4}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:12px;gap:8px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{font-size:12px;min-height:39px;padding:9px 13px}
+ .mirvix-ocean-hero .capability-row{min-height:30px;font-size:10px;padding-top:4px;padding-bottom:4px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 10vh)) scale(.74)}
+}
+@media(max-height:730px) and (min-width:781px){
+ .mirvix-ocean-hero .hero-layout{padding-top:72px;padding-bottom:30px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:34%}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:90px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(30px,3.65vw,46px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:14px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 15vh)) scale(.64)}
+}
+@media(max-height:650px) and (max-width:780px){
+ .mirvix-ocean-hero .ocean-brand-intro{top:25%}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:73px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(23px,5.5vw,30px)}
+ .mirvix-ocean-hero .capability-row{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro{transform:translate(-50%,calc(-50% - 12vh)) scale(.7)!important}
+}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -701,9 +752,8 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   </div>
   <div class="container hero-layout">
     <div class="hero-copy ocean-story-copy">
-      <div class="eyebrow"><span class="eyebrow-dot"></span> MIRVIX AI · ВИДИМОСТЬ В ЦИФРОВОМ МИРЕ</div>
       <h1>Поможем вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее в океане ИИ и информации</span></h1>
-      <p>MIRVIX AI помогает компаниям быть заметнее там, где клиенты ищут информацию, товары и услуги — в поисковых системах, нейросетях и цифровых рекомендациях.</p>
+      <p>Помогаем компаниям находить клиентов через поисковые системы, нейросети и цифровые рекомендации.</p>
       <div class="hero-buttons">
         <a class="button button-primary" href="/audit/">Проверить видимость <span aria-hidden="true">↗</span></a>
         <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
