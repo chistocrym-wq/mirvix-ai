@@ -1,0 +1,18 @@
+{
+  "name": "mirvix-ai",
+  "private": true,
+  "version": "0.2.2",
+  "description": "MIRVIX AI website and protected visibility tools",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dependencies": {
+    "@netlify/blobs": "11.1.6"
+  },
+  "overrides": {
+    "@netlify/otel": "7.0.2"
+  },
+  "scripts": {
+    "check": "node --check netlify/functions/mirvix-tools.js && node --check netlify/functions/mirvix-geo.js && node --check cabinet/tools.js && node --check geo-monitor/app.js"
+  }
+}
