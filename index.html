@@ -750,6 +750,98 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 @media(prefers-reduced-motion:reduce){
  .mirvix-ocean-hero .ocean-brand-symbol,.mirvix-ocean-hero .ocean-brand-name{animation:none!important;opacity:1!important;transform:none!important}
 }
+
+/* MIRVIX refined typography, comfortable CTA and slower cinematic logo narrative */
+.mirvix-ocean-hero{--mirvix-intro-duration:10.8s}
+.mirvix-ocean-hero .mirvix-ocean-media{animation-duration:var(--mirvix-intro-duration)}
+.mirvix-ocean-hero .ocean-brand-intro{
+  width:min(1050px,95vw);gap:clamp(10px,1.75vw,25px);
+  animation:mirvix-brand-intro-slower 8.3s cubic-bezier(.22,.68,.28,1) .18s both;
+}
+.mirvix-ocean-hero .ocean-brand-symbol{
+  width:clamp(90px,12vw,165px);max-height:160px;
+  animation:mirvix-emblem-slower 3.2s cubic-bezier(.18,.72,.26,1) .2s both;
+}
+.mirvix-ocean-hero .ocean-brand-name{
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-weight:800;
+  font-size:clamp(44px,7.1vw,96px);letter-spacing:-.052em;
+  animation:mirvix-wordmark-slower 2s cubic-bezier(.2,.7,.3,1) 2.95s both;
+}
+@keyframes mirvix-emblem-slower{
+  0%{opacity:0;transform:scale(1.85)}
+  24%{opacity:1;transform:scale(1.85)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes mirvix-wordmark-slower{
+  0%{opacity:0;transform:translateX(-22px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes mirvix-brand-intro-slower{
+  0%,55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(19vh,145px))) scale(.89)}
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{
+  animation:mirvix-story-entrance 1.65s cubic-bezier(.19,.68,.28,1) 8.1s both;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{
+  max-width:940px;font-family:Inter,"Segoe UI",Arial,sans-serif;
+  font-size:clamp(30px,4.2vw,59px);font-weight:800;letter-spacing:-.044em;
+  line-height:1.12;margin-bottom:18px;text-wrap:balance;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy>p{
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(14px,1.32vw,19px);
+  line-height:1.6;max-width:770px;font-weight:450;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{
+  margin-top:25px;gap:14px;display:flex;justify-content:center;align-items:center;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  min-height:51px;padding:12px 23px;border-radius:14px;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:15px;
+  font-weight:720;letter-spacing:-.01em;
+  box-shadow:0 8px 28px rgba(1,17,56,.19);
+  transition:transform .23s ease,box-shadow .23s ease,background .23s ease;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button:hover{
+  transform:translateY(-2px);box-shadow:0 14px 34px rgba(1,17,56,.28);
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button:focus-visible{
+  outline:3px solid #a9e8ff;outline-offset:4px;
+}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{
+  animation:none;opacity:1;transform:translate(-50%,calc(-50% - min(19vh,145px))) scale(.89);
+}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-symbol,
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-name{
+  animation:none;opacity:1;transform:none;
+}
+@media(max-width:780px){
+ .mirvix-ocean-hero .ocean-brand-intro{gap:8px;top:27%;width:95vw}
+ .mirvix-ocean-hero .ocean-brand-symbol{width:clamp(57px,13vw,90px);max-height:85px}
+ .mirvix-ocean-hero .ocean-brand-name{font-size:clamp(36px,8.4vw,67px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,6vw,41px);margin-bottom:11px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,2.9vw,15px);line-height:1.42}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{gap:9px;margin-top:16px;flex-wrap:wrap}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:43px;padding:10px 14px;font-size:12px;border-radius:11px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 10vh)) scale(.91)}
+ @keyframes mirvix-brand-intro-slower{
+  0%,55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - 10vh)) scale(.91)}
+ }
+}
+@media(max-height:700px){
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(66px,11vh,88px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,3.4vw,43px);margin-bottom:9px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,1.1vw,15px);line-height:1.42}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:12px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:42px}
+}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro{animation:none!important;opacity:1!important;transform:translate(-50%,calc(-50% - 11vh)) scale(.9)!important}
+ .mirvix-ocean-hero .ocean-brand-symbol,.mirvix-ocean-hero .ocean-brand-name{animation:none!important;opacity:1!important;transform:none!important}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{animation:none!important;opacity:1!important;transform:none!important}
+}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -791,7 +883,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 <section class="hero mirvix-ocean-hero" id="top">
   <div class="ocean-brand-intro" aria-label="MIRVIX AI">
     <img class="ocean-brand-symbol" src="assets/brand-symbol.png" alt="" width="84" height="84">
-    <span class="ocean-brand-name">IRVIX <span>AI</span></span>
+    <span class="ocean-brand-name">MIRVIX <span>AI</span></span>
   </div>
   <div class="mirvix-ocean-media" aria-hidden="true">
     <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -801,8 +893,8 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   </div>
   <div class="container hero-layout">
     <div class="hero-copy ocean-story-copy">
-      <h1>Поможем вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее в океане ИИ и информации</span></h1>
-      <p>Помогаем компаниям находить клиентов через поисковые системы, нейросети и цифровые рекомендации.</p>
+      <h1>Поможем Вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее.</span></h1>
+      <p>В океане информации важно не потеряться, помогаем компаниям усиливать видимость в нейросетях и поиске, чтобы клиенты чаще находили именно Вас.</p>
       <div class="hero-buttons">
         <a class="button button-primary" href="/audit/">Проверить видимость <span aria-hidden="true">↗</span></a>
         <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
@@ -1286,10 +1378,10 @@ document.addEventListener('DOMContentLoaded',function(){
       if(reduced.matches){hero.classList.add('ocean-intro-done');video.pause();return;}
       hero.classList.add('ocean-intro-playing');
       video.muted=true;
-      video.playbackRate=.72;
+      video.playbackRate=.67;
       var promise=video.play();
       if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
-      timer=setTimeout(finish,7200);
+      timer=setTimeout(finish,10800);
     };
     video.addEventListener('canplay',start,{once:true});
     video.addEventListener('error',function(){hero.classList.add('ocean-video-unavailable');start();},{once:true});
