@@ -554,6 +554,294 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @media(max-width:1130px){.contact-shell{gap:28px;padding:54px 35px}}
 @media(max-width:690px){.contact-shell{padding:35px 23px;gap:27px}.lead-panel{padding:20px 16px}.lead-fields{grid-template-columns:1fr}.lead-fields .lead-full{grid-column:auto}.lead-panel-head h3{font-size:22px}}
 .partner-cabinet-link{display:inline-flex!important;align-items:center;gap:7px;padding:10px 13px!important;border:1px solid #bed4f5;border-radius:10px;background:#e9f2ff;color:#135cae!important;font-size:12.3px!important;font-weight:800!important;line-height:1.4!important;transition:background .2s}.partner-cabinet-link:hover{background:#d7e7ff}
+
+/* MIRVIX 2026 — business-card blue, aqua and violet identity */
+:root{--navy:#183A8B;--ink:#182A65;--blue:#2868D4;--cyan:#2CB8E4;--violet:#7933A4;--soft-blue:#f1f6ff}
+body{background:#fff}
+.button-primary{background:linear-gradient(105deg,#2353bc 0%,#2868d4 58%,#7933a4 100%);box-shadow:0 11px 32px rgba(33,67,159,.20)}
+.gradient{background:linear-gradient(103deg,#2868d4,#2cb8e4 52%,#7933a4);-webkit-background-clip:text;background-clip:text}
+.hero.mirvix-ocean-hero{position:relative;isolation:isolate;background:#0a3474;color:#fff;overflow:hidden}
+.mirvix-ocean-hero::before,.mirvix-ocean-hero::after{display:none}
+.mirvix-ocean-media{position:absolute;inset:0;z-index:-1;overflow:hidden;background:#0c417a}
+.mirvix-ocean-film{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 34%;filter:hue-rotate(17deg) saturate(1.08) contrast(1.05) brightness(1.11)}
+.mirvix-ocean-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,26,65,.24),rgba(3,29,78,.21) 48%,rgba(2,20,57,.35));pointer-events:none}
+.mirvix-ocean-hero .hero-layout{position:relative;z-index:1;min-height:calc(100svh - 96px);min-height:max(610px,calc(100svh - 96px));padding:90px 0}
+.mirvix-ocean-hero .hero-copy{width:100%;max-width:1100px;margin:0 auto;text-align:center}
+.mirvix-ocean-hero .eyebrow{justify-content:center;color:#d8eeff}
+.mirvix-ocean-hero h1{max-width:1120px;margin:25px auto;font-size:clamp(39px,5.5vw,76px);line-height:1.12;letter-spacing:-.055em;font-weight:790;color:#fff;text-shadow:0 3px 22px rgba(0,14,48,.44)}
+.mirvix-ocean-hero .ocean-headline-accent{color:#e2f4ff}
+.mirvix-ocean-hero .hero-copy>p{max-width:860px;margin:0 auto;color:#f0f6ff;font-size:clamp(16px,1.55vw,20px);line-height:1.65;text-shadow:0 2px 15px rgba(0,14,47,.53)}
+.mirvix-ocean-hero .hero-buttons{justify-content:center}
+.mirvix-ocean-hero .button-light{background:rgba(15,40,87,.40);border-color:rgba(221,244,255,.78);color:white;backdrop-filter:blur(6px)}
+.mirvix-ocean-hero .button-light:hover{background:#fff;color:#17326c}
+.mirvix-ocean-hero .capability-row{position:relative;color:#edf8ff;background:rgba(5,29,71,.4);border-top:1px solid rgba(255,255,255,.22)}
+.mirvix-platform-section{background:linear-gradient(125deg,#f4f8ff 0%,#fff 60%,#f6f2ff 100%);padding:96px 0}
+.mirvix-platform-grid{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(280px,.82fr);align-items:center;gap:65px}
+.mirvix-platform-grid h2{font-size:clamp(33px,3.5vw,52px);letter-spacing:-.045em;line-height:1.12;margin:18px 0 25px}
+.mirvix-platform-grid p{font-size:17px;line-height:1.76;color:#485c7d}
+.mirvix-platform-grid p a{font-weight:750;text-decoration:underline;color:#265dc9}
+.mirvix-platform-buttons{display:flex;gap:11px;flex-wrap:wrap;margin-top:28px}
+.mirvix-platform-grid .mirvix-platform-footnote{font-size:13px;color:#7887a0;margin-top:20px}
+.mirvix-product-preview{padding:33px;border-radius:24px;background:linear-gradient(140deg,#193a8b,#2463b8 56%,#6136a0);color:white;box-shadow:0 20px 60px rgba(26,54,123,.19)}
+.mirvix-product-label{font-size:11px;font-weight:800;letter-spacing:.13em;color:#b9eaff;margin-bottom:28px}
+.mirvix-product-line{display:flex;gap:20px;align-items:center;border:1px solid rgba(226,245,255,.23);border-radius:12px;padding:17px;margin:10px 0;background:rgba(255,255,255,.06)}
+.mirvix-product-line b{color:#a4e5ff}.mirvix-product-line span{font-weight:600;font-size:14px}
+.mirvix-product-note{font-size:12px;color:#c1dafa;margin-top:27px}
+@media(max-width:760px){.mirvix-ocean-hero .hero-layout{min-height:680px;padding:84px 0 70px}.mirvix-ocean-hero h1{font-size:clamp(36px,7.8vw,54px)}.mirvix-ocean-film{object-position:center}.mirvix-platform-section{padding:64px 0}.mirvix-platform-grid{grid-template-columns:1fr;gap:32px}}
+@media(prefers-reduced-motion:reduce){.mirvix-ocean-film{display:none}.mirvix-ocean-media{background:#144b88}}
+
+
+/* One-time cinematic intro: real overhead sea slowly approaches, then freezes. */
+.mirvix-ocean-hero{--ocean-zoom:1.16}
+.mirvix-ocean-hero .mirvix-ocean-media{background-image:url("https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85");background-size:cover;background-position:center;transform:scale(1);transform-origin:center center;animation:mirvix-intro-zoom 6.4s cubic-bezier(.18,.55,.3,1) both}
+.mirvix-ocean-hero .mirvix-ocean-film{opacity:1;filter:hue-rotate(17deg) saturate(1.06) contrast(1.04) brightness(1.05);object-position:center}
+.mirvix-ocean-hero .mirvix-ocean-shade{background:linear-gradient(180deg,rgba(3,18,54,.24),rgba(0,27,67,.17) 55%,rgba(3,17,48,.36))}
+.mirvix-ocean-hero .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero .hero-copy[data-reveal]{opacity:0;transform:translate3d(0,24px,0);animation:mirvix-intro-copy 1.6s ease-out 2.1s both}
+.mirvix-ocean-hero.ocean-intro-done .mirvix-ocean-media{animation:none;transform:scale(var(--ocean-zoom))}
+.mirvix-ocean-hero.ocean-intro-done .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero.ocean-intro-done .hero-copy[data-reveal]{animation:none;opacity:1;transform:none}
+.mirvix-ocean-hero.ocean-video-unavailable .mirvix-ocean-film{display:none}
+@keyframes mirvix-intro-zoom{from{transform:scale(1)}to{transform:scale(var(--ocean-zoom))}}
+@keyframes mirvix-intro-copy{from{opacity:0;transform:translate3d(0,24px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@media(prefers-reduced-motion:reduce){.mirvix-ocean-hero .mirvix-ocean-media{animation:none!important;transform:none!important}.mirvix-ocean-hero .mirvix-ocean-film{display:none!important}.mirvix-ocean-hero .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero .hero-copy[data-reveal]{animation:none!important;opacity:1!important;transform:none!important}}
+
+/* MIRVIX full-bleed ocean cinematic intro, brand-first storytelling */
+html:has(.mirvix-ocean-hero){scroll-padding-top:0}
+body:has(.mirvix-ocean-hero) .site-header{position:absolute;top:0;left:0;right:0;z-index:80;border:0;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body:has(.mirvix-ocean-hero) .site-header .brand{display:none}
+body:has(.mirvix-ocean-hero) .site-header .header-inner{height:78px;justify-content:flex-end}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav{margin-left:auto}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav a{color:#f2f8ff;text-shadow:0 1px 10px rgba(0,12,40,.7)}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav a:hover{color:#a9e9ff}
+body:has(.mirvix-ocean-hero) .site-header .header-contact{background:rgba(5,29,76,.45);border:1px solid rgba(255,255,255,.6);backdrop-filter:blur(8px)}
+body:has(.mirvix-ocean-hero) .site-header .mobile-toggle{background:rgba(8,38,93,.65);color:#fff;border-color:rgba(225,245,255,.6)}
+body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
+.hero.mirvix-ocean-hero{min-height:100svh;min-height:100vh}
+.mirvix-ocean-hero .hero-layout{min-height:100svh;min-height:100vh;padding:180px 0 104px;display:flex;align-items:center;justify-content:center}
+.mirvix-ocean-hero .capability-row{position:absolute;left:0;right:0;bottom:0;z-index:10;min-height:52px;display:flex;justify-content:center}
+.mirvix-ocean-hero .ocean-brand-intro{position:absolute;z-index:9;left:50%;top:37%;width:min(780px,90vw);display:flex;align-items:center;justify-content:center;gap:17px;color:white;opacity:0;transform:translate(-50%,-50%);animation:mirvix-brand-arrival 4.25s cubic-bezier(.24,.7,.3,1) .25s both;pointer-events:none}
+.ocean-brand-symbol{width:clamp(52px,7vw,100px);height:auto;max-height:90px;object-fit:contain;filter:drop-shadow(0 3px 14px rgba(0,8,45,.36))}
+.ocean-brand-name{font-size:clamp(50px,9vw,115px);letter-spacing:-.065em;line-height:1;font-weight:840;white-space:nowrap;text-shadow:0 5px 30px rgba(0,13,48,.45)}
+.ocean-brand-name span{color:#aee6ff}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{width:100%;max-width:1070px;margin:0 auto;padding-top:clamp(120px,18vh,195px);opacity:0;transform:translateY(26px);animation:mirvix-story-entrance 1.45s cubic-bezier(.2,.7,.2,1) 4.35s both}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(37px,5.1vw,69px);margin:14px auto 20px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .eyebrow{font-size:11px}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{animation:none;opacity:1;transform:translate(-50%,calc(-50% - min(19vh,170px))) scale(.66)}
+.mirvix-ocean-hero.ocean-intro-done .hero-copy.ocean-story-copy{animation:none;opacity:1;transform:none}
+@keyframes mirvix-brand-arrival{
+  0%{opacity:0;transform:translate(-50%,calc(-50% + 24px)) scale(.89)}
+  17%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  48%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(19vh,170px))) scale(.66)}
+}
+@keyframes mirvix-story-entrance{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@media(max-width:780px){
+ body:has(.mirvix-ocean-hero) .site-header .header-inner{height:68px}
+ .mirvix-ocean-hero .hero-layout{min-height:100svh;min-height:100vh;padding:165px 0 105px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:29%;gap:8px}
+ .ocean-brand-symbol{width:44px}
+ .ocean-brand-name{font-size:clamp(39px,10vw,75px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(120px,18vh,180px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(32px,7.6vw,48px)}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 9vh)) scale(.75)}
+}
+@media(max-width:430px){.mirvix-ocean-hero .capability-row{font-size:10px;gap:7px;flex-wrap:wrap}.mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:135px}}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro,.mirvix-ocean-hero .hero-copy.ocean-story-copy{animation:none!important;opacity:1!important}
+ .mirvix-ocean-hero .ocean-brand-intro{transform:translate(-50%,calc(-50% - 12vh)) scale(.75)!important}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{transform:none!important}
+}
+
+/* Compact complete hero: all brand, heading, description and CTAs fit within one viewport */
+.hero.mirvix-ocean-hero{height:100svh;min-height:520px;max-height:100svh;overflow:hidden}
+.mirvix-ocean-hero .hero-layout{height:100%;min-height:0;max-height:none;padding:90px 0 53px;box-sizing:border-box;align-items:center}
+.mirvix-ocean-hero .ocean-brand-intro{top:35%;gap:12px}
+.ocean-brand-symbol{width:clamp(40px,5.5vw,77px);max-height:72px}
+.ocean-brand-name{font-size:clamp(43px,6.9vw,88px)}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(90px,13vh,128px);max-width:970px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(30px,4.1vw,55px);line-height:1.13;margin:4px auto 12px;max-width:950px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(13px,1.2vw,17px);line-height:1.45;max-width:730px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:17px}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:42px;padding:10px 19px}
+.mirvix-ocean-hero .capability-row{min-height:38px;font-size:12px}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - min(18vh,130px))) scale(.66)}
+@keyframes mirvix-brand-arrival-compact{
+  0%{opacity:0;transform:translate(-50%,calc(-50% + 22px)) scale(.9)}
+  17%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  49%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(18vh,130px))) scale(.66)}
+}
+.mirvix-ocean-hero .ocean-brand-intro{animation-name:mirvix-brand-arrival-compact}
+@media(max-width:780px){
+ .mirvix-ocean-hero .hero-layout{padding:74px 0 44px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:29%;gap:7px}
+ .ocean-brand-symbol{width:40px}
+ .ocean-brand-name{font-size:clamp(38px,9vw,68px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(80px,14vh,118px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,5.7vw,41px);line-height:1.12;margin-bottom:10px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,2.8vw,15px);line-height:1.4}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:12px;gap:8px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{font-size:12px;min-height:39px;padding:9px 13px}
+ .mirvix-ocean-hero .capability-row{min-height:30px;font-size:10px;padding-top:4px;padding-bottom:4px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 10vh)) scale(.74)}
+}
+@media(max-height:730px) and (min-width:781px){
+ .mirvix-ocean-hero .hero-layout{padding-top:72px;padding-bottom:30px}
+ .mirvix-ocean-hero .ocean-brand-intro{top:34%}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:90px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(30px,3.65vw,46px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:14px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 15vh)) scale(.64)}
+}
+@media(max-height:650px) and (max-width:780px){
+ .mirvix-ocean-hero .ocean-brand-intro{top:25%}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:73px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(23px,5.5vw,30px)}
+ .mirvix-ocean-hero .capability-row{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro{transform:translate(-50%,calc(-50% - 12vh)) scale(.7)!important}
+}
+
+/* Brand reveal sequence: emblem M+globe alone -> IRVIX AI joins -> entire logo rises */
+.mirvix-ocean-hero .ocean-brand-intro{
+  animation:mirvix-brand-rise-sequence 4.7s cubic-bezier(.22,.65,.28,1) .18s both;
+  transform-origin:center center;
+  gap:clamp(5px,1.1vw,14px);
+}
+.mirvix-ocean-hero .ocean-brand-symbol{
+  flex:0 0 auto;width:clamp(62px,8vw,110px);max-height:105px;
+  opacity:0;transform:scale(2.05);
+  animation:mirvix-emblem-first 1.9s cubic-bezier(.18,.74,.28,1) .2s both;
+}
+.mirvix-ocean-hero .ocean-brand-name{
+  opacity:0;transform:translateX(-14px);
+  animation:mirvix-name-after-emblem 1.1s ease-out 1.78s both;
+}
+@keyframes mirvix-emblem-first{
+  0%{opacity:0;transform:scale(2.05)}
+  30%{opacity:1;transform:scale(2.05)}
+  78%{opacity:1;transform:scale(1.06)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes mirvix-name-after-emblem{
+  0%{opacity:0;transform:translateX(-14px)}
+  100%{opacity:1;transform:none}
+}
+@keyframes mirvix-brand-rise-sequence{
+  0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  62%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(18vh,130px))) scale(.66)}
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{
+  animation:mirvix-story-entrance 1.3s ease-out 4.75s both;
+}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-symbol,
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-name{
+  animation:none;opacity:1;transform:none;
+}
+@media(max-width:780px){
+  .mirvix-ocean-hero .ocean-brand-symbol{width:clamp(50px,10vw,76px)}
+  @keyframes mirvix-brand-rise-sequence{
+    0%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    62%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:1;transform:translate(-50%,calc(-50% - 10vh)) scale(.74)}
+  }
+}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-symbol,.mirvix-ocean-hero .ocean-brand-name{animation:none!important;opacity:1!important;transform:none!important}
+}
+
+/* MIRVIX refined typography, comfortable CTA and slower cinematic logo narrative */
+.mirvix-ocean-hero{--mirvix-intro-duration:10.8s}
+.mirvix-ocean-hero .mirvix-ocean-media{animation-duration:var(--mirvix-intro-duration)}
+.mirvix-ocean-hero .ocean-brand-intro{
+  width:min(1050px,95vw);gap:clamp(10px,1.75vw,25px);
+  animation:mirvix-brand-intro-slower 8.3s cubic-bezier(.22,.68,.28,1) .18s both;
+}
+.mirvix-ocean-hero .ocean-brand-symbol{
+  width:clamp(90px,12vw,165px);max-height:160px;
+  animation:mirvix-emblem-slower 3.2s cubic-bezier(.18,.72,.26,1) .2s both;
+}
+.mirvix-ocean-hero .ocean-brand-name{
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-weight:800;
+  font-size:clamp(44px,7.1vw,96px);letter-spacing:-.052em;
+  animation:mirvix-wordmark-slower 2s cubic-bezier(.2,.7,.3,1) 2.95s both;
+}
+@keyframes mirvix-emblem-slower{
+  0%{opacity:0;transform:scale(1.85)}
+  24%{opacity:1;transform:scale(1.85)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes mirvix-wordmark-slower{
+  0%{opacity:0;transform:translateX(-22px)}
+  100%{opacity:1;transform:translateX(0)}
+}
+@keyframes mirvix-brand-intro-slower{
+  0%,55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - min(19vh,145px))) scale(.89)}
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy{
+  animation:mirvix-story-entrance 1.65s cubic-bezier(.19,.68,.28,1) 8.1s both;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy h1{
+  max-width:940px;font-family:Inter,"Segoe UI",Arial,sans-serif;
+  font-size:clamp(30px,4.2vw,59px);font-weight:800;letter-spacing:-.044em;
+  line-height:1.12;margin-bottom:18px;text-wrap:balance;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy>p{
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:clamp(14px,1.32vw,19px);
+  line-height:1.6;max-width:770px;font-weight:450;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{
+  margin-top:25px;gap:14px;display:flex;justify-content:center;align-items:center;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  min-height:51px;padding:12px 23px;border-radius:14px;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;font-size:15px;
+  font-weight:720;letter-spacing:-.01em;
+  box-shadow:0 8px 28px rgba(1,17,56,.19);
+  transition:transform .23s ease,box-shadow .23s ease,background .23s ease;
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button:hover{
+  transform:translateY(-2px);box-shadow:0 14px 34px rgba(1,17,56,.28);
+}
+.mirvix-ocean-hero .hero-copy.ocean-story-copy .button:focus-visible{
+  outline:3px solid #a9e8ff;outline-offset:4px;
+}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{
+  animation:none;opacity:1;transform:translate(-50%,calc(-50% - min(19vh,145px))) scale(.89);
+}
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-symbol,
+.mirvix-ocean-hero.ocean-intro-done .ocean-brand-name{
+  animation:none;opacity:1;transform:none;
+}
+@media(max-width:780px){
+ .mirvix-ocean-hero .ocean-brand-intro{gap:8px;top:27%;width:95vw}
+ .mirvix-ocean-hero .ocean-brand-symbol{width:clamp(57px,13vw,90px);max-height:85px}
+ .mirvix-ocean-hero .ocean-brand-name{font-size:clamp(36px,8.4vw,67px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,6vw,41px);margin-bottom:11px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,2.9vw,15px);line-height:1.42}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{gap:9px;margin-top:16px;flex-wrap:wrap}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:43px;padding:10px 14px;font-size:12px;border-radius:11px}
+ .mirvix-ocean-hero.ocean-intro-done .ocean-brand-intro{transform:translate(-50%,calc(-50% - 10vh)) scale(.91)}
+ @keyframes mirvix-brand-intro-slower{
+  0%,55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:1;transform:translate(-50%,calc(-50% - 10vh)) scale(.91)}
+ }
+}
+@media(max-height:700px){
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{padding-top:clamp(66px,11vh,88px)}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy h1{font-size:clamp(27px,3.4vw,43px);margin-bottom:9px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{font-size:clamp(12px,1.1vw,15px);line-height:1.42}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .hero-buttons{margin-top:12px}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy .button{min-height:42px}
+}
+@media(prefers-reduced-motion:reduce){
+ .mirvix-ocean-hero .ocean-brand-intro{animation:none!important;opacity:1!important;transform:translate(-50%,calc(-50% - 11vh)) scale(.9)!important}
+ .mirvix-ocean-hero .ocean-brand-symbol,.mirvix-ocean-hero .ocean-brand-name{animation:none!important;opacity:1!important;transform:none!important}
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy{animation:none!important;opacity:1!important;transform:none!important}
+}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -592,25 +880,29 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 </header>
 
 <main id="main">
-<section class="hero" id="top">
-  <div class="hero-noise" aria-hidden="true"></div>
+<section class="hero mirvix-ocean-hero" id="top">
+  <div class="ocean-brand-intro" aria-label="MIRVIX AI">
+    <img class="ocean-brand-symbol" src="assets/brand-symbol.png" alt="" width="84" height="84">
+    <span class="ocean-brand-name">MIRVIX <span>AI</span></span>
+  </div>
+  <div class="mirvix-ocean-media" aria-hidden="true">
+    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="https://assets.mixkit.co/videos/preview/mixkit-turquoise-ocean-background-with-foaming-waves-2091-large.mp4" type="video/mp4">
+    </video>
+    <div class="mirvix-ocean-shade"></div>
+  </div>
   <div class="container hero-layout">
-    <div class="hero-copy" data-reveal>
-      <div class="eyebrow"><span class="eyebrow-dot"></span> ТЕХНОЛОГИИ ДЛЯ РЕАЛЬНЫХ ЗАДАЧ</div>
-      <h1>Оцифровываем процессы.<br><span class="gradient">Создаём интеллект.</span></h1>
-      <p>Помогаем компаниям быть заметнее в поиске и ИИ-сервисах, внедряем ИИ-помощников для ответов клиентам 24/7, разрабатываем приложения и оцифровываем бизнес-процессы.</p>
+    <div class="hero-copy ocean-story-copy">
+      <h1>Поможем Вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее.</span></h1>
+      <p>В океане информации важно не потеряться, помогаем компаниям усиливать видимость в нейросетях и поиске, чтобы клиенты чаще находили именно Вас.</p>
       <div class="hero-buttons">
-        <a class="button button-primary" href="#contacts">Обсудить вашу задачу <span aria-hidden="true">↗</span></a>
-        <a class="button button-light" href="#projects">Смотреть разработки <span aria-hidden="true">↓</span></a>
-        <a class="button button-light" href="/audit/">Проверить сайт <span aria-hidden="true">↗</span></a>
-      </div>
-      <div class="hero-footnotes">
-        <span><i aria-hidden="true"></i> Продукты под задачу</span><span><i aria-hidden="true"></i> Человек контролирует ИИ</span>
+        <a class="button button-primary" href="/audit/">Проверить видимость <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </div>
   <div class="container capability-row" aria-label="Основные направления">
-    <span>Оцифровка бизнеса</span><b aria-hidden="true">/</b><span>Разработка приложений</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span><b aria-hidden="true">/</b><span>Поиск и продвижение</span>
+    <span>Видимость в ИИ</span><b aria-hidden="true">/</b><span>Цифровые карточки</span><b aria-hidden="true">/</b><span>Разработка платформ</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span>
   </div>
 </section>
 
@@ -757,6 +1049,30 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   </div>
 </section>
 
+<section class="section mirvix-platform-section" id="platform">
+  <div class="container mirvix-platform-grid">
+    <div>
+      <span class="section-kicker">СОБСТВЕННАЯ РАЗРАБОТКА · РАННЕЕ УЧАСТИЕ</span>
+      <h2>Новая платформа MIRVIX: товары, услуги и умный поиск</h2>
+      <p>Мы разрабатываем цифровую платформу, на которой компании смогут размещать публичные карточки своих товаров и услуг, а покупатели — находить подходящие предложения с помощью ИИ-помощника.</p>
+      <p>Хотите понять, какие площадки важны вашему бренду и как заявить о себе в ИИ-поиске? <a href="#contacts">Свяжитесь с нами</a>. Если хотите стать одним из первых участников будущей платформы, оставьте заявку — мы сообщим об условиях и дальнейшем запуске.</p>
+      <div class="mirvix-platform-buttons">
+        <a class="button button-primary" href="#lead-form" id="platform-waitlist">Подать заявку на участие <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="mirvix-platform-footnote">Платформа в разработке. Оставленная заявка не означает автоматического подключения. Присутствие в ИИ-рекомендациях не гарантируется.</p>
+    </div>
+    <div class="mirvix-product-preview" aria-label="Направления будущей платформы">
+      <div class="mirvix-product-label">MIRVIX / ПЛАТФОРМА</div>
+      <div class="mirvix-product-line"><b>01</b><span>Карточки товаров и услуг</span></div>
+      <div class="mirvix-product-line"><b>02</b><span>Интеллектуальный поиск предложений</span></div>
+      <div class="mirvix-product-line"><b>03</b><span>Цифровое присутствие бизнеса</span></div>
+      <div class="mirvix-product-line"><b>04</b><span>Аналитика и инструменты продвижения</span></div>
+      <div class="mirvix-product-note">Концепция · готовим к запуску</div>
+    </div>
+  </div>
+</section>
+
 <section class="section contact-section" id="contacts">
   <div class="container contact-shell">
     <div class="contact-primary">
@@ -774,7 +1090,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     <div class="lead-fields">
       <label>Как к вам обращаться? <span>*</span><input name="client_name" autocomplete="name" maxlength="100" placeholder="Ваше имя" required></label>
       <label>Как с вами связаться? <span>*</span><input name="client_contact" maxlength="160" placeholder="Телефон, почта или Telegram" required></label>
-      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option></select></label>
+      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option><option value="platform-waitlist">Раннее участие в платформе MIRVIX</option></select></label>
       <label class="lead-full">Опишите задачу<textarea name="message" rows="3" maxlength="3000" placeholder="Чем занимается компания и что хотелось бы улучшить?"></textarea></label>
     </div>
     <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я ознакомлен(а) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и согласен(на) передать указанные данные по электронной почте для ответа на обращение.</span></label>
@@ -1034,5 +1350,47 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 <div class="mira-foot">Голосовой ввод может использовать сервис распознавания браузера. Обращение передаётся только после вашего подтверждения. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
 </section></div>
 <script src="/assets/mira-widget.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var cta=document.getElementById('platform-waitlist');
+  var form=document.getElementById('mirvix-lead');
+  if(cta&&form){cta.addEventListener('click',function(){
+    var select=form.querySelector('select[name="plan"]');
+    var message=form.querySelector('textarea[name="message"]');
+    if(select)select.value='platform-waitlist';
+    if(message&&!message.value.trim())message.value='Хочу узнать об условиях раннего участия в платформе MIRVIX с карточками товаров и услуг.';
+  });}
+  var video=document.getElementById('mirvix-ocean-film');
+  var hero=document.querySelector('.mirvix-ocean-hero');
+  if(video&&hero){
+    var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+    var timer=null,finished=false,started=false;
+    var finish=function(){
+      if(finished)return;
+      finished=true;
+      video.pause();
+      hero.classList.add('ocean-intro-done');
+      if(timer){clearTimeout(timer);timer=null;}
+    };
+    var start=function(){
+      if(started)return;
+      started=true;
+      if(reduced.matches){hero.classList.add('ocean-intro-done');video.pause();return;}
+      hero.classList.add('ocean-intro-playing');
+      video.muted=true;
+      video.playbackRate=.67;
+      var promise=video.play();
+      if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
+      timer=setTimeout(finish,10800);
+    };
+    video.addEventListener('canplay',start,{once:true});
+    video.addEventListener('error',function(){hero.classList.add('ocean-video-unavailable');start();},{once:true});
+    setTimeout(start,1200);
+    if(reduced.addEventListener)reduced.addEventListener('change',function(e){
+      if(e.matches){finish();video.pause();}
+    });
+  }
+});
+</script>
 </body>
 </html>
