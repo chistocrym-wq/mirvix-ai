@@ -590,6 +590,19 @@ body{background:#fff}
 @media(max-width:760px){.mirvix-ocean-hero .hero-layout{min-height:680px;padding:84px 0 70px}.mirvix-ocean-hero h1{font-size:clamp(36px,7.8vw,54px)}.mirvix-ocean-film{object-position:center}.mirvix-platform-section{padding:64px 0}.mirvix-platform-grid{grid-template-columns:1fr;gap:32px}}
 @media(prefers-reduced-motion:reduce){.mirvix-ocean-film{display:none}.mirvix-ocean-media{background:#144b88}}
 
+
+/* One-time cinematic intro: real overhead sea slowly approaches, then freezes. */
+.mirvix-ocean-hero{--ocean-zoom:1.16}
+.mirvix-ocean-hero .mirvix-ocean-media{background-image:url("https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=1920&q=85");background-size:cover;background-position:center;transform:scale(1);transform-origin:center center;animation:mirvix-intro-zoom 6.4s cubic-bezier(.18,.55,.3,1) both}
+.mirvix-ocean-hero .mirvix-ocean-film{opacity:1;filter:hue-rotate(17deg) saturate(1.06) contrast(1.04) brightness(1.05);object-position:center}
+.mirvix-ocean-hero .mirvix-ocean-shade{background:linear-gradient(180deg,rgba(3,18,54,.24),rgba(0,27,67,.17) 55%,rgba(3,17,48,.36))}
+.mirvix-ocean-hero .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero .hero-copy[data-reveal]{opacity:0;transform:translate3d(0,24px,0);animation:mirvix-intro-copy 1.6s ease-out 2.1s both}
+.mirvix-ocean-hero.ocean-intro-done .mirvix-ocean-media{animation:none;transform:scale(var(--ocean-zoom))}
+.mirvix-ocean-hero.ocean-intro-done .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero.ocean-intro-done .hero-copy[data-reveal]{animation:none;opacity:1;transform:none}
+.mirvix-ocean-hero.ocean-video-unavailable .mirvix-ocean-film{display:none}
+@keyframes mirvix-intro-zoom{from{transform:scale(1)}to{transform:scale(var(--ocean-zoom))}}
+@keyframes mirvix-intro-copy{from{opacity:0;transform:translate3d(0,24px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@media(prefers-reduced-motion:reduce){.mirvix-ocean-hero .mirvix-ocean-media{animation:none!important;transform:none!important}.mirvix-ocean-hero .mirvix-ocean-film{display:none!important}.mirvix-ocean-hero .hero-copy[data-reveal],html.has-js .mirvix-ocean-hero .hero-copy[data-reveal]{animation:none!important;opacity:1!important;transform:none!important}}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -1106,9 +1119,34 @@ document.addEventListener('DOMContentLoaded',function(){
     if(message&&!message.value.trim())message.value='Хочу узнать об условиях раннего участия в платформе MIRVIX с карточками товаров и услуг.';
   });}
   var video=document.getElementById('mirvix-ocean-film');
-  if(video){var media=window.matchMedia('(prefers-reduced-motion: reduce)');
-    function sync(){if(media.matches){video.pause();video.style.display='none'}else{video.style.display='block';video.playbackRate=0.78;var p=video.play();if(p&&p.catch)p.catch(function(){})}}
-    sync();if(media.addEventListener)media.addEventListener('change',sync);
+  var hero=document.querySelector('.mirvix-ocean-hero');
+  if(video&&hero){
+    var reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+    var timer=null,finished=false,started=false;
+    var finish=function(){
+      if(finished)return;
+      finished=true;
+      video.pause();
+      hero.classList.add('ocean-intro-done');
+      if(timer){clearTimeout(timer);timer=null;}
+    };
+    var start=function(){
+      if(started)return;
+      started=true;
+      if(reduced.matches){hero.classList.add('ocean-intro-done');video.pause();return;}
+      hero.classList.add('ocean-intro-playing');
+      video.muted=true;
+      video.playbackRate=.72;
+      var promise=video.play();
+      if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
+      timer=setTimeout(finish,6400);
+    };
+    video.addEventListener('canplay',start,{once:true});
+    video.addEventListener('error',function(){hero.classList.add('ocean-video-unavailable');start();},{once:true});
+    setTimeout(start,1200);
+    if(reduced.addEventListener)reduced.addEventListener('change',function(e){
+      if(e.matches){finish();video.pause();}
+    });
   }
 });
 </script>
