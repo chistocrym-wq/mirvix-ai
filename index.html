@@ -554,6 +554,39 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @media(max-width:1130px){.contact-shell{gap:28px;padding:54px 35px}}
 @media(max-width:690px){.contact-shell{padding:35px 23px;gap:27px}.lead-panel{padding:20px 16px}.lead-fields{grid-template-columns:1fr}.lead-fields .lead-full{grid-column:auto}.lead-panel-head h3{font-size:22px}}
 .partner-cabinet-link{display:inline-flex!important;align-items:center;gap:7px;padding:10px 13px!important;border:1px solid #bed4f5;border-radius:10px;background:#e9f2ff;color:#135cae!important;font-size:12.3px!important;font-weight:800!important;line-height:1.4!important;transition:background .2s}.partner-cabinet-link:hover{background:#d7e7ff}
+
+/* MIRVIX OCEAN HERO — original animated sea, no third-party media */
+.hero.hero-ocean{isolation:isolate;overflow:hidden;min-height:690px;background:#061b34;color:#f7fbff}
+.hero-ocean .ocean-stage{position:absolute;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.hero-ocean .ocean-sky{position:absolute;inset:0;background:linear-gradient(180deg,#03152c 0%,#123c64 32%,#237592 48%,#126987 56%,#0b4569 72%,#061f41 100%)}
+.hero-ocean .ocean-glow{position:absolute;inset:-20% -20% 20%;background:radial-gradient(ellipse 56% 19% at 53% 54%,rgba(153,241,251,.43),transparent 76%);filter:blur(34px);animation:mirvix-sea-glow 14s ease-in-out infinite alternate}
+.hero-ocean .ocean-horizon{position:absolute;left:-10%;right:-10%;top:51%;height:2px;background:linear-gradient(90deg,transparent,rgba(196,250,255,.48),transparent);box-shadow:0 0 30px 7px rgba(105,217,234,.17)}
+.hero-ocean .ocean-surface{position:absolute;inset:51% -35% -20%;background:repeating-linear-gradient(174deg,transparent 0 23px,rgba(179,236,252,.095) 24px 25px,transparent 27px 55px),repeating-linear-gradient(5deg,transparent 0 32px,rgba(14,118,158,.21) 33px 36px,transparent 39px 84px),linear-gradient(180deg,#185d7d,#083454 44%,#04162e);transform:perspective(620px) rotateX(26deg) scale(1.32);transform-origin:50% 0;animation:mirvix-surface-shift 16s ease-in-out infinite alternate}
+.hero-ocean .ocean-shimmer{position:absolute;inset:51% -15% -10%;background:repeating-linear-gradient(178deg,transparent 0 30px,rgba(185,250,255,.14) 31px 32px,transparent 35px 75px);mask-image:radial-gradient(ellipse 36% 75% at 51% 0%,#000,transparent);animation:mirvix-shimmer 11s linear infinite}
+.hero-ocean .ocean-wave{position:absolute;width:140%;left:-20%;height:30%;bottom:-1%;filter:drop-shadow(0 -8px 19px rgba(64,189,221,.08));will-change:transform}
+.hero-ocean .ocean-wave-back{bottom:12%;fill:rgba(24,110,150,.48);animation:mirvix-wave-drift 18s ease-in-out infinite alternate}
+.hero-ocean .ocean-wave-mid{bottom:4%;fill:rgba(6,61,99,.72);animation:mirvix-wave-drift 14s ease-in-out infinite alternate-reverse}
+.hero-ocean .ocean-wave-front{bottom:-13%;height:33%;fill:rgba(3,29,58,.90);animation:mirvix-wave-drift 12s ease-in-out infinite alternate}
+.hero-ocean .ocean-vignette{position:absolute;inset:0;background:linear-gradient(90deg,rgba(2,12,29,.31),transparent 50%,rgba(2,12,29,.23)),linear-gradient(180deg,rgba(2,10,28,.23),rgba(3,17,38,.24) 46%,rgba(2,12,29,.60));}
+.hero-ocean::before,.hero-ocean::after{display:none}
+.hero-ocean .hero-noise{opacity:.19;z-index:0}
+.hero-ocean .hero-layout{position:relative;z-index:1;min-height:610px;padding-top:100px;padding-bottom:100px}
+.hero-ocean .hero h1,.hero-ocean h1{color:#fff;text-shadow:0 6px 28px rgba(0,8,28,.40)}
+.hero-ocean .gradient{background:linear-gradient(90deg,#f6ffff 0%,#91ecff 48%,#e4faff 100%);-webkit-background-clip:text;background-clip:text}
+.hero-ocean .hero-copy>p{color:#e5f5ff;text-shadow:0 2px 15px rgba(0,12,31,.65)}
+.hero-ocean .eyebrow{color:#d6f6ff}
+.hero-ocean .hero-footnotes{color:#c3e7f7}
+.hero-ocean .capability-row{position:relative;z-index:2;color:#d6eefa;background:rgba(1,13,31,.24);border-top:1px solid rgba(216,246,255,.18)}
+.hero-ocean .button-light{color:#eafaff;background:rgba(7,36,65,.47);border:1px solid rgba(193,238,255,.50);backdrop-filter:blur(8px)}
+.hero-ocean .button-light:hover{color:#132c4a;background:#e6faff}
+.hero-ocean .button-primary{box-shadow:0 10px 35px rgba(0,25,74,.42)}
+@keyframes mirvix-wave-drift{from{transform:translate3d(-3.5%,0,0) scaleY(1)}to{transform:translate3d(4%,14px,0) scaleY(1.065)}}
+@keyframes mirvix-sea-glow{from{opacity:.6;transform:translateX(-3%)}to{opacity:1;transform:translateX(3%)}}
+@keyframes mirvix-surface-shift{from{transform:perspective(620px) rotateX(26deg) translateX(-1.5%) scale(1.32)}to{transform:perspective(620px) rotateX(26deg) translateX(1.5%) scale(1.35)}}
+@keyframes mirvix-shimmer{from{transform:translateY(-2%) scaleX(1)}to{transform:translateY(4%) scaleX(1.04)}}
+@media(max-width:700px){.hero.hero-ocean{min-height:680px}.hero-ocean .hero-layout{min-height:570px;padding:74px 0 65px}.hero-ocean .ocean-wave{height:23%;width:180%;left:-40%}.hero-ocean .hero-copy>p{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.hero-ocean .ocean-stage *{animation:none!important;transform:none!important}.hero-ocean .ocean-surface{transform:perspective(620px) rotateX(26deg) scale(1.32)!important}}
+
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -592,7 +625,18 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 </header>
 
 <main id="main">
-<section class="hero" id="top">
+<section class="hero hero-ocean" id="top">
+  <div class="ocean-stage" aria-hidden="true">
+    <div class="ocean-sky"></div>
+    <div class="ocean-glow"></div>
+    <div class="ocean-horizon"></div>
+    <div class="ocean-surface"></div>
+    <div class="ocean-shimmer"></div>
+    <svg class="ocean-wave ocean-wave-back" viewBox="0 0 1440 250" preserveAspectRatio="none"><path d="M0,115 C115,78 235,148 360,120 S595,65 730,115 S990,164 1120,119 S1320,73 1440,112 L1440,250 L0,250Z"/></svg>
+    <svg class="ocean-wave ocean-wave-mid" viewBox="0 0 1440 270" preserveAspectRatio="none"><path d="M0,128 C130,175 245,90 365,133 S595,181 735,130 S980,92 1100,139 S1310,175 1440,126 L1440,270 L0,270Z"/></svg>
+    <svg class="ocean-wave ocean-wave-front" viewBox="0 0 1440 240" preserveAspectRatio="none"><path d="M0,136 C165,98 260,182 385,137 S610,102 730,143 S970,185 1110,139 S1310,100 1440,147 L1440,240 L0,240Z"/></svg>
+    <div class="ocean-vignette"></div>
+  </div>
   <div class="hero-noise" aria-hidden="true"></div>
   <div class="container hero-layout">
     <div class="hero-copy" data-reveal>
