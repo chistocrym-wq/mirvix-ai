@@ -610,6 +610,31 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 .hero-ocean .hero-copy>p{max-width:800px;color:#f1f7ff}
 .hero-ocean .hero-layout{min-height:640px}
 @media(max-width:680px){.hero-ocean h1{font-size:clamp(35px,8.6vw,55px)}.hero-ocean .hero-layout{min-height:600px}}
+
+/* MIRVIX future platform — early interest */
+.mirvix-platform-section{background:linear-gradient(135deg,#f2f7ff 0%,#fff 56%,#eef5ff 100%);padding:100px 0}
+.mirvix-platform-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr);gap:60px;align-items:center}
+.mirvix-platform-copy h2{font-size:clamp(31px,3.25vw,51px);line-height:1.12;letter-spacing:-.045em;margin:18px 0 26px;max-width:780px}
+.mirvix-platform-copy>p{font-size:17px;color:#45607f;line-height:1.75;max-width:770px}
+.mirvix-platform-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.mirvix-platform-note{font-size:13px!important;line-height:1.5!important;color:#74829a!important;margin-top:18px}
+.mirvix-platform-card{border:1px solid #a6c5e8;border-radius:26px;padding:30px;color:#f0f7ff;background:linear-gradient(150deg,#102b62,#063d70 56%,#051a42);box-shadow:0 26px 65px rgba(16,45,104,.18)}
+.mirvix-platform-card-label{color:#8fcef5;letter-spacing:.16em;font-size:11px;font-weight:800}
+.mirvix-platform-card-inner{margin:30px 0;display:grid;gap:13px}
+.mirvix-platform-card-inner>div{display:flex;gap:16px;padding:16px;border:1px solid rgba(190,231,255,.2);border-radius:13px;background:rgba(255,255,255,.055);align-items:center}
+.mirvix-platform-card-inner b{color:#75d4ff;font-size:18px}
+.mirvix-platform-card-inner span{line-height:1.4;font-size:14px}
+.mirvix-platform-card-footer{font-size:12px;color:#bdd6f0}
+@media(max-width:800px){.mirvix-platform-section{padding:65px 0}.mirvix-platform-layout{grid-template-columns:1fr;gap:28px}}
+/* Self-contained ocean fallback: visible blue moving water when the external video is blocked */
+.hero-ocean .ocean-video-stage{background:radial-gradient(ellipse at 40% 40%,#2663b9,#0a337c 53%,#031d55)}
+.hero-ocean .ocean-video-stage:before{content:"";position:absolute;inset:-25%;background:repeating-radial-gradient(ellipse at 45% 58%,transparent 0 18px,rgba(164,218,255,.17) 21px,transparent 30px,transparent 63px),repeating-linear-gradient(170deg,transparent 0 37px,rgba(169,222,255,.12) 39px,transparent 44px,transparent 85px);transform:rotate(-8deg);animation:mirvix-ocean-fallback 13s ease-in-out infinite alternate}
+.hero-ocean .ocean-video-stage:after{content:"";position:absolute;inset:0;background:linear-gradient(145deg,transparent 10%,rgba(189,232,255,.09) 35%,transparent 59%),repeating-linear-gradient(178deg,transparent 0 70px,rgba(220,242,255,.11) 74px,transparent 80px,transparent 132px);animation:mirvix-ocean-fallback2 15s linear infinite}
+.hero-ocean .ocean-real-video{z-index:1}
+.hero-ocean .ocean-video-tint{z-index:2}
+@keyframes mirvix-ocean-fallback{from{transform:translate3d(-3%,0,0) rotate(-8deg) scale(1)}to{transform:translate3d(3%,-5%,0) rotate(-5deg) scale(1.05)}}
+@keyframes mirvix-ocean-fallback2{from{transform:translateY(-4%)}to{transform:translateY(4%)}}
+@media(prefers-reduced-motion:reduce){.hero-ocean .ocean-video-stage:before,.hero-ocean .ocean-video-stage:after{animation:none!important}}
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -673,6 +698,32 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
   </div>
   <div class="container capability-row" aria-label="Основные направления">
     <span>Оцифровка бизнеса</span><b aria-hidden="true">/</b><span>Разработка приложений</span><b aria-hidden="true">/</b><span>ИИ-автоматизация</span><b aria-hidden="true">/</b><span>Поиск и продвижение</span>
+  </div>
+</section>
+
+<section class="section mirvix-platform-section" id="platform">
+  <div class="container mirvix-platform-layout">
+    <div class="mirvix-platform-copy">
+      <span class="section-kicker">СОБСТВЕННАЯ РАЗРАБОТКА · ГОТОВИМ К ЗАПУСКУ</span>
+      <h2>MIRVIX — платформа товаров и услуг для новой эпохи ИИ-поиска</h2>
+      <p>Мы разрабатываем цифровую платформу, где компании смогут размещать карточки товаров и услуг, а покупатели — находить подходящие предложения с помощью умного помощника.</p>
+      <p>Наша цель — сделать предложения участников понятными людям, поисковым системам и ИИ-сервисам. Появление в рекомендациях нейросетей не гарантируется: над видимостью мы работаем отдельно.</p>
+      <div class="mirvix-platform-actions">
+        <a class="button button-primary" href="#lead-form" id="mirvix-waitlist-cta">Подать заявку на раннее участие <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="#contacts">Задать вопрос о платформе <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="mirvix-platform-note">Платформа находится в разработке. Оставьте заявку, если хотите узнать условия участия и получить информацию о запуске. Сроки и доступность функций уточняются.</p>
+    </div>
+    <div class="mirvix-platform-card" aria-label="Возможности будущей платформы">
+      <span class="mirvix-platform-card-label">MIRVIX · ПЛАТФОРМА</span>
+      <div class="mirvix-platform-card-inner">
+        <div><b>01</b><span>Карточки товаров и услуг с публичными адресами</span></div>
+        <div><b>02</b><span>Поиск предложений через ИИ-помощника</span></div>
+        <div><b>03</b><span>Единая точка входа для компаний и покупателей</span></div>
+        <div><b>04</b><span>Инструменты аналитики и повышения видимости</span></div>
+      </div>
+      <span class="mirvix-platform-card-footer">Концепция · ведётся разработка</span>
+    </div>
   </div>
 </section>
 
@@ -836,7 +887,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     <div class="lead-fields">
       <label>Как к вам обращаться? <span>*</span><input name="client_name" autocomplete="name" maxlength="100" placeholder="Ваше имя" required></label>
       <label>Как с вами связаться? <span>*</span><input name="client_contact" maxlength="160" placeholder="Телефон, почта или Telegram" required></label>
-      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option></select></label>
+      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option><option value="platform-waitlist">Раннее участие в платформе MIRVIX</option></select></label>
       <label class="lead-full">Опишите задачу<textarea name="message" rows="3" maxlength="3000" placeholder="Чем занимается компания и что хотелось бы улучшить?"></textarea></label>
     </div>
     <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я ознакомлен(а) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и согласен(на) передать указанные данные по электронной почте для ответа на обращение.</span></label>
@@ -1096,5 +1147,18 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 <div class="mira-foot">Голосовой ввод может использовать сервис распознавания браузера. Обращение передаётся только после вашего подтверждения. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
 </section></div>
 <script src="/assets/mira-widget.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+ var cta=document.getElementById('mirvix-waitlist-cta');
+ var form=document.getElementById('mirvix-lead');
+ if(!cta||!form)return;
+ cta.addEventListener('click',function(){
+  var select=form.querySelector('select[name="plan"]');
+  var message=form.querySelector('textarea[name="message"]');
+  if(select)select.value='platform-waitlist';
+  if(message&&!message.value.trim())message.value='Хочу получить информацию о раннем участии в платформе MIRVIX с карточками товаров и услуг. Просьба сообщить условия и новости запуска.';
+ });
+});
+</script>
 </body>
 </html>
