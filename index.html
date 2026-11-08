@@ -635,6 +635,32 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 @keyframes mirvix-ocean-fallback{from{transform:translate3d(-3%,0,0) rotate(-8deg) scale(1)}to{transform:translate3d(3%,-5%,0) rotate(-5deg) scale(1.05)}}
 @keyframes mirvix-ocean-fallback2{from{transform:translateY(-4%)}to{transform:translateY(4%)}}
 @media(prefers-reduced-motion:reduce){.hero-ocean .ocean-video-stage:before,.hero-ocean .ocean-video-stage:after{animation:none!important}}
+
+/* MIRVIX identity from the supplied business card: clean white, cobalt, cyan and violet. */
+:root{--navy:#142b66;--ink:#182d68;--text:#465878;--muted:#6d7e9c;--blue:#2358d2;--cyan:#2cb8e4;--violet:#7933a4;--soft-blue:#f1f6ff}
+body{background:#fff}
+.button-primary{background:linear-gradient(110deg,#244fb9 0%,#247ddd 49%,#762faa 100%);box-shadow:0 11px 30px rgba(40,76,175,.18)}
+.gradient{background:linear-gradient(100deg,#2559bf,#28a9df 53%,#7939a6);-webkit-background-clip:text;background-clip:text}
+.hero.hero-ocean{background:#062c72;color:#fff}
+.hero-ocean .ocean-video-stage{background:radial-gradient(ellipse 80% 70% at 45% 40%,#1b6bb6 0%,#10509e 38%,#092f79 72%,#041d55 100%);isolation:isolate}
+.hero-ocean .ocean-video-stage::before{opacity:.35;background:repeating-radial-gradient(ellipse at 54% 39%,transparent 0 19px,rgba(150,210,255,.11) 21px,transparent 27px,transparent 57px);animation:mirvix-ocean-fallback 17s ease-in-out infinite alternate}
+.hero-ocean .ocean-video-stage::after{opacity:.36}
+.hero-ocean .ocean-real-video{filter:hue-rotate(21deg) saturate(1.2) brightness(.95) contrast(1.08);opacity:.72}
+.hero-ocean .mirvix-foam{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;mix-blend-mode:screen}
+.hero-ocean .mirvix-foam-one{animation:mirvix-foam-breathe 13s ease-in-out infinite alternate}
+.hero-ocean .mirvix-foam-two{animation:mirvix-foam-breathe2 17s ease-in-out infinite alternate}
+.hero-ocean .ocean-video-tint{z-index:3;background:linear-gradient(180deg,rgba(2,17,64,.46),rgba(2,29,78,.40) 46%,rgba(2,17,62,.60))}
+.hero-ocean .hero-layout{z-index:4}
+.hero-ocean .hero-copy{z-index:4}
+.hero-ocean h1{font-weight:780;letter-spacing:-.058em}
+.hero-ocean .gradient{background:linear-gradient(95deg,#fff,#bbecff 49%,#ede3ff);-webkit-background-clip:text;background-clip:text}
+.mirvix-platform-section{background:linear-gradient(135deg,#f5f8ff,#fff 58%,#f3f2ff)}
+.mirvix-platform-card{background:linear-gradient(145deg,#183b88,#2851b6 55%,#5c2e99);border:1px solid #a4b7eb}
+.mirvix-platform-card-inner b{color:#b4eaff}
+@keyframes mirvix-foam-breathe{from{transform:translate3d(-2.8%,-1%,0) scale(1)}to{transform:translate3d(2.8%,1.7%,0) scale(1.035)}}
+@keyframes mirvix-foam-breathe2{from{transform:translate3d(2.5%,2%,0) scale(1.025)}to{transform:translate3d(-2.2%,-1.8%,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.hero-ocean .mirvix-foam{animation:none!important}}
+
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -678,6 +704,20 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
     <video class="ocean-real-video" autoplay muted loop playsinline preload="metadata" poster="">
       <source src="https://assets.mixkit.co/videos/preview/mixkit-turquoise-ocean-background-with-foaming-waves-2091-large.mp4" type="video/mp4">
     </video>
+
+    <svg class="mirvix-foam mirvix-foam-one" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <filter id="mirvix-foam-soft"><feTurbulence type="fractalNoise" baseFrequency=".008 .014" numOctaves="2" seed="9" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="18"/></filter>
+      </defs>
+      <path d="M-100 65 C80 92 164 180 250 192 C365 211 421 124 544 155 C659 182 708 285 840 276 C952 269 1004 199 1125 239 C1246 278 1302 368 1540 360" fill="none" stroke="#e6f8ff" stroke-width="35" stroke-linecap="round" opacity=".28" filter="url(#mirvix-foam-soft)"/>
+      <path d="M-100 65 C80 92 164 180 250 192 C365 211 421 124 544 155 C659 182 708 285 840 276 C952 269 1004 199 1125 239 C1246 278 1302 368 1540 360" fill="none" stroke="#f6fdff" stroke-width="8" stroke-linecap="round" stroke-dasharray="46 14 98 22 14 9" opacity=".78" filter="url(#mirvix-foam-soft)"/>
+      <path d="M-100 96 C90 124 161 219 259 222 C368 225 440 159 544 192 C667 233 723 319 845 313 C951 304 1029 240 1124 280 C1259 320 1314 394 1540 401" fill="none" stroke="#a8dcff" stroke-width="3" stroke-dasharray="18 12 5 14" opacity=".65"/>
+    </svg>
+    <svg class="mirvix-foam mirvix-foam-two" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path d="M-170 530 C-10 476 65 530 197 500 S415 398 539 430 S752 566 906 539 S1117 461 1251 514 S1422 611 1620 571" fill="none" stroke="#b5e6ff" stroke-width="52" opacity=".19" stroke-linecap="round" filter="url(#mirvix-foam-soft)"/>
+      <path d="M-170 530 C-10 476 65 530 197 500 S415 398 539 430 S752 566 906 539 S1117 461 1251 514 S1422 611 1620 571" fill="none" stroke="#f7fcff" stroke-width="10" opacity=".83" stroke-dasharray="79 13 20 14 91 24" stroke-linecap="round" filter="url(#mirvix-foam-soft)"/>
+      <path d="M-170 561 C-6 517 77 557 203 539 S427 436 550 469 S775 607 917 571 S1120 492 1261 552 S1440 632 1620 613" fill="none" stroke="#e4f8ff" stroke-width="3" opacity=".67" stroke-dasharray="8 14 34 16"/>
+    </svg>
     <div class="ocean-video-tint"></div>
   </div>
   <div class="hero-noise" aria-hidden="true"></div>
