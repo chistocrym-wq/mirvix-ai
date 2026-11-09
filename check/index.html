@@ -56,7 +56,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
 <section class="panel noprint" id="geo-check">
 <h2>Проверить упоминания компании в нейросетях</h2>
-<p class="subtitle">Отдельный GEO-аудит на одинаковых вопросах. ИИ автоматически составляет 30, 50, 70 или 100 покупательских запросов без названия проверяемой компании.</p>
+<p class="subtitle">Отдельный GEO-аудит на одинаковых вопросах. ИИ составляет 30, 50, 70 или 100 запросов: короткие («Посоветуй хорошего гинеколога в Санкт-Петербурге»), средние и подробные. Специализации и услуги берутся из подтверждённых данных сайта, без названия проверяемой компании.</p>
 <div class="geo-fields" style="margin:15px 0 12px">
 <div><label for="geo-url">Ссылка на сайт компании</label><input id="geo-url" type="text" maxlength="240" autocomplete="url" placeholder="https://company.ru/"></div>
 <div><label for="geo-brand">Название компании</label><input id="geo-brand" type="text" maxlength="120" placeholder="Название проверяемой компании"></div>
@@ -113,7 +113,11 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <h2>Что исправить в первую очередь</h2><div id="fixes"></div></section>
 <section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>Детали проверки · <span class="date"></span></span></div>
 <h2>Результаты по 22 критериям</h2><p class="small">✓ Подтверждено · × Требует внимания · ! Нет данных / непроверено</p>
-<div id="checks"></div></section>
+<div id="checks"></div>
+<h2>Дополнительная проверка — llms.txt</h2>
+<p class="small">Необязательный файл для ИИ-инструментов. Он не входит в 22 основных критерия, не уменьшает технический балл и не гарантирует упоминания в нейросетях.</p>
+<div id="optional-checks"></div>
+</section>
 <section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>Методика · <span class="date"></span></span></div>
 <h2>Источники и ограничения</h2><div id="evidence"></div>
 <h2>Следующий этап — реальные ответы нейросетей</h2>
@@ -156,7 +160,9 @@ sitemap:'Карта сайта помогает обнаруживать опу�
 })[id]||'Этот технический параметр влияет на доступность, понятность или оформление страницы; сам по себе не гарантирует показ в ИИ.';
 function status(s){return s==='ok'?'ok':s==='issue'?'issue':'unknown'}
 function render(d){
-window.MIRVIX_AUDIT_CTX={domain:d.domain||'',title:d.extras?.title||'',description:d.extras?.description||''};
+window.MIRVIX_AUDIT_CTX={domain:d.domain||'',title:d.extras?.title||'',
+  description:d.extras?.description||'',
+  serviceHeadings:d.extras?.serviceHeadings||[],siteExcerpt:d.extras?.contentSnippet||''};
 $('report').hidden=false;$('print').hidden=false;$('domain').textContent=d.domain||d.url;
 document.querySelectorAll('.date').forEach(x=>x.textContent=new Date(d.checkedAt).toLocaleString('ru-RU'));
 $('score').textContent=d.geoScore==null?'—':d.geoScore;
@@ -176,6 +182,15 @@ if(!priority.length)el(fixes,'p','Подтверждённых критичны�
 priority.forEach((x,i)=>{const box=el(fixes,'div',null,'fix');el(box,'span',String(i+1).padStart(2,'0'),'fixnum');el(box,'h3',x.title);
 el(box,'div','СЕЙЧАС','microhead');el(box,'p',x.detail);el(box,'div','ПОЧЕМУ ЭТО ВАЖНО','microhead');el(box,'p',why(x.id));
 el(box,'div','ЧТО ДЕЛАТЬ','microhead');el(box,'p',x.tip);});
+const optional=$('optional-checks');optional.replaceChildren();
+for(const x of d.optionalChecks||[]){
+  const row=el(optional,'div',null,'rowcheck');
+  const state=x.state==='ok'?'ok':x.state==='missing'?'unknown':'unknown';
+  el(row,'span',x.state==='ok'?'✓':'!', 'state '+state);
+  const content=el(row,'div');el(content,'b',x.title);
+  el(content,'p',x.detail);el(content,'p',x.tip,'tip');
+  if(x.url){const link=document.createElement('a');link.href=x.url;link.rel='noopener noreferrer';link.target='_blank';link.textContent='Посмотреть llms.txt';content.append(link);}
+}
 const sections=$('checks');sections.replaceChildren();for(const g of d.geoGroups||[]){el(sections,'h3',g.title+' · '+(g.points==null?'—':g.points+' / '+g.maxPoints));
 for(const id of g.checkIds){const x=d.checks.find(z=>z.id===id);if(!x)continue;
 const row=el(sections,'div',null,'rowcheck');el(row,'span',stateText[x.state]||'!', 'state '+status(x.state));const content=el(row,'div');
@@ -226,7 +241,9 @@ const getCompany=()=>{
     city:$('geo-city').value.trim(),
     category:$('geo-category').value.trim(),
     title:auditMatches?(window.MIRVIX_AUDIT_CTX?.title||''):'',
-    description:auditMatches?(window.MIRVIX_AUDIT_CTX?.description||''):''
+    description:auditMatches?(window.MIRVIX_AUDIT_CTX?.description||''):'',
+    serviceHeadings:auditMatches?(window.MIRVIX_AUDIT_CTX?.serviceHeadings||[]):[],
+    siteExcerpt:auditMatches?(window.MIRVIX_AUDIT_CTX?.siteExcerpt||''):''
   };
 };
 async function readCompanyProfile(company){
@@ -242,9 +259,12 @@ async function readCompanyProfile(company){
   if(!response.ok)throw Error(data.error||'Не удалось получить данные сайта.');
   const title=String(data.extras?.title||'').trim().slice(0,180);
   const description=String(data.extras?.description||'').trim().slice(0,420);
-  if(title||description){
-    window.MIRVIX_AUDIT_CTX={domain:data.domain||'',title,description};
-    return {title,description};
+  const serviceHeadings=Array.isArray(data.extras?.serviceHeadings)?
+    data.extras.serviceHeadings.slice(0,18):[];
+  const siteExcerpt=String(data.extras?.contentSnippet||'').slice(0,1400);
+  if(title||description||serviceHeadings.length||siteExcerpt){
+    window.MIRVIX_AUDIT_CTX={domain:data.domain||'',title,description,serviceHeadings,siteExcerpt};
+    return {title,description,serviceHeadings,siteExcerpt};
   }
   throw Error('В HTML не обнаружены title и описание компании.');
 }
