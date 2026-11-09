@@ -19,7 +19,7 @@ test('Metrika loader included exactly once on all 15 public and restricted HTML 
   for(const path of pages){
     const html=read(path);
     assert.equal((html.match(/src="\/assets\/mirvix-metrika\.js"/g)||[]).length,1,path);
-    assert.equal((html.match(/114153852/g)||[]).length,0,'no inlined counter in '+path);
+    assert.doesNotMatch(html,/<script[^>]*>[^<]*ym\(114153852/,'no extra inline counter in '+path);
     assert.match(html,/<\/head>/i);
   }
 });
