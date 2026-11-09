@@ -108,7 +108,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div><label for="geo-brand">Название компании</label><input id="geo-brand" type="text" maxlength="120" placeholder="Название проверяемой компании"></div>
 </div>
 <div class="notice"><b>Проверка ответов нейросетей доступна сотрудникам MIRVIX.</b> API-ключи хранятся на сервере. Сначала сформируйте вопросы, затем подтвердите платные API-запросы.</div>
-<div class="buttons" style="margin-bottom:4px"><button type="button" id="geo-connect">Проверить подключения шести ИИ</button></div>
+<div class="buttons" style="margin-bottom:4px"><button type="button" id="geo-connect">Проверить подключения семи ИИ</button></div>
 <a class="employee-login" href="/cabinet/?role=staff&amp;next=geo-check">Вход для сотрудника MIRVIX AI</a>
 <p id="geo-status" class="small" role="status">Подключения ещё не проверены.</p>
 <div id="geo-work" hidden>
@@ -306,7 +306,8 @@ const PROVIDERS=[
 {id:'deepseek',name:'DeepSeek'},
 {id:'grok',name:'Grok'},
 {id:'gigachat',name:'GigaChat'},
-{id:'alice',name:'Алиса AI'}
+{id:'alice',name:'Алиса AI'},
+{id:'perplexity',name:'Perplexity'}
 ];
 let providers=[],questions=[],results=[],planned=[],busy=false,profile=null,gigaEvidence=[],stopRequested=false;
 const status=(t)=>{$('geo-status').textContent=t;};
@@ -597,7 +598,7 @@ $('geo-generate').onclick=async()=>{
   let company=getCompany();
   const goal=Number($('geo-count').value);
   if(company.brand.length<3){status('Укажите название компании в разделе «Проверить упоминания».');return;}
-  if(!promptGeneratorReady){status('Генератор не подключён. Нажмите «Проверить подключения шести ИИ» и проверьте статус OpenAI/Gemini.');return;}
+  if(!promptGeneratorReady){status('Генератор не подключён. Нажмите «Проверить подключения семи ИИ» и проверьте статус OpenAI/Gemini.');return;}
   if(!company.category&&!company.title&&!company.description){
     if(!company.domain){status('Укажите ссылку на сайт или тематику компании для корректных вопросов.');return;}
     busy=true;$('geo-generate').disabled=true;
