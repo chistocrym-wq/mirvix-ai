@@ -19,7 +19,9 @@
   const contactPattern = /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
   const yesPattern = /^(?:да|да\s+все\s+верно|да\s+все\s+правильно|все\s+верно|все\s+правильно|верно|правильно|все\s+так|именно|отлично|подтверждаю|согласен|согласна)$/i;
   const noPattern = /^(?:нет|не\s+совсем|неправильно|нужно\s+исправить|исправить|не\s+верно)$/i;
-  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null };
+  const byePattern = /^(?:пока|до\s+свидания|до\s+связи|всего\s+доброго|всего\s+хорошего|спасибо[,! ]*пока|спасибо[,! ]*до\s+свидания)$/i;
+  const helloPattern = /^(?:привет|здравствуй(?:те)?|добрый\s+(?:день|вечер|утро))[!. ]*$/i;
+  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, greeted: false, saidGoodbye: false };
 
   function bubble(text, own = false) {
     const node = document.createElement('div');
@@ -32,24 +34,33 @@
   const say = text => bubble(text);
   const rawTask = () => state.original.join('\n\n').trim();
   const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
-  // Conservative offline version; full semantic rewriting requires an active model.
+  // Transparent offline fallback: summarize intent rather than copy customer prose.
+  // Semantic one-sentence rewriting is provided by /api/mira-brief only after opt-in.
   function localBrief() {
-    const original = rawTask().replace(/^Уточнение(?: или исправление)? клиента:\s*/gim, '').trim();
-    let text = original.replace(/\s+/g, ' ').trim();
-    const assistant = /(?:бот|чат-бот|ассистент|помощник)/i.test(text);
-    let industry = '';
-    if (/стоматолог/i.test(text)) industry='стоматологической клиники';
-    else if (/парикмахерск/i.test(text)) industry='парикмахерской';
-    else if (/салон(?:а|е)? красоты/i.test(text)) industry='салона красоты';
-    else if (/ресторан/i.test(text)) industry='ресторана';
-    else if (/магазин/i.test(text)) industry='магазина';
-    else if (/фитнес|спортзал/i.test(text)) industry='фитнес-центра';
-    const heading = assistant ? 'Необходим ИИ-ассистент' + (industry ? ' для ' + industry : '') : 'Требуется решение для бизнес-задачи';
-    text=text.replace(/^(?:здравствуйте[,!. ]*|добрый день[,!. ]*)+/i,'')
-      .replace(/^(?:ну[, ]*)?(?:мне|нам|мы)\s+(?:нужно|нужен|нужна|нужны|хочу|хотим|ищем)\s*/i,'')
-      .replace(/^бот(?:а)?\s+для\s+(?:стоматологии|парикмахерской|салона красоты|ресторана|магазина|фитнес-центра)\s*[,.;:-]?\s*/i,'').trim();
-    if (text) text=text.charAt(0).toUpperCase()+text.slice(1).replace(/[.!?]\s*$/,'')+'.';
-    return 'Задача: '+heading+'.'+(text?' Пожелания клиента: '+text:'');
+    const task=rawTask();
+    const industry=/стоматолог/i.test(task)?'стоматологической клиники':
+      /парикмахерск/i.test(task)?'парикмахерской':
+      /салон(?:а|е)? красоты/i.test(task)?'салона красоты':
+      /медицинск|клиник/i.test(task)?'клиники':
+      /ресторан|кафе/i.test(task)?'ресторана или кафе':
+      /магазин|торгов/i.test(task)?'магазина':
+      /фитнес|спортзал/i.test(task)?'фитнес-центра':'';
+    const subject=industry?' для '+industry:'';
+    let objective='Требуется подобрать цифровое решение для бизнес-задачи';
+    if (/бот|чат-бот|ассистент|помощник/i.test(task)) objective='Нужно разработать ИИ-помощника'+subject;
+    else if (/\bcrm\b|црм|срм/i.test(task)) objective='Необходимо внедрить или настроить CRM'+subject;
+    else if (/сайт|лендинг|интернет-магазин/i.test(task)) objective='Требуется создать или доработать сайт'+subject;
+    else if (/заявк|заказ|обращени/i.test(task)) objective='Нужно автоматизировать обработку обращений и заявок'+subject;
+    else if (/продвижен|seo|гео|нейросет|видимост/i.test(task)) objective='Нужно повысить видимость компании в поиске и нейросетях';
+    else if (/приложени/i.test(task)) objective='Требуется разработать приложение'+subject;
+    const details=[];
+    if (/запис[ьи]|записыва|бронирован/i.test(task)) details.push('запись клиентов');
+    if (/отвеча|ответ[ыа]|консультац/i.test(task)) details.push('ответы на вопросы клиентов');
+    if (/telegram|телеграм/i.test(task)) details.push('работа через Telegram');
+    if (/whatsapp|ватсап/i.test(task)) details.push('работа через WhatsApp');
+    if (/оплат[ау]|платеж/i.test(task)) details.push('приём платежей');
+    if (details.length) objective+=' с функциями: '+details.slice(0,3).join(', ');
+    return objective.replace(/[.!?;,\s]+$/,'').slice(0,290)+'.';
   }
 
   function updateControls() {
@@ -76,13 +87,15 @@
     state.brief = '';
     state.contact = '';
     state.busy = false;
+    state.greeted = false;
+    state.saidGoodbye = false;
     input.value = '';
     aiConsent.checked = false;
     deliveryConsent.checked = false;
     deliveryPanel.hidden = true;
     speechCheck.hidden = true;
     history.replaceChildren();
-    say('Здравствуйте! Я MIRA. Расскажите голосом или текстом, что вы хотите сделать. Я внимательно выслушаю, красиво сформулирую задачу и помогу передать её специалисту.');
+    // Never initiate a chat: wait for the visitor's first message.
     updateControls();
   }
 
@@ -92,7 +105,7 @@
     deliveryPanel.hidden = true;
     updateControls();
     const original = rawTask();
-    const progress = say('Бережно оформляю вашу задачу…');
+    const progress = say('Сформулирую задачу одним предложением…');
     let brief = localBrief();
     // Use the local brief without distracting visitors with provider status messages.
     if (aiConsent.checked && !contactPattern.test(original)) {
@@ -104,15 +117,16 @@
         });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || typeof data.formulated !== 'string') throw new Error('unavailable');
-        const polished = data.formulated.trim();
-        if (polished.length < 16 || polished.length > 1900) throw new Error('incomplete');
-        brief = polished;
+        const polished=data.formulated.trim().replace(/^Задача:\s*/i,'').replace(/\s+/g,' ');
+        const first=polished.match(/^(.+?[.!?])(?:\s|$)/)?.[1]||polished;
+        if (first.length < 16 || first.length > 450) throw new Error('incomplete');
+        brief=first.replace(/[.!?\s]+$/,'')+'.';
       } catch {
         // Keep the local brief; never imply model-generated text when unavailable.
       }
     }
     state.brief = brief;
-    progress.textContent = 'Сформулированная задача:\n\n' + brief + '\n\nВсё ли я правильно поняла? Если нужно что-то исправить или добавить, напишите об этом.';
+    progress.textContent = 'Сформулирую так: ' + brief + '\n\nВсё верно или нужно что-то уточнить?';
     state.phase = 'review';
     state.busy = false;
     updateControls();
@@ -148,8 +162,9 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok || data.delivered !== true) throw new Error(data.error || 'Нет подтверждения отправки.');
-      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\n\nСогласованная задача:\n' + state.brief + '\n\nСпособ связи: ' + state.contact + '\n\nС вами в кратчайшие сроки свяжется наш специалист. Хорошего вам дня!';
+      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\n\nСогласованная задача:\n' + state.brief + '\n\nСпособ связи: ' + state.contact + '\n\nСпециалист свяжется с вами в ближайшее время. Спасибо за обращение, всего доброго!';
       state.phase = 'sent';
+      state.saidGoodbye = true;
       deliveryPanel.hidden = true;
     } catch {
       state.phase = 'ready';
@@ -169,6 +184,22 @@
     if (state.phase === 'sent') reset();
     input.value = '';
     bubble(message, true);
+    if (!state.greeted) {
+      state.greeted = true;
+      say('Здравствуйте! Я MIRA, рада помочь.');
+    }
+    if (byePattern.test(normalize(message))) {
+      if (!state.saidGoodbye) say('Спасибо за разговор! Всего доброго, до связи.');
+      state.saidGoodbye = true;
+      state.phase = 'sent';
+      deliveryPanel.hidden = true;
+      updateControls();
+      return;
+    }
+    if (state.phase === 'task' && helloPattern.test(normalize(message))) {
+      say('Расскажите, пожалуйста, какую задачу хотите решить.');
+      return;
+    }
     switch (state.phase) {
       case 'task':
         state.original = [message];
