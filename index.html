@@ -789,6 +789,22 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
  .mirvix-ocean-hero .ocean-brand-symbol,.mirvix-ocean-hero .ocean-brand-name{animation:none!important;opacity:1!important;transform:none!important}
  .mirvix-ocean-hero .hero-copy.ocean-story-copy{animation:none!important;opacity:1!important;transform:none!important}
 }
+
+/* Platform: genuine user-supplied screenshots; responsive gallery. */
+.mirvix-platform-showcase{display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr);align-items:center;gap:34px}
+.mirvix-platform-copy h2{font-size:clamp(33px,3.3vw,50px);letter-spacing:-.045em;line-height:1.13;margin:17px 0 22px}
+.mirvix-platform-copy p{font-size:16px;line-height:1.66;color:#415776;margin:0 0 16px}
+.mirvix-platform-copy .mirvix-platform-lead{font-size:19px;font-weight:750;color:#182f63;line-height:1.49}
+.mirvix-platform-copy .mirvix-platform-disclaimer{font-size:12px;color:#7384a0;line-height:1.56}
+.mirvix-platform-benefits{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+.mirvix-platform-benefits span{border-radius:40px;background:#ecf4ff;border:1px solid #c7dcfb;color:#164f9c;padding:9px 13px;font-size:12px;font-weight:800}
+.mirvix-platform-gallery{display:grid;gap:15px;min-width:0}
+.mirvix-platform-shot{margin:0;padding:7px;border-radius:19px;border:1px solid #dae6f9;background:#fff;box-shadow:0 17px 38px #154e9822;min-width:0;overflow:hidden}
+.mirvix-platform-shot img{width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;background:#f5f8ff;border-radius:12px}
+.mirvix-platform-shot figcaption{font-size:12px;color:#587195;font-weight:730;padding:8px 4px 2px;text-align:center}
+@media(max-width:1080px){.mirvix-platform-showcase{grid-template-columns:1fr}.mirvix-platform-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.mirvix-platform-gallery{grid-template-columns:1fr}.mirvix-platform-copy h2{font-size:clamp(30px,7.5vw,39px)}.mirvix-platform-copy p{font-size:14px}.mirvix-platform-copy .mirvix-platform-lead{font-size:16px}.mirvix-platform-buttons .button{width:100%}}
+
 </style>
 
   <meta property="og:locale" content="ru_RU">
@@ -814,7 +830,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       </span>
     </a>
     <nav class="desktop-nav" aria-label="Основное меню">
-      <a href="#services">Услуги</a><a href="#approach">Подход</a><a href="#about">О нас</a>
+      <a href="#services">Услуги</a><a href="/tariffs/">Тарифы</a><a href="#platform">О платформе</a><a href="#approach">Подход</a><a href="#about">О нас</a>
     </nav>
     <a class="header-contact" href="#contacts">Обсудить проект <span aria-hidden="true">↗</span></a>
     <button class="mobile-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню">
@@ -822,7 +838,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     </button>
   </div>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Меню на телефоне" hidden>
-    <a href="#services">Услуги</a><a href="#approach">Подход</a><a href="#about">О нас</a><a href="#contacts">Контакты</a>
+    <a href="#services">Услуги</a><a href="/tariffs/">Тарифы</a><a href="#platform">О платформе</a><a href="#approach">Подход</a><a href="#about">О нас</a><a href="#contacts">Контакты</a>
   </nav>
 </header>
 
@@ -919,30 +935,35 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   </div>
 </section>
 
+
 <section class="section mirvix-platform-section" id="platform">
-  <div class="container mirvix-platform-grid">
-    <div>
-      <span class="section-kicker">СОБСТВЕННАЯ РАЗРАБОТКА · РАННЕЕ УЧАСТИЕ</span>
-      <h2>Новая платформа MIRVIX: товары, услуги и умный поиск</h2>
-      <p>Мы разрабатываем цифровую платформу, на которой компании смогут размещать публичные карточки своих товаров и услуг, а покупатели — находить подходящие предложения с помощью ИИ-помощника.</p>
-      <p>Хотите понять, какие площадки важны вашему бренду и как заявить о себе в ИИ-поиске? <a href="#contacts">Свяжитесь с нами</a>. Если хотите стать одним из первых участников будущей платформы, оставьте заявку — мы сообщим об условиях и дальнейшем запуске.</p>
-      <div class="mirvix-platform-buttons">
-        <a class="button button-primary" href="#lead-form" id="platform-waitlist">Подать заявку на участие <span aria-hidden="true">↗</span></a>
-        <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
+  <div class="container mirvix-platform-showcase">
+    <div class="mirvix-platform-copy">
+      <span class="section-kicker">ПЛАТФОРМА MIRVIX · РАННЕЕ УЧАСТИЕ</span>
+      <h2>Разместите товары и услуги — <span class="gradient">платформа позаботится об их представлении в ИИ.</span></h2>
+      <p class="mirvix-platform-lead">MIRVIX изначально проектируется с учётом поиска, карт и нейросетей. Вам не придётся отдельно продумывать техническое представление каждой карточки товара или услуги.</p>
+      <p>Платформа объединит предложения компаний, универсальный поиск и цифровые карточки. Для карточек предусматриваются понятные описания, собственные URL и структурированная информация, которую поисковые и ИИ-системы смогут обнаруживать.</p>
+      <div class="mirvix-platform-benefits">
+        <span>Для поиска и ИИ</span><span>Карточки товаров и услуг</span><span>Единая платформа</span>
       </div>
-      <p class="mirvix-platform-footnote">Платформа в разработке. Оставленная заявка не означает автоматического подключения. Присутствие в ИИ-рекомендациях не гарантируется.</p>
+      <p class="mirvix-platform-disclaimer">Платформа ещё разрабатывается. Скриншоты показывают концепцию интерфейса. Техническая подготовка помогает обнаружению информации, но не гарантирует рекомендации, упоминания или индексацию во всех нейросетях.</p>
+      <div class="mirvix-platform-buttons">
+        <a class="button button-primary" href="#lead-form" id="platform-waitlist">Подать заявку на раннее участие <span aria-hidden="true">↗</span></a>
+        <a class="button button-light" href="/tariffs/">Тарифы GEO-продвижения <span aria-hidden="true">↗</span></a>
+      </div>
     </div>
-    <div class="mirvix-product-preview" aria-label="Направления будущей платформы">
-      <div class="mirvix-product-label">MIRVIX / ПЛАТФОРМА</div>
-      <div class="mirvix-product-line"><b>01</b><span>Карточки товаров и услуг</span></div>
-      <div class="mirvix-product-line"><b>02</b><span>Интеллектуальный поиск предложений</span></div>
-      <div class="mirvix-product-line"><b>03</b><span>Цифровое присутствие бизнеса</span></div>
-      <div class="mirvix-product-line"><b>04</b><span>Аналитика и инструменты продвижения</span></div>
-      <div class="mirvix-product-note">Концепция · готовим к запуску</div>
+    <div class="mirvix-platform-gallery" aria-label="Два исходных изображения платформы MIRVIX">
+      <figure class="mirvix-platform-shot">
+        <img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JrTUgjXOm1gtSR81UvAw22LaI1/2aec05e5-35d9-4913-81e5-f02689a5a7ca.png" alt="Исходный скриншот MIRVIX: главная платформа с голосовым поиском товаров, услуг и решений" width="1536" height="1024" loading="lazy" decoding="async">
+        <figcaption>Главная платформа · поиск товаров и услуг</figcaption>
+      </figure>
+      <figure class="mirvix-platform-shot">
+        <img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JrTUgjXOm1gtSR81UvAw22LaI1/45efc346-f1a8-4d9e-b794-7dbf2f28b291.png" alt="Исходный скриншот MIRVIX: карточка компании с услугами и аналитикой" width="1536" height="1024" loading="lazy" decoding="async">
+        <figcaption>Карточка компании · услуги и аналитика</figcaption>
+      </figure>
     </div>
   </div>
 </section>
-
 <section class="section contact-section" id="contacts">
   <div class="container contact-shell">
     <div class="contact-primary">
