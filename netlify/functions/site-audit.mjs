@@ -228,13 +228,18 @@ function extract(html) {
     /(?:\+?\d[\d\s().-]{9,}\d)/.test(plain);
   const tel = /href\s*=\s*["']tel:/i.test(html);
   const brandContent = plain.slice(0, 35000);
+  // Evidence for generating category-specific buyer questions: these words are present
+  // in fetched public HTML, rather than invented specializations.
+  const serviceHeadings = [...new Set([...h1s, ...headings]
+    .filter(h => h.length >= 4 && h.length <= 150))].slice(0, 24);
+  const contentSnippet = plain.slice(0, 1700);
   return { title, description: metas.description || '', h1s, lang,
     canonical: links.canonical || '', viewport: metas.viewport || '',
     robotsMeta: [metas.robots || '', metas.googlebot || '', metas.yandex || ''].filter(Boolean).join('; '),
     openGraph: !!(metas['og:title'] && metas['og:description'] && metas['og:image']),
     jsonld: schemaBlocks.length, validJsonLd, organizationSchema, sameAsCount, tel, brandContent,
     visibleWords, headingCount: headings.length, questionHeadings: questionHeadings.length,
-    firstParagraphWords, firstParagraph, hasFaq, hasContact };
+    firstParagraphWords, firstParagraph, hasFaq, hasContact, serviceHeadings, contentSnippet };
 }
 
 function robotsDecision(content, name, path = '/') {
@@ -438,6 +443,21 @@ async function audit(raw, brand) {
       httpStatus: llms?.status ?? null, required: false, optional: true,
       note: 'Необязательная экспериментальная подсказка для ИИ-агентов, не условие присутствия в ChatGPT.' }
   ];
+  const llmsState = resourceFileState(llms, llmsOk);
+  // llms.txt is an optional, experimental convention. Missing it must NOT lower
+  // the GEO score, raise a critical error, or count as a required failed check.
+  const optionalChecks = [{
+    id: 'llms', title: 'llms.txt — дополнительный файл для ИИ',
+    url: root + '/llms.txt', affectsScore: false, required: false,
+    state: llmsState,
+    httpStatus: llms?.status ?? null,
+    detail: llmsState === 'ok'
+      ? 'Файл найден и отдаёт текст: HTTP 200. Его использование конкретными нейросетями не подтверждено.'
+      : llmsState === 'missing'
+        ? 'Файл не найден (HTTP ' + llms.status + '). Это необязательный файл и не ошибка сайта.'
+        : 'Не удалось достоверно проверить llms.txt: ' + partialResourceInfo(llms, error(3), 'llms.txt'),
+    tip: 'При желании добавить /llms.txt с кратким описанием организации и ссылками на важные страницы. Это необязательный экспериментальный формат; присутствие в ИИ не гарантировано.'
+  }];
   const metaNoindex = htmlOk ? /\bnoindex\b/i.test(tags.robotsMeta) : false;
   const noindex = htmlOk ? (metaNoindex ||
     (directHtmlOk && /\bnoindex\b/i.test(homepage.headers.get('x-robots-tag') || ''))) : null;
@@ -565,10 +585,11 @@ async function audit(raw, brand) {
     geoScoreNote: 'Предварительная оценка рассчитывается только по разделам, где подтверждено не менее 45% критериев; веса разделов 32/43/25 нормализуются на проверенные разделы. Источник HTML (прямой или вторичный) и охват проверок указаны отдельно. Это не частота упоминаний в ИИ.',
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
-    checks, recommendations, files, botAccess,
+    checks, optionalChecks, recommendations, files, botAccess,
     extras: { brandFound, h1Count: tags.h1s.length, title: tags.title, description: tags.description,
       phoneLink: tags.tel, jsonldCount: tags.jsonld, organizationSchema: tags.organizationSchema,
-      visibleWords: tags.visibleWords, firstParagraphWords: tags.firstParagraphWords },
+      visibleWords: tags.visibleWords, firstParagraphWords: tags.firstParagraphWords,
+      serviceHeadings: tags.serviceHeadings, contentSnippet: tags.contentSnippet },
     caveat: 'Если прямой HTML недоступен, общий балл не рассчитывается. HTML вторичного источника используется для отдельных метаданных, но не подтверждает доступность для поисковых роботов. Аудит не измеряет позиции и упоминания в ИИ.'
   };
 }
