@@ -122,6 +122,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div id="geo-models" class="geo-models"></div>
 <p id="geo-cost" class="small"></p>
 <div class="buttons"><button type="button" id="geo-generate">Автоматически создать вопросы</button><button type="button" id="geo-clear" class="secondary">Очистить</button></div>
+<p class="small" id="geo-gen-diagnostic" role="status">Для генерации нужны название компании, тематика или доступный сайт, вход сотрудника и рабочий ключ OpenAI либо Gemini.</p>
 <label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
 <textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
 <section class="giga-box">
@@ -579,10 +580,12 @@ $('geo-connect').onclick=async()=>{
         (gen.available.openai&&gen.available.gemini?' / ':'')+(gen.available.gemini?'Gemini':'')+'.':
         ' Генерация вопросов пока недоступна: '+gen.message;
       status($('geo-status').textContent+note);
-      $('geo-generate').disabled=!gen.configured;
+      $('geo-generate').disabled=false;
+      $('geo-gen-diagnostic').textContent=gen.configured?'Ключ генератора найден. Укажите компанию и тематику, затем нажмите «Автоматически создать вопросы».':'Нет ключей для генератора на сервере. Нужен OPENAI_API_KEY или GEMINI_API_KEY в Netlify Functions; затем повторный deploy.';
     }catch(e){
       promptGeneratorReady=false;
-      $('geo-generate').disabled=true;
+      $('geo-generate').disabled=false;
+      $('geo-gen-diagnostic').textContent='Не удалось проверить генератор: '+e.message+'. Обновите вход сотрудника, затем повторите проверку.';
       status('Генератор вопросов не проверен: '+e.message+'. Проверьте сессию сотрудника.');
     }
   }catch(e){status('Для проверки подключений нужен вход сотрудника: '+e.message+' Используйте кнопку «Вход для сотрудника MIRVIX AI» выше.');}
@@ -598,7 +601,10 @@ $('geo-generate').onclick=async()=>{
   let company=getCompany();
   const goal=Number($('geo-count').value);
   if(company.brand.length<3){status('Укажите название компании в разделе «Проверить упоминания».');return;}
-  if(!promptGeneratorReady){status('Генератор не подключён. Нажмите «Проверить подключения семи ИИ» и проверьте статус OpenAI/Gemini.');return;}
+  if(!promptGeneratorReady){
+    const reason='Генератор недоступен: сначала войдите как сотрудник, нажмите «Проверить подключения семи ИИ» и проверьте ключи OPENAI_API_KEY / GEMINI_API_KEY.';
+    $('geo-gen-diagnostic').textContent=reason;status(reason);return;
+  }
   if(!company.category&&!company.title&&!company.description){
     if(!company.domain){status('Укажите ссылку на сайт или тематику компании для корректных вопросов.');return;}
     busy=true;$('geo-generate').disabled=true;
@@ -614,9 +620,11 @@ $('geo-generate').onclick=async()=>{
   }
   if(!confirm('Создать '+goal+' покупательских вопросов через платный API OpenAI или Gemini? Текущие вопросы будут заменены.'))return;
   busy=true;$('geo-generate').disabled=true;$('geo-run').disabled=true;
+  const originalQuestions=$('geo-questions').value;
   questions=[];results=[];planned=[];profile=null;stopRequested=false;
   $('geo-run').textContent='Запустить проверку по всем запросам';$('geo-run').disabled=false;
   $('geo-questions').value='';renderStats();syncGigaQuestions();
+  $('geo-gen-diagnostic').textContent='Отправляю запросы генератору. Если API недоступен, покажу причину здесь.';
   try{
     let stalled=0;
     for(let batch=0;questions.length<goal&&batch<12;batch++){
@@ -633,9 +641,14 @@ $('geo-generate').onclick=async()=>{
       if(questions.length===before)stalled++;else stalled=0;
       if(stalled>=2||!data.prompts?.length)break;
     }
-    status('Создано '+questions.length+' из '+goal+' уникальных вопросов. '+(questions.length<goal?'Часть ответов не прошла проверку уникальности; можно повторить генерацию. ':'')+'Проверьте релевантность перед платными запросами.');
-  }catch(e){status('Создано '+questions.length+' из '+goal+' вопросов. Причина остановки: '+e.message);}
-  finally{busy=false;$('geo-generate').disabled=!promptGeneratorReady;$('geo-run').disabled=false;updateCosts();}
+    const message='Создано '+questions.length+' из '+goal+' уникальных вопросов. '+(questions.length<goal?'Часть ответов не прошла проверку уникальности; можно повторить генерацию. ':'')+'Проверьте релевантность перед платными запросами.';
+    status(message);$('geo-gen-diagnostic').textContent=message;
+  }catch(e){
+    if(!questions.length&&originalQuestions.trim()){$('geo-questions').value=originalQuestions;syncGigaQuestions();}
+    const message='Создано '+questions.length+' из '+goal+' вопросов. Причина остановки: '+e.message;
+    status(message);$('geo-gen-diagnostic').textContent=message;
+  }
+  finally{busy=false;$('geo-generate').disabled=false;$('geo-run').disabled=false;updateCosts();}
 };
 function buildPlan(){
   const prompts=parseLines(),ids=selected().filter(id=>providers.some(p=>p.id===id&&p.configured));
