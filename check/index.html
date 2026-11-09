@@ -96,12 +96,20 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <button type="button" id="giga-remove" class="secondary">Удалить последнюю запись</button></div>
 <div id="giga-saved"></div>
 </section>
-<div class="buttons"><button type="button" id="geo-run">Запустить следующие 20 проверок</button>
+<div class="buttons"><button type="button" id="geo-run">Запустить проверку по всем запросам</button>
+<button type="button" id="geo-stop" class="secondary" disabled>Остановить проверку</button>
 <button type="button" id="geo-export" class="secondary">Скачать результаты JSON</button><button type="button" id="geo-csv" class="secondary">Скачать таблицу CSV</button>
 <button type="button" id="geo-print" class="secondary">Печатный GEO-отчёт / PDF</button></div>
-<p id="geo-runstatus" role="status" class="small">Проверка выполняется только в открытой вкладке. Запускайте серии по 20 API-вызовов, чтобы контролировать расходы и видеть ошибки.</p>
+<p id="geo-runstatus" role="status" class="small">После создания вопросов одна кнопка запускает все выбранные запросы. Проверка выполняется в открытой вкладке; её можно остановить и продолжить.</p>
 <div class="geo-progress"><i id="geo-progressbar"></i></div>
-<div id="geo-metrics" class="geo-metrics"></div><div id="geo-results"></div>
+<div id="geo-metrics" class="geo-metrics"></div>
+<section id="geo-competitor-sites" class="giga-box">
+<h3>Какие сайты появляются вместо проверяемой компании</h3>
+<p class="small">Собираем сайты из реальных ответов нейросетей и ссылок-источников там, где бренд компании не упомянут. Каталоги и информационные площадки не считаем автоматически прямыми конкурентами.</p>
+<div id="geo-site-summary" class="small" role="status">Пока нет полученных ответов.</div>
+<div style="overflow-x:auto"><table class="geo-table"><thead><tr><th>Сайт</th><th>Нейросети</th><th>В ответах</th><th>В источниках</th></tr></thead><tbody id="geo-site-rows"></tbody></table></div>
+</section>
+<div id="geo-results"></div>
 </div>
 </section>
 <main id="report" hidden>
@@ -133,6 +141,9 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p class="geo-meta" id="geo-pdf-method"></p>
 <div class="geo-metrics" id="geo-pdf-metrics"></div>
 <table class="geo-table"><thead><tr><th>Система</th><th>Ответы</th><th>Упоминания</th><th>Ссылки</th><th>Ошибки</th></tr></thead><tbody id="geo-pdf-tbody"></tbody></table>
+<h3>Сайты, появляющиеся вместо бренда</h3>
+<p class="small">Домены из ответов и источников — потенциальные конкуренты и площадки публикаций; это не подтверждённый список прямых конкурентов.</p>
+<table class="geo-table"><thead><tr><th>Сайт</th><th>Системы</th><th>В ответах</th><th>В источниках</th></tr></thead><tbody id="geo-pdf-site-rows"></tbody></table>
 <h3>Примеры проверенных вопросов</h3><div id="geo-pdf-examples"></div>
 <p class="small">Методика: у каждой нейросети — отдельный API-запрос по одному и тому же покупательскому вопросу. В долю упоминаний входят только успешно полученные ответы; ошибки не считаются отсутствием бренда. GigaChat без подтверждённого поиска показан отдельно и не равнозначен веб-поисковым сервисам. Для полной выгрузки всех ответов и ссылок используйте JSON или CSV.</p>
 <section id="giga-print-report" hidden><h2>GigaChat — ответы из официального интерфейса</h2>
@@ -212,7 +223,7 @@ render(d);$('message').textContent='Готово: техническая про�
 }catch(e){$('message').textContent='Ошибка проверки: '+e.message}finally{btn.disabled=false}});
 $('print').addEventListener('click',()=>window.print());
 })();
-</script><script>
+</script><script src="/check/competitor-sites.js"></script><script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const PROVIDERS=[
@@ -223,7 +234,7 @@ const PROVIDERS=[
 {id:'gigachat',name:'GigaChat'},
 {id:'alice',name:'Алиса AI'}
 ];
-let providers=[],questions=[],results=[],planned=[],busy=false,profile=null,gigaEvidence=[];
+let providers=[],questions=[],results=[],planned=[],busy=false,profile=null,gigaEvidence=[],stopRequested=false;
 const status=(t)=>{$('geo-status').textContent=t;};
 let promptGeneratorReady=false;
 const line=(parent,tag,text,cls)=>{const item=document.createElement(tag);item.textContent=text==null?'':String(text);if(cls)item.className=cls;parent.append(item);return item};
