@@ -7,6 +7,7 @@ on:
       - 'tests/geo-check.test.mjs'
       - 'tests/geo-ai-matrix.test.mjs'
       - 'tests/geo-prompt-generator-ui.test.mjs'
+      - 'tests/geo-generator-click.test.mjs'
       - 'netlify/functions/direct-geo.mjs'
       - 'netlify/functions/geo-prompts.mjs'
       - '.github/workflows/geo-check.yml'
@@ -28,5 +29,7 @@ jobs:
           node --check netlify/functions/geo-prompts.mjs
           node --check tests/geo-ai-matrix.test.mjs
           node --check tests/geo-prompt-generator-ui.test.mjs
+          node --check check/prompt-generator.js
+          node --check tests/geo-generator-click.test.mjs
       - name: Run safety and GEO matrix tests
-        run: node --test tests/geo-check.test.mjs tests/geo-ai-matrix.test.mjs tests/geo-prompt-generator-ui.test.mjs
+        run: node --test tests/geo-check.test.mjs tests/geo-ai-matrix.test.mjs tests/geo-prompt-generator-ui.test.mjs tests/geo-generator-click.test.mjs
