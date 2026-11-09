@@ -104,3 +104,39 @@ test('buyer prompt context includes verified specialities and mixed question len
   assert.match(html,/optional-checks/);
   assert.match(html,/d\.optionalChecks/);
 });
+
+test('single click runs all requests, supports stop/resume and renders site candidates',()=>{
+  const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
+  assert.match(html,/Запустить проверку по всем запросам/);
+  assert.match(html,/while\(results\.length<planned\.length&&!stopRequested\)/);
+  assert.match(html,/id="geo-stop"/);
+  assert.match(html,/id="geo-site-rows"/);
+  assert.match(html,/id="geo-pdf-site-rows"/);
+  assert.match(html,/competingSites:websiteCandidates\(\)/);
+  assert.match(html,/competitor-sites\.js/);
+  assert.ok(!html.includes('Запустить следующие 20 проверок'));
+});
+test('website competitors are deduplicated, exclude owned domain and separate citations',async()=>{
+  const {runInNewContext}=await import('node:vm');
+  const js=readFileSync(new URL('../check/competitor-sites.js',import.meta.url),'utf8');
+  const scope={};
+  runInNewContext(js,scope);
+  const engine=scope.MIRVIXCompetingSites;
+  assert.ok(engine);
+  const sample=[
+    {provider:'openai',prompt:'Где найти врача?',answer:'Советую clinic-a.ru и clinic-b.ru',brandMention:false,
+      sources:[{url:'https://clinic-b.ru/doctors'},{url:'https://prodoctorov.ru/review'},{url:'https://myclinic.ru/home'}]},
+    {provider:'gemini',prompt:'Где найти врача?',answer:'Выбирайте https://clinic-a.ru/',brandMention:false,
+      sources:[{url:'https://clinic-c.ru/doctors'}]},
+    {provider:'grok',prompt:'Где найти врача?',answer:'Выбирайте MyClinic',brandMention:true,
+      sources:[{url:'https://clinic-a.ru/'}]},
+    {provider:'gemini',prompt:'Где нужна консультация?',error:'unauthorized'}
+  ];
+  const rows=engine.aggregate(sample,'https://myclinic.ru/',true);
+  assert.deepEqual(Array.from(rows.map(x=>x.domain)).sort(),['clinic-a.ru','clinic-b.ru','clinic-c.ru']);
+  const a=rows.find(x=>x.domain==='clinic-a.ru');
+  assert.equal(a.answerCount,2);
+  assert.equal(a.systems.length,2);
+  assert.equal(rows.find(x=>x.domain==='clinic-c.ru').sourceCount,1);
+  assert.ok(!rows.some(x=>x.domain==='myclinic.ru'||x.domain==='prodoctorov.ru'));
+});
