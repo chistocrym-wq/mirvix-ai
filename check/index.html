@@ -35,7 +35,11 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 .geo-table{width:100%;border-collapse:collapse;font-size:12px;margin:13px 0}
 .geo-table th,.geo-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border)}
 .geo-table th{background:#f3f6f9}.geo-table td:nth-child(n+2){text-align:center}
-.geo-meta{font-size:12px;color:var(--muted);margin:10px 0}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
+.geo-meta{font-size:12px;color:var(--muted);margin:10px 0}
+.giga-box{border:1px solid #c7d8e7;border-radius:12px;padding:16px;margin:19px 0;background:#f6fafd}
+.giga-box select,.giga-box textarea,.giga-box input{border:1px solid #b9cbd6;border-radius:8px;padding:11px;font:inherit;width:100%}
+.giga-box textarea{min-height:95px}.giga-evidence{padding:12px 0;border-top:1px solid var(--border);overflow-wrap:anywhere}
+.giga-evidence a{overflow-wrap:anywhere;display:block;font-size:12px}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
 @media(max-width:690px){.geo-fields,.geo-models{grid-template-columns:1fr}}
 [hidden]{display:none!important}
 @media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
@@ -68,6 +72,24 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <div class="buttons"><button type="button" id="geo-generate">Автоматически создать вопросы</button><button type="button" id="geo-clear" class="secondary">Очистить</button></div>
 <label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
 <textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
+<section class="giga-box">
+<h3>Проверить вопрос в официальном GigaChat</h3>
+<p class="small">Выберите вопрос, нажмите кнопку, вставьте его в GigaChat (Ctrl+V) и отправьте. Для честного GEO-анализа используйте новый диалог и режим поиска в интернете.</p>
+<label for="giga-prompt">Вопрос из матрицы</label>
+<select id="giga-prompt"><option value="">Сначала создайте или введите вопросы</option></select>
+<div class="buttons"><button type="button" id="giga-open">Скопировать вопрос и открыть GigaChat</button>
+<a href="https://giga.chat/" target="_blank" rel="noopener noreferrer">Открыть GigaChat отдельно</a></div>
+<p id="giga-status" role="status" class="small">Официальный GigaChat может запросить авторизацию. Автоматической отправки вопроса нет.</p>
+<h3>Сохранить доказательство для клиента</h3>
+<p class="small">Вставьте ответ и ссылку, полученную через «Поделиться» в GigaChat. Такая запись подтверждена ссылкой из официального интерфейса, но не проверена MIRVIX независимо.</p>
+<label for="giga-answer">Текст полученного ответа</label>
+<textarea id="giga-answer" maxlength="12000" placeholder="Вставьте ответ GigaChat без изменений"></textarea>
+<label for="giga-share">Ссылка на ответ или диалог через «Поделиться»</label>
+<input id="giga-share" maxlength="1200" placeholder="https://giga.chat/...">
+<div class="buttons"><button type="button" id="giga-save" class="secondary">Добавить в отчёт</button>
+<button type="button" id="giga-remove" class="secondary">Удалить последнюю запись</button></div>
+<div id="giga-saved"></div>
+</section>
 <div class="buttons"><button type="button" id="geo-run">Запустить следующие 20 проверок</button>
 <button type="button" id="geo-export" class="secondary">Скачать результаты JSON</button><button type="button" id="geo-csv" class="secondary">Скачать таблицу CSV</button>
 <button type="button" id="geo-print" class="secondary">Печатный GEO-отчёт / PDF</button></div>
@@ -103,6 +125,9 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <table class="geo-table"><thead><tr><th>Система</th><th>Ответы</th><th>Упоминания</th><th>Ссылки</th><th>Ошибки</th></tr></thead><tbody id="geo-pdf-tbody"></tbody></table>
 <h3>Примеры проверенных вопросов</h3><div id="geo-pdf-examples"></div>
 <p class="small">Методика: у каждой нейросети — отдельный API-запрос по одному и тому же покупательскому вопросу. В долю упоминаний входят только успешно полученные ответы; ошибки не считаются отсутствием бренда. GigaChat без подтверждённого поиска показан отдельно и не равнозначен веб-поисковым сервисам. Для полной выгрузки всех ответов и ссылок используйте JSON или CSV.</p>
+<section id="giga-print-report" hidden><h2>GigaChat — ответы из официального интерфейса</h2>
+<p class="small">Данные введены сотрудником MIRVIX на основании ссылок «Поделиться». MIRVIX не подтверждал ответы независимо; результаты не включаются в показатели API.</p>
+<div id="giga-print-list"></div></section>
 </section>
 </div>
 <script>
@@ -177,7 +202,7 @@ const PROVIDERS=[
 {id:'gigachat',name:'GigaChat'},
 {id:'alice',name:'Алиса AI'}
 ];
-let providers=[],questions=[],results=[],planned=[],busy=false,profile=null;
+let providers=[],questions=[],results=[],planned=[],busy=false,profile=null,gigaEvidence=[];
 const status=(t)=>{$('geo-status').textContent=t;};
 const line=(parent,tag,text,cls)=>{const item=document.createElement(tag);item.textContent=text==null?'':String(text);if(cls)item.className=cls;parent.append(item);return item};
 const parseLines=()=>[...new Set($('geo-questions').value.split('\n').map(s=>s.trim()).filter(Boolean))].slice(0,100);
@@ -214,7 +239,7 @@ function renderStats(){
     const b=line(metrics,'div','', 'geo-metric');line(b,'span',title,'small');line(b,'b',value);
   }
   $('geo-progressbar').style.width=planned.length?(100*results.length/planned.length)+'%':'0%';
-  const pdf=$('geo-pdf');pdf.hidden=!results.length;
+  const pdf=$('geo-pdf');pdf.hidden=!(results.length||gigaEvidence.length);
   $('geo-pdf-company').textContent='Компания: '+($('brand').value.trim()||'не указана')+
     ' · Домен: '+($('url').value.trim()||'не указан')+' · Регион: '+($('geo-city').value.trim()||'не указан');
   $('geo-pdf-method').textContent='Дата отчёта: '+new Date().toLocaleString('ru-RU')+
@@ -307,9 +332,9 @@ $('geo-connect').onclick=async()=>{
   }catch(e){status('Нужен вход сотрудника: '+e.message+' Откройте /cabinet/, войдите и нажмите снова.');}
 };
 $('geo-count').onchange=()=>{planned=[];results=[];renderStats();updateCosts();};
-$('geo-questions').oninput=()=>{planned=[];results=[];renderStats();updateCosts();};
+$('geo-questions').oninput=()=>{planned=[];results=[];renderStats();updateCosts();syncGigaQuestions();};
 $('geo-clear').onclick=()=>{if(busy)return;if(!confirm('Очистить вопросы и текущие результаты?'))return;
-  $('geo-questions').value='';questions=[];results=[];planned=[];renderStats();updateCosts();};
+  $('geo-questions').value='';questions=[];results=[];planned=[];renderStats();updateCosts();syncGigaQuestions();};
 $('geo-generate').onclick=async()=>{
   if(busy)return;
   const company=getCompany(),goal=Number($('geo-count').value);
@@ -329,7 +354,7 @@ $('geo-generate').onclick=async()=>{
         const normalized=item.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ');
         if(!questions.some(x=>x.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ')===normalized))questions.push(item);
       }
-      $('geo-questions').value=questions.slice(0,goal).join('\n');
+      $('geo-questions').value=questions.slice(0,goal).join('\n');syncGigaQuestions();
       if(!data.prompts?.length)break;
     }
     status('Создано '+questions.length+' из '+goal+' уникальных вопросов. Измените список при необходимости, затем запускайте проверки партиями.');
@@ -380,7 +405,7 @@ $('geo-export').onclick=()=>{
   if(!results.length){status('Сначала выполните хотя бы одну проверку.');return}
   const data={schema:1,generatedAt:new Date().toISOString(),company:getCompany(),
     questions:parseLines(),models:selected(),planned:planned.length,
-    performed:results.length,results,
+    performed:results.length,results,officialGigaChatEvidence:gigaEvidence,
     caveat:'Отдельные API, не идентичны пользовательским приложениям. Ответы GigaChat без подтверждённого веб-поиска не сравниваются с поисковыми ответами.'};
   download(JSON.stringify(data,null,2),'mirvix-geo-'+Date.now()+'.json','application/json');
 };
@@ -399,6 +424,72 @@ $('geo-csv').onclick=()=>{
   const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
   download(csv,'mirvix-geo-'+Date.now()+'.csv','text/csv;charset=utf-8');
 };
-renderStats();updateCosts();
+
+function syncGigaQuestions(){
+  const list=parseLines(),select=$('giga-prompt'),prior=select.value;select.replaceChildren();
+  if(!list.length){const empty=document.createElement('option');empty.value='';empty.textContent='Сначала создайте или введите вопросы';select.append(empty);return;}
+  list.forEach((q,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=(i+1)+'. '+q.slice(0,145);select.append(option);});
+  if(list.some((_,i)=>String(i)===prior))select.value=prior;
+}
+function chosenGigaQuestion(){const value=$('giga-prompt').value;return value===''?'':(parseLines()[Number(value)]||'');}
+function officialGigaUrl(value){
+  if(!value)return null;
+  try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password&&
+    (u.hostname==='giga.chat'||u.hostname.endsWith('.giga.chat'))?u.href:null;}
+  catch{return null;}
+}
+function mentionsBrand(text,brand){
+  const norm=x=>' '+String(x||'').normalize('NFKC').toLocaleLowerCase('ru-RU').replace(/ё/g,'е')
+    .replace(/[^\p{L}\p{N}]+/gu,' ').replace(/\s+/g,' ').trim()+' ';
+  const name=norm(brand).trim();return name.length>=3&&norm(text).includes(' '+name+' ');
+}
+function renderGigaEvidence(){
+  const box=$('giga-saved'),print=$('giga-print-list');box.replaceChildren();print.replaceChildren();
+  $('giga-print-report').hidden=!gigaEvidence.length;
+  $('geo-pdf').hidden=!(results.length||gigaEvidence.length);
+  line(box,'p','Зафиксировано ответов: '+gigaEvidence.length+'. Они не объединяются с API-статистикой.','small');
+  gigaEvidence.forEach((item,index)=>{
+    for(const parent of [box,print]){
+      const card=line(parent,'div','', 'giga-evidence');
+      line(card,'b',(index+1)+'. '+item.prompt);
+      line(card,'p','Упоминание бренда: '+(item.brandMention?'да':'нет')+
+        ' · '+new Date(item.checkedAt).toLocaleString('ru-RU'),'small');
+      line(card,'p',item.answer);
+      const a=line(card,'a','Открыть источник: GigaChat');a.href=item.shareUrl;
+      a.rel='noopener noreferrer';a.target='_blank';
+    }
+  });
+}
+$('giga-open').onclick=()=>{
+  const prompt=chosenGigaQuestion();
+  if(!prompt){$('giga-status').textContent='Сначала создайте или введите вопросы.';return;}
+  const copied=navigator.clipboard?.writeText?navigator.clipboard.writeText(prompt):Promise.reject(Error('Буфер недоступен'));
+  window.open('https://giga.chat/','_blank','noopener,noreferrer');
+  $('giga-status').textContent='GigaChat открывается в новой вкладке. Вставьте вопрос через Ctrl+V. Если копирование не сработает, выделите вопрос в матрице вручную.';
+  Promise.resolve(copied).then(()=>{$('giga-status').textContent='Вопрос скопирован! Перейдите в GigaChat, вставьте Ctrl+V и отправьте.';})
+    .catch(()=>{$('giga-status').textContent='Автоматическое копирование недоступно. Скопируйте выбранный вопрос из матрицы вручную.';});
+};
+$('giga-save').onclick=()=>{
+  const prompt=chosenGigaQuestion(),answer=$('giga-answer').value.trim(),brand=$('brand').value.trim();
+  const shareUrl=officialGigaUrl($('giga-share').value.trim());
+  if(!prompt||answer.length<30||brand.length<3||!shareUrl){
+    $('giga-status').textContent='Для фиксации нужны название компании, вопрос, ответ от 30 символов и официальная ссылка «Поделиться» с giga.chat.';return;
+  }
+  if(gigaEvidence.some(item=>item.prompt===prompt)){
+    $('giga-status').textContent='По этому вопросу ответ уже записан. Удалите последнюю запись для замены.';return;
+  }
+  gigaEvidence.push({provider:'gigachat-official',method:'manual-official-share-link',
+    prompt,brand,answer,shareUrl,brandMention:mentionsBrand(answer,brand),
+    checkedAt:new Date().toISOString(),verification:'staff-reported-not-independently-verified'});
+  $('giga-answer').value='';$('giga-share').value='';
+  $('giga-status').textContent='Ответ добавлен в отчёт и JSON. Запись отделена от автоматических API.';
+  renderGigaEvidence();
+};
+$('giga-remove').onclick=()=>{
+  if(!gigaEvidence.length)return;
+  if(!confirm('Удалить последний ответ GigaChat из отчёта?'))return;
+  gigaEvidence.pop();renderGigaEvidence();
+};
+renderStats();updateCosts();syncGigaQuestions();renderGigaEvidence();
 })();
 </script></body></html>
