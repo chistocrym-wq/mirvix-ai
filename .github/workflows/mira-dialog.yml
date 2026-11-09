@@ -1,0 +1,38 @@
+name: MIRA dialog and homepage
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'assets/mira-widget.js'
+      - 'netlify/functions/mira-brief.mjs'
+      - 'netlify/functions/mira-chat.mjs'
+      - 'tests/mira-dialog.test.mjs'
+      - '.github/workflows/mira-dialog.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/mira-widget.js'
+      - 'netlify/functions/mira-brief.mjs'
+      - 'netlify/functions/mira-chat.mjs'
+      - 'tests/mira-dialog.test.mjs'
+      - '.github/workflows/mira-dialog.yml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify JavaScript
+        run: |
+          node --check assets/mira-widget.js
+          node --check netlify/functions/mira-brief.mjs
+          node --check netlify/functions/mira-chat.mjs
+          node --check tests/mira-dialog.test.mjs
+      - name: Run MIRA tests
+        run: node --test tests/mira-dialog.test.mjs
