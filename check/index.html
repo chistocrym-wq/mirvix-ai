@@ -210,6 +210,7 @@ const PROVIDERS=[
 ];
 let providers=[],questions=[],results=[],planned=[],busy=false,profile=null,gigaEvidence=[];
 const status=(t)=>{$('geo-status').textContent=t;};
+let promptGeneratorReady=false;
 const line=(parent,tag,text,cls)=>{const item=document.createElement(tag);item.textContent=text==null?'':String(text);if(cls)item.className=cls;parent.append(item);return item};
 const parseLines=()=>[...new Set($('geo-questions').value.split('\n').map(s=>s.trim()).filter(Boolean))].slice(0,100);
 const selected=()=>PROVIDERS.filter(x=>document.querySelector('input[data-provider="'+x.id+'"]:checked')).map(x=>x.id);
@@ -228,6 +229,25 @@ const getCompany=()=>{
     description:auditMatches?(window.MIRVIX_AUDIT_CTX?.description||''):''
   };
 };
+async function readCompanyProfile(company){
+  const requestUrl=company.domain.trim();
+  if(!requestUrl)return null;
+  // The existing site-audit endpoint validates URLs and prevents SSRF; don't fetch arbitrary websites in the browser.
+  const response=await fetch('/.netlify/functions/site-audit',{
+    method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({url:requestUrl,brand:company.brand})
+  });
+  let data;
+  try{data=await response.json()}catch{throw Error('Не удалось прочитать данные сайта — ошибка серверного аудитора.');}
+  if(!response.ok)throw Error(data.error||'Не удалось получить данные сайта.');
+  const title=String(data.extras?.title||'').trim().slice(0,180);
+  const description=String(data.extras?.description||'').trim().slice(0,420);
+  if(title||description){
+    window.MIRVIX_AUDIT_CTX={domain:data.domain||'',title,description};
+    return {title,description};
+  }
+  throw Error('В HTML не обнаружены title и описание компании.');
+}
 async function call(name,payload){
   const response=await fetch('/.netlify/functions/'+name,{
     method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Mirvix-Cabinet':'1'},
@@ -342,6 +362,19 @@ $('geo-connect').onclick=async()=>{
       status('Укажите название компании в разделе «Проверить упоминания» перед запуском.');
     }else status('Доступ подтверждён. Выберите модели, число вопросов и создайте матрицу.');
     $('geo-work').hidden=false;uiProviders();
+    try{
+      const gen=await call('geo-prompts',{action:'config'});
+      promptGeneratorReady=!!gen.configured;
+      const note=gen.configured?' Генератор вопросов: '+(gen.available.openai?'OpenAI':'')+
+        (gen.available.openai&&gen.available.gemini?' / ':'')+(gen.available.gemini?'Gemini':'')+'.':
+        ' Генерация вопросов пока недоступна: '+gen.message;
+      status($('geo-status').textContent+note);
+      $('geo-generate').disabled=!gen.configured;
+    }catch(e){
+      promptGeneratorReady=false;
+      $('geo-generate').disabled=true;
+      status('Генератор вопросов не проверен: '+e.message+'. Проверьте сессию сотрудника.');
+    }
   }catch(e){status('Для проверки подключений нужен вход сотрудника: '+e.message+' Используйте кнопку «Вход для сотрудника MIRVIX AI» выше.');}
 };
 $('geo-count').onchange=()=>{planned=[];results=[];renderStats();updateCosts();};
@@ -350,30 +383,45 @@ $('geo-clear').onclick=()=>{if(busy)return;if(!confirm('Очистить воп�
   $('geo-questions').value='';questions=[];results=[];planned=[];renderStats();updateCosts();syncGigaQuestions();};
 $('geo-generate').onclick=async()=>{
   if(busy)return;
-  const company=getCompany(),goal=Number($('geo-count').value);
-  if(company.brand.length<3){status('Укажите название компании в этом разделе — над кнопкой проверки подключений.');return}
+  let company=getCompany();
+  const goal=Number($('geo-count').value);
+  if(company.brand.length<3){status('Укажите название компании в разделе «Проверить упоминания».');return;}
+  if(!promptGeneratorReady){status('Генератор не подключён. Нажмите «Проверить подключения шести ИИ» и проверьте статус OpenAI/Gemini.');return;}
   if(!company.category&&!company.title&&!company.description){
-    status('Для достоверных вопросов укажите сферу деятельности компании или сначала проверьте сайт.');return
+    if(!company.domain){status('Укажите ссылку на сайт или тематику компании для корректных вопросов.');return;}
+    busy=true;$('geo-generate').disabled=true;
+    status('Определяю тематику по сайту '+company.domain+'...');
+    try{
+      const profile=await readCompanyProfile(company);
+      company={...company,...profile};
+      status('Тема получена по title/description сайта. Проверьте соответствие перед генерацией.');
+    }catch(e){
+      status('Не удалось определить сферу автоматически: '+e.message+' Заполните поле «Тематика, товары или услуги компании» и повторите.');
+      return;
+    }finally{busy=false;$('geo-generate').disabled=false;}
   }
-  if(!confirm('Сгенерировать '+goal+' вопросов через платный API OpenAI? Предыдущие вопросы и результаты будут очищены.'))return;
+  if(!confirm('Создать '+goal+' покупательских вопросов через платный API OpenAI или Gemini? Текущие вопросы будут заменены.'))return;
   busy=true;$('geo-generate').disabled=true;$('geo-run').disabled=true;
-  questions=[];results=[];planned=[];$('geo-questions').value='';renderStats();
+  questions=[];results=[];planned=[];$('geo-questions').value='';renderStats();syncGigaQuestions();
   try{
-    for(let batch=0;questions.length<goal && batch<8;batch++){
-      const needed=Math.min(20,goal-questions.length);
-      status('Генерация вопросов: '+questions.length+' из '+goal+' (партия '+(batch+1)+')');
-      const data=await call('geo-prompts',{...company,count:needed,existing:questions,batch});
+    let stalled=0;
+    for(let batch=0;questions.length<goal&&batch<12;batch++){
+      const needed=Math.min(15,goal-questions.length);
+      status('Генерация вопросов: '+questions.length+' из '+goal+' (партия '+(batch+1)+').');
+      const data=await call('geo-prompts',{action:'generate',...company,count:needed,existing:questions,batch});
+      const before=questions.length;
       for(const item of data.prompts||[]){
         const normalized=item.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ');
         if(!questions.some(x=>x.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ')===normalized))questions.push(item);
       }
-      $('geo-questions').value=questions.slice(0,goal).join('\n');syncGigaQuestions();
-      if(!data.prompts?.length)break;
+      $('geo-questions').value=questions.slice(0,goal).join('\n');
+      syncGigaQuestions();updateCosts();
+      if(questions.length===before)stalled++;else stalled=0;
+      if(stalled>=2||!data.prompts?.length)break;
     }
-    status('Создано '+questions.length+' из '+goal+' уникальных вопросов. Измените список при необходимости, затем запускайте проверки партиями.');
-    updateCosts();
-  }catch(e){status('Создано '+questions.length+' вопросов. Ошибка: '+e.message);
-  }finally{busy=false;$('geo-generate').disabled=false;$('geo-run').disabled=false;}
+    status('Создано '+questions.length+' из '+goal+' уникальных вопросов. '+(questions.length<goal?'Часть ответов не прошла проверку уникальности; можно повторить генерацию. ':'')+'Проверьте релевантность перед платными запросами.');
+  }catch(e){status('Создано '+questions.length+' из '+goal+' вопросов. Причина остановки: '+e.message);}
+  finally{busy=false;$('geo-generate').disabled=!promptGeneratorReady;$('geo-run').disabled=false;updateCosts();}
 };
 function buildPlan(){
   const prompts=parseLines(),ids=selected().filter(id=>providers.some(p=>p.id===id&&p.configured));
