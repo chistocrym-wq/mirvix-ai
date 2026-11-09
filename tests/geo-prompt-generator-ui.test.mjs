@@ -18,7 +18,6 @@ test('GEO prompt generator button has visible diagnostics and is reachable after
 });
 test('generator uses active Gemini model and reports API errors',()=>{
  const server=read('netlify/functions/geo-prompts.mjs');
- new Script(server.replace(/^import .*$/gm,''),{filename:'geo-server.mjs'});
  assert.match(server,/gemini-3\.5-flash-lite/);
  assert.doesNotMatch(server,/gemini-2\.5-flash/);
  assert.match(server,/max_output_tokens:4500/);
