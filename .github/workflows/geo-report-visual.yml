@@ -1,0 +1,34 @@
+name: GEO visual report and useful articles
+on:
+  pull_request:
+    paths:
+      - 'check/index.html'
+      - 'check/report-metrics.js'
+      - 'index.html'
+      - 'useful/**'
+      - 'sitemap.xml'
+      - 'tests/geo-report-visual.test.mjs'
+      - '.github/workflows/geo-report-visual.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'check/index.html'
+      - 'check/report-metrics.js'
+      - 'index.html'
+      - 'useful/**'
+      - 'sitemap.xml'
+      - 'tests/geo-report-visual.test.mjs'
+      - '.github/workflows/geo-report-visual.yml'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate report logic
+        run: |
+          node --check check/report-metrics.js
+          node --test tests/geo-report-visual.test.mjs
