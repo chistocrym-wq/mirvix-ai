@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>MIRVIX GEO Check — технический аудит для ИИ</title>
+<style>
+:root{--ink:#18314b;--muted:#607388;--border:#dde4ec;--blue:#146b91;--pale:#edf5f8;--ok:#18755c;--warn:#a66b13;--bad:#aa4043}*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:#f6f8fa}
+.wrap{max-width:950px;margin:auto;padding:22px 24px 80px}header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:10px 0 20px}
+.brand{font-size:19px;font-weight:850;letter-spacing:.04em;color:var(--ink)}a{color:var(--blue)}h1{font-size:clamp(30px,5vw,47px);line-height:1.13;letter-spacing:-.035em;margin:30px 0 12px}h2{font-size:22px;letter-spacing:-.02em}h3{font-size:16px}
+.subtitle,.small{color:var(--muted)}.small{font-size:12px}.panel,.sheet{background:white;border:1px solid var(--border);border-radius:14px;padding:26px;margin:18px 0;box-shadow:0 2px 16px #1f36430a}
+.formrow{display:grid;grid-template-columns:2fr 1fr;gap:12px}label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
+input{border:1px solid #b9cbd6;border-radius:8px;padding:13px 12px;width:100%;font:inherit;color:var(--ink)}
+button{background:var(--ink);color:white;border:0;border-radius:9px;padding:13px 19px;font:inherit;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}.secondary{background:white;color:var(--ink);border:1px solid var(--border)}
+.notice{border-left:3px solid var(--blue);background:var(--pale);padding:11px 16px;border-radius:4px;font-size:13px;margin-top:16px}
+.sheet{margin-top:22px}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
+.scoreline{display:flex;align-items:baseline;gap:9px;margin:18px 0 0}.score{font-size:74px;line-height:1;font-weight:850;letter-spacing:-.06em}
+.level{font-size:20px;font-weight:800}.groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:23px 0}
+.group{border:1px solid var(--border);border-radius:10px;padding:13px}.group strong{display:block;font-size:24px}.bar{height:7px;background:#edf0f3;border-radius:8px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:var(--blue)}
+.sectionlabel{font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-size:11px;margin:22px 0 12px}
+.fix{border-top:1px solid var(--border);padding:19px 0}.fixnum{color:var(--blue);font-weight:800;letter-spacing:.09em;font-size:12px}
+.fix h3{font-size:18px;margin:4px 0 10px}.microhead{font-weight:800;letter-spacing:.07em;text-transform:uppercase;font-size:10px;margin-top:13px}
+.fix p{margin:3px 0 9px}.rowcheck{display:grid;grid-template-columns:24px 1fr;gap:10px;padding:13px 0;border-bottom:1px solid #edf0f3}
+.state{width:22px;height:22px;display:grid;place-items:center;border-radius:50%;font-weight:800;font-size:13px}
+.ok{color:var(--ok);background:#e3f5ec}.issue{color:var(--bad);background:#fbe7e6}.unknown{color:var(--warn);background:#fff2d8}
+.rowcheck b{font-size:14px}.rowcheck p{color:var(--muted);font-size:12px;margin:3px 0 0;overflow-wrap:anywhere}
+.rowcheck .tip{font-size:12px;color:var(--ink);margin-top:6px}
+.callout{background:#f3f8fb;padding:22px;border:1px solid #d9e8f2;border-radius:12px}
+.mini{display:flex;gap:14px;flex-wrap:wrap}.mini span{font-size:12px;color:var(--muted)}
+[hidden]{display:none!important}
+@media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
+@page{size:A4;margin:15mm 14mm}
+@media print{body{background:#fff;color:#111}.wrap{max-width:none;padding:0}.noprint{display:none!important}.sheet{border:0;border-radius:0;box-shadow:none;margin:0;padding:0}.sheet+.sheet{break-before:page}.fix,.rowcheck,.group{break-inside:avoid}.score{font-size:64px}.groups{grid-template-columns:repeat(3,minmax(0,1fr))}.rowcheck{padding:10px 0}.topline{font-size:10px}.sheet h2{margin-top:22px}}
+</style></head><body><div class="wrap">
+<header class="noprint"><span class="brand">MIRVIX AI</span><a href="/">На главную</a></header>
+<section class="noprint"><h1>Проверим готовность вашего сайта к поиску в ИИ</h1>
+<p class="subtitle">22 прозрачных критерия. Результаты с доказательствами, объяснением ошибок и рекомендациями. Без выдуманных упоминаний ChatGPT.</p>
+<div class="panel"><form id="form"><div class="formrow"><div><label for="url">Адрес сайта</label><input id="url" type="text" placeholder="https://company.ru/" required maxlength="240"></div>
+<div><label for="brand">Название компании (необязательно)</label><input id="brand" placeholder="Название бренда" maxlength="120"></div></div>
+<div class="buttons"><button id="run" type="submit">Проверить сайт</button><button id="print" type="button" class="secondary" hidden>Сохранить PDF / печать</button></div></form>
+<p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
+<main id="report" hidden>
+<section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>GEO Check · <span class="date"></span></span></div>
+<p class="sectionlabel">Техническая диагностика сайта</p><h2 id="domain"></h2>
+<div class="scoreline"><span class="score" id="score">—</span><span style="color:var(--muted)">/ 100</span></div>
+<div class="level" id="level"></div><p class="small" id="confidence"></p><div class="groups" id="groups"></div>
+<div class="notice">Оценка описывает доступность и структуру сайта. Она <b>не измеряет реальную долю упоминаний в ИИ</b> и не гарантирует рекомендаций. Непроверенные критерии указаны отдельно.</div>
+<h2>Что исправить в первую очередь</h2><div id="fixes"></div></section>
+<section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>Детали проверки · <span class="date"></span></span></div>
+<h2>Результаты по 22 критериям</h2><p class="small">✓ Подтверждено · × Требует внимания · ! Нет данных / непроверено</p>
+<div id="checks"></div></section>
+<section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>Методика · <span class="date"></span></span></div>
+<h2>Источники и ограничения</h2><div id="evidence"></div>
+<h2>Следующий этап — реальные ответы нейросетей</h2>
+<div class="callout"><p>Технически хороший сайт не обязательно появляется в ответах ИИ. Для фактической проверки нужны вопросы покупателей, ответы подключённых API, упоминания брендов и ссылки на процитированные источники.</p>
+<p><b>Проверка ChatGPT, Gemini и Perplexity проводится отдельно.</b> Она не входит в технический балл.</p>
+<p><a href="/geo-live/">Проверить реальные ответы через внутренний кабинет MIRVIX GEO</a></p></div>
+<p class="small">MIRVIX AI · Отчёт сформирован из публично доступных технических данных. Дата: <span class="date"></span>. Повторная проверка может дать другие результаты.</p></section>
+</main></div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const el=(parent,tag,text,className)=>{const e=document.createElement(tag);if(text!=null)e.textContent=String(text);if(className)e.className=className;parent.append(e);return e};
+const stateText={ok:'✓',issue:'×',unknown:'!'};
+const title=id=>({crawl:'Могут ли роботы прочитать сайт',quote:'Можно ли цитировать содержимое',identity:'Определяется ли компания'})[id]||id;
+const why=id=>({
+structured:'Разметка помогает связывать название, сайт и контакты компании в единый объект.',
+title:'Понятный title объясняет тему страницы.',
+description:'Описание помогает пользователю понять назначение страницы.',
+h1:'Заголовок позволяет быстро определить основную тему.',
+'visible-text':'Доступный текст даёт поисковым системам материал для анализа и возможного цитирования.',
+'first-paragraph':'Первый содержательный абзац помогает быстро получить конкретный ответ.',
+'question-headings':'Сформулированные как вопросы разделы могут повысить удобство поиска ответов.',
+contact:'Контакты помогают однозначно определить организацию.',
+robots:'Правила robots.txt влияют на разрешение обхода страницы.',
+sitemap:'Карта сайта помогает обнаруживать опубликованные страницы.'
+})[id]||'Этот технический параметр влияет на доступность, понятность или оформление страницы; сам по себе не гарантирует показ в ИИ.';
+function status(s){return s==='ok'?'ok':s==='issue'?'issue':'unknown'}
+function render(d){
+$('report').hidden=false;$('print').hidden=false;$('domain').textContent=d.domain||d.url;
+document.querySelectorAll('.date').forEach(x=>x.textContent=new Date(d.checkedAt).toLocaleString('ru-RU'));
+$('score').textContent=d.geoScore==null?'—':d.geoScore;
+$('level').textContent=d.geoScore==null?'Недостаточно подтверждённых данных':d.geoScore>=80?'Высокая техническая готовность':d.geoScore>=55?'Есть возможности для улучшения':'Требуются исправления';
+$('confidence').textContent='Подтверждено: '+d.checked+' из '+d.checksTotal+' критериев · Не удалось проверить: '+d.unknown+
+' · Метод получения HTML: '+(d.evidence?.htmlMethod||'неизвестен');
+const grp=$('groups');grp.replaceChildren();
+for(const g of d.geoGroups||[]){const c=el(grp,'div',null,'group');el(c,'span',title(g.id),'small');el(c,'strong',g.points==null?'—':g.points+' / '+g.maxPoints);
+const bar=el(c,'div',null,'bar'),i=el(bar,'i');i.style.width=g.points==null?'0%':(100*g.points/g.maxPoints)+'%';
+el(c,'span',g.checked+' из '+g.total+' критериев проверено','small');}
+const fixes=$('fixes');fixes.replaceChildren();
+const priority=d.checks.filter(x=>x.state==='issue').sort((a,b)=>({high:0,medium:1,low:2}[a.importance]??3)-({high:0,medium:1,low:2}[b.importance]??3)).slice(0,3);
+if(!priority.length)el(fixes,'p','Подтверждённых критичных ошибок не найдено. Проверьте пункты со статусом «Нет данных» и реальные запросы покупателей.');
+priority.forEach((x,i)=>{const box=el(fixes,'div',null,'fix');el(box,'span',String(i+1).padStart(2,'0'),'fixnum');el(box,'h3',x.title);
+el(box,'div','СЕЙЧАС','microhead');el(box,'p',x.detail);el(box,'div','ПОЧЕМУ ЭТО ВАЖНО','microhead');el(box,'p',why(x.id));
+el(box,'div','ЧТО ДЕЛАТЬ','microhead');el(box,'p',x.tip);});
+const sections=$('checks');sections.replaceChildren();for(const g of d.geoGroups||[]){el(sections,'h3',g.title+' · '+(g.points==null?'—':g.points+' / '+g.maxPoints));
+for(const id of g.checkIds){const x=d.checks.find(z=>z.id===id);if(!x)continue;
+const row=el(sections,'div',null,'rowcheck');el(row,'span',stateText[x.state]||'!', 'state '+status(x.state));const content=el(row,'div');
+el(content,'b',x.title);el(content,'p',x.detail);if(x.state==='issue'&&x.tip)el(content,'p','Что делать: '+x.tip,'tip');
+}}
+const evidence=$('evidence');evidence.replaceChildren();el(evidence,'p','Метод: '+(d.evidence?.htmlMethod||'недоступен')+'.','small');
+el(evidence,'p','Прямой HTTP-статус: '+(d.evidence?.directHttpStatus??'не подтверждён')+'.','small');
+for(const f of d.files||[])el(evidence,'p',f.name+': '+f.state+' · HTTP '+(f.httpStatus??'неизвестен')+' · '+f.note,'small');
+el(evidence,'p',d.geoScoreNote||'Технический балл не равен вероятности рекомендации в ИИ.','small');
+el(evidence,'p',d.caveat||'','small');
+}
+$('form').addEventListener('submit',async ev=>{ev.preventDefault();const btn=$('run');btn.disabled=true;$('report').hidden=true;$('print').hidden=true;
+$('message').textContent='Выполняется независимая техническая проверка. Для каждого недоступного параметра покажем «Нет данных».';
+try{const r=await fetch('/.netlify/functions/site-audit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:$('url').value.trim(),brand:$('brand').value.trim()})});
+const d=await r.json();if(!r.ok)throw Error(d.error||'Ошибка сервера');if(!Array.isArray(d.checks)||d.checks.length!==22||!Array.isArray(d.geoGroups))throw Error('Версия серверного аудитора не поддерживает 22 критерия.');
+render(d);$('message').textContent='Готово: техническая проверка завершена.';document.getElementById('report').scrollIntoView({behavior:'smooth'});
+}catch(e){$('message').textContent='Ошибка проверки: '+e.message}finally{btn.disabled=false}});
+$('print').addEventListener('click',()=>window.print());
+})();
+</script></body></html>
