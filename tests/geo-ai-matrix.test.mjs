@@ -119,7 +119,7 @@ test('single click runs all requests, supports stop/resume and renders site cand
 test('website competitors are deduplicated, exclude owned domain and separate citations',async()=>{
   const {runInNewContext}=await import('node:vm');
   const js=readFileSync(new URL('../check/competitor-sites.js',import.meta.url),'utf8');
-  const scope={};
+  const scope={URL};
   runInNewContext(js,scope);
   const engine=scope.MIRVIXCompetingSites;
   assert.ok(engine);
