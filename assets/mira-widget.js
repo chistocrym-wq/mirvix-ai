@@ -129,7 +129,7 @@
       }
     }
     state.brief = brief;
-    progress.textContent = (state.reformulations ? 'Уточнила задачу: ' : 'Сформулирую так: ') + brief + (state.reformulations ? '\n\nТеперь верно?' : '\n\nВсё верно или нужно что-то уточнить?');
+    progress.textContent = (state.reformulations ? 'Уточнила задачу: ' : 'Сформулирую так: ') + brief + (state.reformulations ? '\n\nЕсли описание подходит, напишите «да»; иначе уточните детали.' : '\n\nВсё верно или нужно что-то уточнить?');
     state.reformulations += 1;
     state.phase = 'review';
     state.busy = false;
