@@ -79,13 +79,16 @@ function render(d){
 $('report').hidden=false;$('print').hidden=false;$('domain').textContent=d.domain||d.url;
 document.querySelectorAll('.date').forEach(x=>x.textContent=new Date(d.checkedAt).toLocaleString('ru-RU'));
 $('score').textContent=d.geoScore==null?'—':d.geoScore;
-$('level').textContent=d.geoScore==null?'Недостаточно подтверждённых данных':d.geoScore>=80?'Высокая техническая готовность':d.geoScore>=55?'Есть возможности для улучшения':'Требуются исправления';
+$('level').textContent=d.geoScore==null?'Проверка ограничена доступом к данным':(d.geoPreliminary?'Предварительная оценка · ':'')+(d.geoScore>=80?'Хорошая техническая готовность':d.geoScore>=55?'Есть возможности для улучшения':'Обнаружены технические проблемы');
 $('confidence').textContent='Подтверждено: '+d.checked+' из '+d.checksTotal+' критериев · Не удалось проверить: '+d.unknown+
-' · Метод получения HTML: '+(d.evidence?.htmlMethod||'неизвестен');
+' · Охват: '+(d.coveragePercent??Math.round(100*d.checked/d.checksTotal))+'%'+
+' · Источник HTML: '+(d.evidence?.htmlMethod||'неизвестен')+
+(d.geoPreliminary?' · Результат предварительный — некоторые проверки требуют прямого доступа.':'');
 const grp=$('groups');grp.replaceChildren();
 for(const g of d.geoGroups||[]){const c=el(grp,'div',null,'group');el(c,'span',title(g.id),'small');el(c,'strong',g.points==null?'—':g.points+' / '+g.maxPoints);
 const bar=el(c,'div',null,'bar'),i=el(bar,'i');i.style.width=g.points==null?'0%':(100*g.points/g.maxPoints)+'%';
-el(c,'span',g.checked+' из '+g.total+' критериев проверено','small');}
+el(c,'span',g.checked+' из '+g.total+' критериев проверено'+
+(g.points==null?' · раздел без оценки':'') ,'small');}
 const fixes=$('fixes');fixes.replaceChildren();
 const priority=d.checks.filter(x=>x.state==='issue').sort((a,b)=>({high:0,medium:1,low:2}[a.importance]??3)-({high:0,medium:1,low:2}[b.importance]??3)).slice(0,3);
 if(!priority.length)el(fixes,'p','Подтверждённых критичных ошибок не найдено. Проверьте пункты со статусом «Нет данных» и реальные запросы покупателей.');
@@ -99,6 +102,8 @@ el(content,'b',x.title);el(content,'p',x.detail);if(x.state==='issue'&&x.tip)el(
 }}
 const evidence=$('evidence');evidence.replaceChildren();el(evidence,'p','Метод: '+(d.evidence?.htmlMethod||'недоступен')+'.','small');
 el(evidence,'p','Прямой HTTP-статус: '+(d.evidence?.directHttpStatus??'не подтверждён')+'.','small');
+if(d.evidence?.challengePage)el(evidence,'p','Прямой ответ оказался страницей проверки посетителя, а не содержимым сайта. Это ограничение автоматического аудита, не дефект SEO.','small');
+el(evidence,'p','Покрытие проверок: '+d.checked+' из '+d.checksTotal+' ('+d.coveragePercent+'%). Непроверенные критерии не считаются ошибками.','small');
 for(const f of d.files||[])el(evidence,'p',f.name+': '+f.state+' · HTTP '+(f.httpStatus??'неизвестен')+' · '+f.note,'small');
 el(evidence,'p',d.geoScoreNote||'Технический балл не равен вероятности рекомендации в ИИ.','small');
 el(evidence,'p',d.caveat||'','small');
