@@ -9,4 +9,48 @@
 .mira-fallback{display:block;align-self:flex-start;color:#1453ab;font-weight:760;font-size:12px;padding:10px 13px;border:1px solid #b8d5fa;border-radius:12px;background:#fff;text-decoration:underline}
 .mira-inputbar{padding-top:10px}
 .mira-foot{font-size:10px;color:#657d9c}
-@media(max-width:600px){.mira-chat{height:min(650px,calc(100dvh - 93px));bottom:78px;right:8px}.mira-history{padding:13px 12px}}
+/* Desktop: a floating launcher. Tablet and mobile: a compact MIRA icon
+   inside the sticky site header, never over the page's primary CTA buttons. */
+@media(max-width:960px){
+  .site-header .header-inner{gap:8px}
+  .site-header .mira-launch{
+    position:static;inset:auto;z-index:auto;flex:0 0 44px;
+    width:44px;height:44px;min-height:44px;margin-left:auto;margin-right:4px;
+    padding:3px;justify-content:center;border-radius:50%;
+    box-shadow:0 2px 10px rgba(13,43,100,.15);
+    font-size:0
+  }
+  .site-header .mira-launch img{width:36px;height:36px;flex:0 0 36px}
+  .site-header .mira-launch span{display:none}
+  .site-header .header-inner .mobile-toggle{margin-left:0;flex-shrink:0}
+  .mira-chat{right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));
+    height:min(630px,calc(100dvh - 24px));min-height:0}
+}
+@media(max-width:600px){
+  .mira-chat{
+    position:fixed;inset:0;right:0;bottom:0;left:0;top:0;
+    width:100%;height:100vh;height:100dvh;max-width:none;max-height:none;
+    min-height:0;border:0;border-radius:0;box-shadow:none;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px)
+  }
+  .mira-history{padding:13px 12px;min-height:0}
+  .mira-head{padding:9px 12px}
+  .mira-head img{width:40px;height:40px}
+  .mira-inputbar{padding:8px 10px}
+  .mira-inputbar button{min-width:43px;flex-shrink:0}
+  body.mira-chat-open{overflow:hidden}
+}
+@media(max-width:420px){
+  .site-header .brand-symbol{width:38px;height:34px}
+  .site-header .brand-wordmark{width:116px;max-height:25px}
+  .site-header .brand-tagline{font-size:7.3px;letter-spacing:-.025em}
+  .site-header .header-inner{gap:6px}
+  .site-header .mira-launch{width:40px;height:40px;min-height:40px;flex-basis:40px;margin-right:2px}
+  .site-header .mira-launch img{width:34px;height:34px}
+  .site-header .mobile-toggle{width:40px;height:40px}
+}
+@media(max-width:355px){
+  .site-header .brand-wordmark{width:102px}
+  .site-header .brand-tagline{font-size:6.8px}
+}
