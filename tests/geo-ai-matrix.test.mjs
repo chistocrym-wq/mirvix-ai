@@ -90,3 +90,17 @@ test('client automatically fetches site metadata before generating prompts',()=>
   assert.match(html,/action:'generate'/);
   assert.match(html,/promptGeneratorReady/);
 });
+
+
+test('buyer prompt context includes verified specialities and mixed question lengths',()=>{
+  const input=gen.validate({count:15,brand:'Клиника Север',category:'медицинская клиника',
+    city:'Санкт-Петербург',serviceHeadings:['Гинекология','Кардиология'],
+    siteExcerpt:'Приём гинеколога и кардиолога в Санкт-Петербурге.'});
+  assert.deepEqual(input.serviceHeadings,['Гинекология','Кардиология']);
+  assert.match(input.siteExcerpt,/гинеколога/);
+  const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
+  assert.match(html,/serviceHeadings/);
+  assert.match(html,/siteExcerpt/);
+  assert.match(html,/optional-checks/);
+  assert.match(html,/d\.optionalChecks/);
+});
