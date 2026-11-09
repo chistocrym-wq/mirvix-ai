@@ -31,7 +31,11 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 .geo-model input{width:auto;margin-top:4px}.geo-model small{display:block;color:var(--muted)}.geo-model.disabled{opacity:.55}.geo-metrics{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
 .geo-metric{flex:1;min-width:145px;padding:12px;border:1px solid var(--border);border-radius:10px;background:white}.geo-metric b{display:block;font-size:23px}
 .geo-result{border-top:1px solid var(--border);padding:12px 0}.geo-result summary{cursor:pointer;font-weight:650}.geo-result pre{white-space:pre-wrap;word-break:break-word;font:13px/1.5 system-ui,sans-serif}
-.geo-links a{display:block;font-size:12px;overflow-wrap:anywhere;margin:5px 0}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
+.geo-links a{display:block;font-size:12px;overflow-wrap:anywhere;margin:5px 0}
+.geo-table{width:100%;border-collapse:collapse;font-size:12px;margin:13px 0}
+.geo-table th,.geo-table td{padding:10px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.geo-table th{background:#f3f6f9}.geo-table td:nth-child(n+2){text-align:center}
+.geo-meta{font-size:12px;color:var(--muted);margin:10px 0}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
 @media(max-width:690px){.geo-fields,.geo-models{grid-template-columns:1fr}}
 [hidden]{display:none!important}
 @media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
@@ -65,7 +69,8 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
 <textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
 <div class="buttons"><button type="button" id="geo-run">Запустить следующие 20 проверок</button>
-<button type="button" id="geo-export" class="secondary">Скачать результаты JSON</button><button type="button" id="geo-csv" class="secondary">Скачать таблицу CSV</button></div>
+<button type="button" id="geo-export" class="secondary">Скачать результаты JSON</button><button type="button" id="geo-csv" class="secondary">Скачать таблицу CSV</button>
+<button type="button" id="geo-print" class="secondary">Печатный GEO-отчёт / PDF</button></div>
 <p id="geo-runstatus" role="status" class="small">Проверка выполняется только в открытой вкладке. Запускайте серии по 20 API-вызовов, чтобы контролировать расходы и видеть ошибки.</p>
 <div class="geo-progress"><i id="geo-progressbar"></i></div>
 <div id="geo-metrics" class="geo-metrics"></div><div id="geo-results"></div>
@@ -88,7 +93,18 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <p><b>Проверка ChatGPT, Gemini, DeepSeek, Grok, GigaChat и Алисы AI</b> доступна выше в разделе «Проверить упоминания компании». Ответы без подтверждённого веб-поиска отделяются от поисковых результатов; они не входят в технический балл.</p>
 <p><a href="/geo-live/">Проверить реальные ответы через внутренний кабинет MIRVIX GEO</a></p></div>
 <p class="small">MIRVIX AI · Отчёт сформирован из публично доступных технических данных. Дата: <span class="date"></span>. Повторная проверка может дать другие результаты.</p></section>
-</main></div>
+</main>
+<section class="sheet" id="geo-pdf" hidden>
+<div class="topline"><span class="brand">MIRVIX AI</span><span>GEO · Фактические ответы API</span></div>
+<h2>Проверка упоминаний в нейросетях</h2>
+<p class="geo-meta" id="geo-pdf-company"></p>
+<p class="geo-meta" id="geo-pdf-method"></p>
+<div class="geo-metrics" id="geo-pdf-metrics"></div>
+<table class="geo-table"><thead><tr><th>Система</th><th>Ответы</th><th>Упоминания</th><th>Ссылки</th><th>Ошибки</th></tr></thead><tbody id="geo-pdf-tbody"></tbody></table>
+<h3>Примеры проверенных вопросов</h3><div id="geo-pdf-examples"></div>
+<p class="small">Методика: у каждой нейросети — отдельный API-запрос по одному и тому же покупательскому вопросу. В долю упоминаний входят только успешно полученные ответы; ошибки не считаются отсутствием бренда. GigaChat без подтверждённого поиска показан отдельно и не равнозначен веб-поисковым сервисам. Для полной выгрузки всех ответов и ссылок используйте JSON или CSV.</p>
+</section>
+</div>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
@@ -198,6 +214,33 @@ function renderStats(){
     const b=line(metrics,'div','', 'geo-metric');line(b,'span',title,'small');line(b,'b',value);
   }
   $('geo-progressbar').style.width=planned.length?(100*results.length/planned.length)+'%':'0%';
+  const pdf=$('geo-pdf');pdf.hidden=!results.length;
+  $('geo-pdf-company').textContent='Компания: '+($('brand').value.trim()||'не указана')+
+    ' · Домен: '+($('url').value.trim()||'не указан')+' · Регион: '+($('geo-city').value.trim()||'не указан');
+  $('geo-pdf-method').textContent='Дата отчёта: '+new Date().toLocaleString('ru-RU')+
+    ' · вопросов: '+parseLines().length+' · фактически проверенных пар вопрос × система: '+results.length+
+    ' из '+planned.length+'. Отчёт является промежуточным при неполной выборке.';
+  const pdfMetrics=$('geo-pdf-metrics');pdfMetrics.replaceChildren();
+  for(const [label,value] of pairs.slice(1)){
+    const tile=line(pdfMetrics,'div','', 'geo-metric');line(tile,'span',label,'small');line(tile,'b',value);
+  }
+  const rows=$('geo-pdf-tbody');rows.replaceChildren();
+  for(const p of PROVIDERS){
+    const all=results.filter(x=>x.provider===p.id);
+    if(!all.length)continue;
+    const ok=all.filter(x=>!x.error);
+    const tr=line(rows,'tr');
+    for(const item of [p.name+(p.id==='gigachat'?' (без веб-поиска)':''),
+      ok.length,ok.filter(x=>x.brandMention).length,
+      ok.filter(x=>x.sourceMention).length,all.length-ok.length])line(tr,'td',item);
+  }
+  const samples=$('geo-pdf-examples');samples.replaceChildren();
+  for(const result of results.filter(x=>!x.error).slice(0,8)){
+    const box=line(samples,'p','', 'small');
+    line(box,'b',(PROVIDERS.find(p=>p.id===result.provider)?.name||result.provider)+': ');
+    box.append(document.createTextNode(result.prompt+' · '+(result.brandMention?'бренд упомянут':'бренд не упомянут')+
+      ' · источников: '+(result.sources||[]).length));
+  }
   const holder=$('geo-results');holder.replaceChildren();
   const summary=line(holder,'div','','');
   for(const p of PROVIDERS){
@@ -340,6 +383,10 @@ $('geo-export').onclick=()=>{
     performed:results.length,results,
     caveat:'Отдельные API, не идентичны пользовательским приложениям. Ответы GigaChat без подтверждённого веб-поиска не сравниваются с поисковыми ответами.'};
   download(JSON.stringify(data,null,2),'mirvix-geo-'+Date.now()+'.json','application/json');
+};
+$('geo-print').onclick=()=>{
+  if(!results.length){status('Сначала выполните хотя бы одну API-проверку.');return}
+  window.print();
 };
 $('geo-csv').onclick=()=>{
   if(!results.length){status('Сначала выполните хотя бы одну проверку.');return}
