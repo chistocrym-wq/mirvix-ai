@@ -380,8 +380,12 @@ async function audit(raw, brand) {
   const error = i => settled[i].status === 'rejected' ? settled[i].reason : null;
   const homepage = item(0), robots = item(1), sitemap = item(2), llms = item(3);
   const directHtmlOk = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
-    /<html\b/i.test(homepage.text));
+    /<html\b/i.test(homepage.text) &&
+    !/<title[^>]*>\s*(?:just a moment|attention required|access denied|403 forbidden|checking your browser)[^<]*<\/title>/i.test(homepage.text));
+  const challengePage = !!(homepage && homepage.status >= 200 && homepage.status < 300 &&
+    /<title[^>]*>\s*(?:just a moment|attention required|access denied|403 forbidden|checking your browser)[^<]*<\/title>/i.test(homepage.text));
   const directMessage = directHtmlOk ? ('HTTP '+homepage.status+' · '+homepage.url) :
+    challengePage ? 'HTTP '+homepage.status+': получена страница проверки посетителя, а не содержимое сайта' :
     partialResourceInfo(homepage,error(0),'главную страницу');
   let fallbackHtml = null, fallbackError = '';
   if (!directHtmlOk) {
@@ -510,13 +514,25 @@ async function audit(raw, brand) {
     const members = g.ids.map(id => checks.find(x => x.id === id));
     const knownMembers = members.filter(x => x && x.state !== 'unknown');
     const successes = knownMembers.filter(x => x.state === 'ok').length;
+    // Never extrapolate an entire group score from just one check.
+    const minimumEvidence = Math.ceil(members.length * 0.45);
+    const enoughEvidence = knownMembers.length >= minimumEvidence;
     return { id:g.id, title:g.title, maxPoints:g.maxPoints, total:members.length,
-      checked:knownMembers.length, passed:successes,
-      points:knownMembers.length ? Math.round(g.maxPoints * successes / knownMembers.length) : null,
+      checked:knownMembers.length, passed:successes, minimumEvidence,
+      coveragePercent:Math.round(100 * knownMembers.length / members.length),
+      points:enoughEvidence ? Math.round(g.maxPoints * successes / knownMembers.length) : null,
       checkIds:g.ids };
   });
-  const geoScore = directHtmlOk && geoGroups.every(g => g.checked > 0)
-    ? geoGroups.reduce((n, g) => n + g.points, 0) : null;
+  const knownCount = checks.filter(c => c.state !== 'unknown').length;
+  const countedGroups = geoGroups.filter(g => g.points !== null);
+  const countedWeight = countedGroups.reduce((n, g) => n + g.maxPoints, 0);
+  // Secondary HTML is valid evidence about page content, but not about the origin HTTP status.
+  // Report a clearly labelled preliminary score only when enough independent checks succeeded.
+  const geoScore = htmlOk && knownCount >= 10 && countedGroups.length >= 2 && countedWeight > 0
+    ? Math.round(100 * countedGroups.reduce((n, g) => n + g.points, 0) / countedWeight) : null;
+  const geoPreliminary = geoScore !== null &&
+    (extractionMode !== 'origin' || knownCount < 20 || countedGroups.length !== geoGroups.length);
+  const coveragePercent = Math.round(100 * knownCount / checks.length);
   const known = checks.filter((c) => c.state !== 'unknown');
   const passed = known.filter((c) => c.state === 'ok').length;
   const issues = checks.filter((c) => c.state === 'issue');
@@ -540,12 +556,13 @@ async function audit(raw, brand) {
         extractionMode === 'reader' ? 'Публичный HTML/DOM через Jina Reader (вторичный источник)' : 'HTML не получен',
       directHttpStatus: homepage?.status ?? null,
       directMessage, readerError: fallbackError,
-      confidence: extractionMode === 'origin' ? 'direct' : extractionMode === 'reader' ? 'secondary' : 'unknown' },
+      confidence: extractionMode === 'origin' ? 'direct' : extractionMode === 'reader' ? 'secondary' : 'unknown',
+      challengePage, coveragePercent },
     resourceChecks: targets.map((t,i)=>({name:t.label,url:t.url.href,httpStatus:item(i)?.status ?? null,message:partialResourceInfo(item(i),error(i),t.label)})),
     elapsedMs,
     score: directHtmlOk ? Math.round((passed / Math.max(known.length, 1)) * 100) : null,
-    geoScore, geoGroups, checksTotal: checks.length,
-    geoScoreNote: 'Это оценка технической пригодности по подтверждённым критериям, а не реальная частота упоминаний в нейросетях. Группы имеют веса 32/43/25; непроверенные критерии исключены из знаменателя и показаны отдельно.',
+    geoScore, geoGroups, geoPreliminary, coveragePercent, scoredGroups: countedGroups.length, checksTotal: checks.length,
+    geoScoreNote: 'Предварительная оценка рассчитывается только по разделам, где подтверждено не менее 45% критериев; веса разделов 32/43/25 нормализуются на проверенные разделы. Источник HTML (прямой или вторичный) и охват проверок указаны отдельно. Это не частота упоминаний в ИИ.',
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
     checks, recommendations, files, botAccess,
