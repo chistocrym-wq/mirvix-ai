@@ -1,0 +1,30 @@
+name: Sitewide Yandex Metrika and GEO report visibility
+on:
+  pull_request:
+    paths:
+      - 'assets/mirvix-metrika.js'
+      - '**/index.html'
+      - 'index.html'
+      - 'tests/yandex-metrika.test.mjs'
+      - '.github/workflows/metrika.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/mirvix-metrika.js'
+      - '**/index.html'
+      - 'index.html'
+      - 'tests/yandex-metrika.test.mjs'
+      - '.github/workflows/metrika.yml'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate syntax and tracking integration
+        run: |
+          node --check assets/mirvix-metrika.js
+          node --test tests/yandex-metrika.test.mjs
