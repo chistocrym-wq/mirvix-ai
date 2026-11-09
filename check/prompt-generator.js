@@ -1,6 +1,6 @@
 /* MIRVIX GEO question generator: independent of the AI-provider checker.
    The click handler always reports progress/error beside the button, and never
-   depends on a blocking browser confirm() or on a previous connection check. */
+   depends on a blocking browser confirmation or on a previous connection check. */
 (()=>{
   'use strict';
   const byId=id=>document.getElementById(id);
