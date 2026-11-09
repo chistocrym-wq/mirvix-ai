@@ -392,6 +392,82 @@ function renderCompetitorSites(){
   }
 }
 
+
+function renderVisibilityCharts(){
+  const engine=window.MIRVIXReportMetrics;
+  if(!engine)return;
+  const observed=results.some(r=>!r.error&&typeof r.answer==='string'&&r.answer.trim());
+  $('geo-visual-report').hidden=!observed;
+  $('geo-pdf-visual').hidden=!observed;
+  if(!observed)return;
+  const company=getCompany(),listed=$('geo-competitors').value.split(',')
+    .map(s=>s.trim()).filter(Boolean).slice(0,10);
+  const ids=PROVIDERS.filter(p=>results.some(r=>r.provider===p.id)).map(p=>p.id);
+  const stats=engine.calculate(results,company.brand,listed,ids);
+  const cards=[
+    ['Упоминания бренда',stats.mentionRate,'В ответах с веб-поисковыми моделями'],
+    ['Ссылки на сайт',stats.linkRate,'Собственный домен в источниках'],
+    ['Доля упоминаний в группе',stats.voiceShare,stats.hasCompetitors?'Только среди указанных конкурентов':'Укажите конкурентов для расчёта'],
+    ['Раннее упоминание',stats.earlyRate,'Первая треть текста; не позиция топ-3'],
+    ['Реферальный трафик',null,'Требуется подключение аналитики']
+  ];
+  for(const id of ['geo-live-scorecards','geo-pdf-scorecards']){
+    const box=$(id);box.replaceChildren();
+    for(const [heading,value,desc] of cards){
+      const card=line(box,'div','', 'geo-scorecard');
+      line(card,'span',heading,'heading');
+      line(card,'div',value==null?'—':value+'%','number');
+      line(card,'div',desc,'desc');
+    }
+  }
+  const drawBars=(container,metric)=>{
+    container.replaceChildren();
+    for(const row of stats.providers){
+      const item=line(container,'div','', 'geo-engine-row');
+      const name=PROVIDERS.find(p=>p.id===row.id)?.name||row.id;
+      const legend=line(item,'span',name,'label');
+      if(row.modelOnly)legend.title='Режим модели без подтверждённого поиска в интернете';
+      const track=line(item,'div','', 'meter');
+      const inner=line(track,'i','');
+      const n=metric==='mentions'?row.mentionRate:row.sourceRate;
+      inner.style.width=(n==null?0:n)+'%';
+      const percent=line(item,'span',n==null?'—':n+'%','value');
+      percent.title=row.answered+' успешных ответов, '+row.errors+' ошибок'+
+        (row.modelOnly?'; модель без веб-поиска':'');
+    }
+  };
+  drawBars($('geo-live-mentions'),'mentions');
+  drawBars($('geo-pdf-mentions'),'mentions');
+  drawBars($('geo-live-links'),'links');
+  drawBars($('geo-pdf-links'),'links');
+  const rawQuestions=parseLines().length?parseLines():[...new Set(results.map(x=>x.prompt).filter(Boolean))];
+  const heat=engine.heatmap(results,rawQuestions,ids);
+  const symbols={'link-and-brand':'✓ + ↗',brand:'✓','source-only':'↗',absent:'—',error:'!',pending:'…'};
+  for(const [id,max] of [['geo-live-matrix',100],['geo-pdf-matrix',30]]){
+    const target=$(id);target.replaceChildren();
+    const table=line(target,'table','', 'geo-matrix');
+    const head=line(table,'thead');
+    const headRow=line(head,'tr');
+    line(headRow,'th','Покупательский вопрос');
+    for(const providerId of ids)line(headRow,'th',PROVIDERS.find(p=>p.id===providerId)?.name||providerId);
+    const tbody=line(table,'tbody');
+    for(const entry of heat.slice(0,max)){
+      const tr=line(tbody,'tr');
+      const prompt=line(tr,'td',entry.prompt);
+      prompt.title=entry.prompt;
+      for(const cell of entry.cells){
+        const td=line(tr,'td');
+        const chip=line(td,'span',symbols[cell.status]||'?','cell '+cell.status);
+        chip.title=cell.error?cell.error:
+          cell.modelOnly?'Ответ API без подтверждённого веб-поиска':cell.status;
+      }
+    }
+  }
+  $('geo-pdf-method').textContent+=' · успеваемость запросов: '+(stats.completionRate==null?'—':stats.completionRate+'%')+
+    ' · веб-поисковые ответы: '+stats.webAnswers+
+    ' · ответы модели GigaChat без веб-поиска: '+stats.modelOnlyAnswers+'.';
+}
+
 function renderStats(){
   const metrics=$('geo-metrics');metrics.replaceChildren();
   const success=results.filter(x=>!x.error);
@@ -431,6 +507,7 @@ function renderStats(){
       ' · источников: '+(result.sources||[]).length));
   }
   renderCompetitorSites();
+  renderVisibilityCharts();
   const holder=$('geo-results');holder.replaceChildren();
   const summary=line(holder,'div','','');
   for(const p of PROVIDERS){
