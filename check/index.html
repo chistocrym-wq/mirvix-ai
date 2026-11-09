@@ -367,7 +367,7 @@ function updateCosts(){
   $('geo-cost').textContent='Выбрано систем: '+configured.length+' из 6 · вопросов: '+q+
     ' · всего платных API-ответов: '+q*configured.length+
     ' · осталось по текущему плану: '+pending+
-    '. Цена зависит от тарифов провайдеров; автоматический запуск без подтверждения отключён.';
+    '. Цена зависит от тарифов провайдеров; полная проверка запускается после одного подтверждения. Вкладку не закрывать.';
 }
 function uiProviders(){
   const box=$('geo-models');box.replaceChildren();
@@ -411,7 +411,9 @@ $('geo-connect').onclick=async()=>{
 $('geo-count').onchange=()=>{planned=[];results=[];renderStats();updateCosts();};
 $('geo-questions').oninput=()=>{planned=[];results=[];renderStats();updateCosts();syncGigaQuestions();};
 $('geo-clear').onclick=()=>{if(busy)return;if(!confirm('Очистить вопросы и текущие результаты?'))return;
-  $('geo-questions').value='';questions=[];results=[];planned=[];renderStats();updateCosts();syncGigaQuestions();};
+  $('geo-questions').value='';questions=[];results=[];planned=[];profile=null;stopRequested=false;
+  $('geo-run').textContent='Запустить проверку по всем запросам';$('geo-run').disabled=false;
+  renderStats();updateCosts();syncGigaQuestions();};
 $('geo-generate').onclick=async()=>{
   if(busy)return;
   let company=getCompany();
@@ -433,7 +435,9 @@ $('geo-generate').onclick=async()=>{
   }
   if(!confirm('Создать '+goal+' покупательских вопросов через платный API OpenAI или Gemini? Текущие вопросы будут заменены.'))return;
   busy=true;$('geo-generate').disabled=true;$('geo-run').disabled=true;
-  questions=[];results=[];planned=[];$('geo-questions').value='';renderStats();syncGigaQuestions();
+  questions=[];results=[];planned=[];profile=null;stopRequested=false;
+  $('geo-run').textContent='Запустить проверку по всем запросам';$('geo-run').disabled=false;
+  $('geo-questions').value='';renderStats();syncGigaQuestions();
   try{
     let stalled=0;
     for(let batch=0;questions.length<goal&&batch<12;batch++){
@@ -465,20 +469,32 @@ function buildPlan(){
   if(!planned.length)planned=prompts.flatMap(prompt=>ids.map(provider=>({prompt,provider})));
   return {company,prompts,ids};
 }
+$('geo-stop').onclick=()=>{
+  if(!busy)return;
+  stopRequested=true;
+  $('geo-runstatus').textContent='Останавливаю после текущего ответа API. Полученные результаты сохранятся в этой вкладке.';
+};
 $('geo-run').onclick=async()=>{
   if(busy)return;
   let plan;
   try{plan=buildPlan();}catch(e){status(e.message);return;}
-  if(results.length>=planned.length){status('Все запланированные проверки завершены.');return}
-  const slice=planned.slice(results.length,results.length+20);
-  if(!confirm('Запустить '+slice.length+' платных запросов к API? Всего по матрице: '+planned.length+
-    '. Результаты сохраняются в текущей вкладке и могут быть экспортированы.'))return;
-  busy=true;$('geo-run').disabled=true;$('geo-generate').disabled=true;
+  if(results.length>=planned.length){status('Все запланированные проверки завершены.');return;}
+  const remaining=planned.length-results.length;
+  if(!confirm('Запустить все оставшиеся '+remaining+' платных API-проверок? Всего по матрице: '+
+    planned.length+'. Проверка займёт время и расходует API-баланс. Можно остановить после текущего запроса.'))return;
+  busy=true;stopRequested=false;
+  $('geo-run').disabled=true;$('geo-stop').disabled=false;
+  $('geo-generate').disabled=true;$('geo-clear').disabled=true;
+  $('geo-count').disabled=true;$('geo-questions').disabled=true;
+  for(const input of document.querySelectorAll('#geo-models input[data-provider]'))input.disabled=true;
   const competitors=$('geo-competitors').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,10);
   try{
-    for(const job of slice){
-      $('geo-runstatus').textContent='Выполнено '+results.length+' из '+planned.length+
-        ' · запускаю '+job.provider+' / '+job.prompt;
+    // Every click runs all outstanding jobs automatically, in one controlled sequential queue.
+    // Each API call is still independent and failures never masquerade as zero mentions.
+    while(results.length<planned.length&&!stopRequested){
+      const job=planned[results.length];
+      $('geo-runstatus').textContent='Проверено '+results.length+' из '+planned.length+
+        ' · '+(PROVIDERS.find(p=>p.id===job.provider)?.name||job.provider)+' · '+job.prompt;
       try{
         const response=await call('direct-geo',{action:'query',provider:job.provider,
           prompt:job.prompt,brand:plan.company.brand,domain:plan.company.domain,competitors});
@@ -489,15 +505,30 @@ $('geo-run').onclick=async()=>{
       }
       renderStats();
     }
-    $('geo-runstatus').textContent='Партия завершена. Проверок '+results.length+' из '+planned.length+
-      '. Для следующей партии нажмите кнопку снова.';
-  }finally{busy=false;$('geo-run').disabled=false;$('geo-generate').disabled=false;updateCosts();}
+    $('geo-runstatus').textContent=stopRequested?
+      'Остановлено. Получено '+results.length+' из '+planned.length+
+        ' результатов. Нажмите «Продолжить оставшиеся проверки».':
+      'Проверка завершена: '+results.length+' из '+planned.length+
+        ' API-обращений. Сохраните JSON, CSV или PDF.';
+  }finally{
+    busy=false;$('geo-run').disabled=false;$('geo-stop').disabled=true;
+    $('geo-generate').disabled=!promptGeneratorReady;$('geo-clear').disabled=false;
+    $('geo-count').disabled=false;$('geo-questions').disabled=false;
+    // Restore original availability rules rather than enabling unconfigured systems.
+    for(const input of document.querySelectorAll('#geo-models input[data-provider]')){
+      input.disabled=!providers.some(p=>p.id===input.dataset.provider&&p.configured);
+    }
+    $('geo-run').textContent=results.length>=planned.length?
+      'Проверка завершена':results.length?'Продолжить оставшиеся проверки':'Запустить проверку по всем запросам';
+    $('geo-run').disabled=results.length>=planned.length;
+    updateCosts();
+  }
 };
 $('geo-export').onclick=()=>{
   if(!results.length){status('Сначала выполните хотя бы одну проверку.');return}
   const data={schema:1,generatedAt:new Date().toISOString(),company:getCompany(),
     questions:parseLines(),models:selected(),planned:planned.length,
-    performed:results.length,results,officialGigaChatEvidence:gigaEvidence,
+    performed:results.length,results,competingSites:websiteCandidates(),officialGigaChatEvidence:gigaEvidence,
     caveat:'Отдельные API, не идентичны пользовательским приложениям. Ответы GigaChat без подтверждённого веб-поиска не сравниваются с поисковыми ответами.'};
   download(JSON.stringify(data,null,2),'mirvix-geo-'+Date.now()+'.json','application/json');
 };
