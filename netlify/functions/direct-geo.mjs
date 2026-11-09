@@ -299,7 +299,8 @@ async function gigaAccessToken(basic) {
     if(!result.ok||!data?.access_token)throw new Error('GigaChat OAuth HTTP '+result.status+
       '. Проверьте ключ, scope и сертификаты HTTPS.');
     gigaToken=data.access_token;
-    gigaExpiry=Number(data.expires_at||0)>0?(Number(data.expires_at)*1000):Date.now()+25*60*1000;
+    const expiry=Number(data.expires_at||0);
+    gigaExpiry=expiry>1e12?expiry:expiry>1e9?expiry*1000:Date.now()+25*60*1000;
     return gigaToken;
   }finally{clearTimeout(timer);}
 }
