@@ -64,3 +64,29 @@ test('staff login goes directly to AI check, with no duplicate staff dashboard n
   assert.ok(!html.includes("textContent='Открыть GEO-анализ →'"));
   assert.ok(!html.includes("textContent='Технический аудит →'"));
 });
+
+test('generator config reports missing keys without triggering API billing',async()=>{
+  const {handler}=await import('../netlify/functions/geo-prompts.mjs');
+  // Anonymous requests cannot inspect account configuration or generate paid queries.
+  const response=await handler({httpMethod:'POST',headers:{},body:JSON.stringify({action:'config'})});
+  assert.equal(response.statusCode,401);
+});
+
+test('generator validates brand and topic, allows brand-neutral questions',()=>{
+  assert.throws(()=>gen.validate({count:10,brand:'Шурик Маркет'}),/сферу деятельности/);
+  const input=gen.validate({count:15,brand:'Шурик Маркет',title:'Шурик Маркет — строительные материалы',city:'Санкт-Петербург'});
+  assert.equal(input.count,15);
+  const examples=['Где в Петербурге купить листы ОСБ для пола?',
+    'Какие магазины предлагают гипсокартон с доставкой в Санкт-Петербурге?',
+    'Стоит ли покупать стройматериалы в Шурик Маркет?'];
+  const selected=gen.uniquePrompts(examples,[],input.brand,15);
+  assert.equal(selected.length,2);
+});
+
+test('client automatically fetches site metadata before generating prompts',()=>{
+  const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
+  assert.match(html,/async function readCompanyProfile\(/);
+  assert.match(html,/const profile=await readCompanyProfile\(company\)/);
+  assert.match(html,/action:'generate'/);
+  assert.match(html,/promptGeneratorReady/);
+});
