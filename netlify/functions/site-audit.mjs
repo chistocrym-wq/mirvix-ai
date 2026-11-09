@@ -194,14 +194,47 @@ function extract(html) {
     .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '');
   const h1s = [...content.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/gi)]
     .map((m) => clean(m[1])).filter(Boolean).slice(0, 12);
-  const jsonld = (html.match(/<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>/gi) || []).length;
+  const schemaBlocks = [...html.matchAll(/<script\b(?=[^>]*\btype\s*=\s*["']application\/ld\+json["'])[^>]*>([\s\S]*?)<\/script\s*>/gi)];
+  let organizationSchema = false, sameAsCount = 0, validJsonLd = 0;
+  const schemaWalk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) return node.forEach(schemaWalk);
+    const types = [node['@type']].flat().map(x => String(x || '').split('/').pop().toLowerCase());
+    if (types.some(x => /^(organization|localbusiness|store|corporation|onlinestore|hardwarestore|homegoodsstore)$/.test(x))) {
+      organizationSchema = true;
+      sameAsCount += [node.sameAs].flat().filter(x => typeof x === 'string' && /^https?:\/\//.test(x)).length;
+    }
+    if (node['@graph']) schemaWalk(node['@graph']);
+  };
+  for (const block of schemaBlocks) {
+    try { const data = JSON.parse(block[1]); validJsonLd++; schemaWalk(data); } catch { /* Malformed JSON-LD is not affirmative evidence. */ }
+  }
+  const body = match(content, /<body\b[^>]*>([\s\S]*?)<\/body\s*>/i) || content;
+  const main = match(body, /<main\b[^>]*>([\s\S]*?)<\/main\s*>/i) || body;
+  const withoutDecor = main.replace(/<(?:nav|header|footer|svg|noscript)\b[^>]*>[\s\S]*?<\/(?:nav|header|footer|svg|noscript)\s*>/gi, ' ');
+  const plain = withoutDecor.replace(/<[^>]*>/g, ' ')
+    .replace(/&(?:nbsp|amp|quot|apos|lt|gt|#\d+|#x[\da-f]+);/gi, ' ').replace(/\s+/g, ' ').trim();
+  const wordCount = (value) => (String(value || '').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []).length;
+  const headings = [...main.matchAll(/<h[2-4]\b[^>]*>([\s\S]*?)<\/h[2-4]\s*>/gi)].map(x => clean(x[1])).filter(Boolean);
+  const questionHeadings = headings.filter(x => /[?？]/.test(x) ||
+    /^(как|где|что|зачем|почему|сколько|какой|какая|какие|когда|можно ли|how|where|what|why|which|when)\b/iu.test(x));
+  const firstParagraph = clean(match(main, /<p\b[^>]*>([\s\S]*?)<\/p\s*>/i));
+  const firstParagraphWords = wordCount(firstParagraph);
+  const visibleWords = wordCount(plain);
+  const hasFaq = /"@type"\s*:\s*"FAQPage"/i.test(html) ||
+    /(часто задаваемые вопросы|вопросы и ответы|frequently asked questions|\bfaq\b)/iu.test(plain.slice(0, 18000));
+  const hasContact = /href\s*=\s*["'](?:tel:|mailto:)/i.test(body) ||
+    /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/.test(plain) ||
+    /(?:\+?\d[\d\s().-]{9,}\d)/.test(plain);
   const tel = /href\s*=\s*["']tel:/i.test(html);
-  const brandContent = clean(content.slice(0, 200000));
+  const brandContent = plain.slice(0, 35000);
   return { title, description: metas.description || '', h1s, lang,
     canonical: links.canonical || '', viewport: metas.viewport || '',
     robotsMeta: [metas.robots || '', metas.googlebot || '', metas.yandex || ''].filter(Boolean).join('; '),
-    openGraph: !!(metas['og:title'] && metas['og:description']),
-    jsonld, tel, brandContent };
+    openGraph: !!(metas['og:title'] && metas['og:description'] && metas['og:image']),
+    jsonld: schemaBlocks.length, validJsonLd, organizationSchema, sameAsCount, tel, brandContent,
+    visibleWords, headingCount: headings.length, questionHeadings: questionHeadings.length,
+    firstParagraphWords, firstParagraph, hasFaq, hasContact };
 }
 
 function robotsDecision(content, name, path = '/') {
@@ -429,10 +462,28 @@ async function audit(raw, brand) {
     check('sitemap','XML-карта сайта', resourceFileState(finalMap,sitemapOk)==='unknown'?null:sitemapOk,
       finalMap === null ? 'Не удалось проверить sitemap.' : sitemapOk ? 'XML-карта сайта найдена.' : 'HTTP ' + finalMap.status + ': XML-карта не подтверждена. Не делайте вывод об отсутствии файла без проверки.',
       'Создать sitemap.xml и указать его в robots.txt и кабинетах вебмастеров.', 'medium'),
-    check('structured','Структурированные данные JSON-LD', htmlOk ? tags.jsonld > 0 : null, tags.jsonld ? 'Найдено JSON-LD блоков: ' + tags.jsonld + '. Корректность данных не проверялась.' : 'JSON-LD на главной не найден.',
-      'Добавить достоверную разметку Organization, LocalBusiness или подходящий тип Schema.org.', 'medium'),
-    check('og','Превью для социальных сетей', htmlOk ? tags.openGraph : null, tags.openGraph ? 'Найдены Open Graph title и description.' : 'Не обнаружена полная пара og:title / og:description.',
-      'Настроить Open Graph для корректного отображения ссылок.', 'low'),
+    check('structured','Schema.org: Organization / LocalBusiness', htmlOk ? tags.organizationSchema : null,
+      tags.organizationSchema ? 'Найдена разметка организации; ссылок sameAs: ' + tags.sameAsCount + '. Проверены типы JSON-LD, но не внешняя достоверность.' :
+        'Из ' + tags.jsonld + ' блоков JSON-LD не подтверждён тип Organization, LocalBusiness или Store.',
+      'Добавить корректную JSON-LD разметку компании: @type, name, url, контакты, при наличии — sameAs.', 'high'),
+    check('og','Open Graph: заголовок, описание, изображение', htmlOk ? tags.openGraph : null,
+      tags.openGraph ? 'Найдены og:title, og:description и og:image.' : 'Не обнаружен полный набор og:title, og:description, og:image.',
+      'Заполнить Open Graph для представления компании в ссылках и превью; это не гарантия цитирования ИИ.', 'low'),
+    check('question-headings','Подзаголовки, похожие на вопросы', htmlOk ? tags.questionHeadings > 0 : null,
+      'Подзаголовков h2–h4: ' + tags.headingCount + '; с вопросной формулировкой: ' + tags.questionHeadings + '. Эвристика, не фактор ранжирования.',
+      'По возможности добавить точные вопросы клиентов в подзаголовки, не ухудшая читаемость.', 'low'),
+    check('first-paragraph','Информативный первый абзац', htmlOk ? tags.firstParagraphWords >= 35 : null,
+      'В первом абзаце основного контента: ' + tags.firstParagraphWords + ' слов. Проверяется статический HTML, не текст после JavaScript.',
+      'Начать основную страницу с понятного абзаца о компании, услугах и пользе для покупателя (ориентир 40–80 слов).', 'medium'),
+    check('visible-text','Достаточно доступного текста', htmlOk ? tags.visibleWords >= 90 : null,
+      'В основном статическом HTML обнаружено приблизительно ' + tags.visibleWords + ' слов, без скриптов и декоративных блоков.',
+      'Добавить индексируемые описания продукции, услуг, условий работы и полезные ответы на вопросы.', 'medium'),
+    check('faq','Раздел вопросов и ответов', htmlOk ? tags.hasFaq : null,
+      tags.hasFaq ? 'Найдены признаки FAQ или структурированных вопросов и ответов.' : 'FAQ в основном HTML по текстовым признакам не обнаружен.',
+      'Если это уместно, опубликовать ответы на реальные вопросы покупателей. FAQ не обязателен для каждого сайта.', 'low'),
+    check('contact','Контактная информация в HTML', htmlOk ? tags.hasContact : null,
+      tags.hasContact ? 'Найдены признаки телефона или e-mail в текстовом содержимом / ссылках HTML.' : 'Телефон или e-mail в полученном HTML не обнаружены.',
+      'Разместить реальные контакты компании в доступном текстовом виде; отсутствие в HTML может быть связано с JavaScript.', 'medium'),
     ...[
       ['OAI-SearchBot','OAI-SearchBot (ChatGPT Search)','airobots'],
       ['PerplexityBot','PerplexityBot','bot-perplexitybot'],
@@ -447,6 +498,25 @@ async function audit(raw, brand) {
         'Проверить разрешения ' + agent + ' в robots.txt. Действие правил не гарантирует фактический обход сайта.', 'high');
     })
   ];
+  const groupDefs = [
+    { id:'crawl', title:'Доступность для поисковых и ИИ-роботов', maxPoints:32,
+      ids:['response','index','robots','sitemap','viewport','airobots','bot-perplexitybot','bot-claude-searchbot','bot-googlebot','bot-bingbot'] },
+    { id:'quote', title:'Готовность страницы к цитированию', maxPoints:43,
+      ids:['title','description','h1','canonical','lang','question-headings','first-paragraph','visible-text','faq'] },
+    { id:'identity', title:'Информация о компании', maxPoints:25,
+      ids:['structured','og','contact'] }
+  ];
+  const geoGroups = groupDefs.map(g => {
+    const members = g.ids.map(id => checks.find(x => x.id === id));
+    const knownMembers = members.filter(x => x && x.state !== 'unknown');
+    const successes = knownMembers.filter(x => x.state === 'ok').length;
+    return { id:g.id, title:g.title, maxPoints:g.maxPoints, total:members.length,
+      checked:knownMembers.length, passed:successes,
+      points:knownMembers.length ? Math.round(g.maxPoints * successes / knownMembers.length) : null,
+      checkIds:g.ids };
+  });
+  const geoScore = directHtmlOk && geoGroups.every(g => g.checked > 0)
+    ? geoGroups.reduce((n, g) => n + g.points, 0) : null;
   const known = checks.filter((c) => c.state !== 'unknown');
   const passed = known.filter((c) => c.state === 'ok').length;
   const issues = checks.filter((c) => c.state === 'issue');
@@ -474,11 +544,14 @@ async function audit(raw, brand) {
     resourceChecks: targets.map((t,i)=>({name:t.label,url:t.url.href,httpStatus:item(i)?.status ?? null,message:partialResourceInfo(item(i),error(i),t.label)})),
     elapsedMs,
     score: directHtmlOk ? Math.round((passed / Math.max(known.length, 1)) * 100) : null,
+    geoScore, geoGroups, checksTotal: checks.length,
+    geoScoreNote: 'Это оценка технической пригодности по подтверждённым критериям, а не реальная частота упоминаний в нейросетях. Группы имеют веса 32/43/25; непроверенные критерии исключены из знаменателя и показаны отдельно.',
     checked: known.length, passed, issuesCount: issues.length,
     unknown: checks.filter((x) => x.state === 'unknown').length,
     checks, recommendations, files, botAccess,
     extras: { brandFound, h1Count: tags.h1s.length, title: tags.title, description: tags.description,
-      phoneLink: tags.tel, jsonldCount: tags.jsonld },
+      phoneLink: tags.tel, jsonldCount: tags.jsonld, organizationSchema: tags.organizationSchema,
+      visibleWords: tags.visibleWords, firstParagraphWords: tags.firstParagraphWords },
     caveat: 'Если прямой HTML недоступен, общий балл не рассчитывается. HTML вторичного источника используется для отдельных метаданных, но не подтверждает доступность для поисковых роботов. Аудит не измеряет позиции и упоминания в ИИ.'
   };
 }
