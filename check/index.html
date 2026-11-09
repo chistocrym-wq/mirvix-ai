@@ -45,6 +45,52 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 @media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
 @page{size:A4;margin:15mm 14mm}
 @media print{body{background:#fff;color:#111}.wrap{max-width:none;padding:0}.noprint{display:none!important}.sheet{border:0;border-radius:0;box-shadow:none;margin:0;padding:0}.sheet+.sheet{break-before:page}.fix,.rowcheck,.group{break-inside:avoid}.score{font-size:64px}.groups{grid-template-columns:repeat(3,minmax(0,1fr))}.rowcheck{padding:10px 0}.topline{font-size:10px}.sheet h2{margin-top:22px}}
+
+/* Evidence-led, printable MIRVIX AI scorecard inspired by visual patterns of industry GEO reports. */
+.geo-report-heading{margin:24px 0 10px;font-size:22px;letter-spacing:-.025em}
+.geo-report-explainer{font-size:12px;color:#607388;line-height:1.55}
+.geo-scorecards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin:14px 0 20px}
+.geo-scorecard{padding:17px 14px;background:linear-gradient(145deg,#f0f7ff,#fff 72%);border:1px solid #d5e3f5;border-radius:13px;min-width:0}
+.geo-scorecard .heading{font-size:12px;display:block;color:#425f86;font-weight:780;min-height:35px}
+.geo-scorecard .number{font-size:clamp(27px,3vw,39px);font-weight:900;letter-spacing:-.045em;line-height:1.18;color:#0d408f}
+.geo-scorecard .desc{color:#697e9b;font-size:11px;line-height:1.45}
+.geo-report-graphs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+.geo-graph{border:1px solid #dbe6f7;border-radius:15px;padding:18px;background:white;min-width:0}
+.geo-graph h3{margin:0 0 9px;font-size:15px}
+.geo-graph p{margin:3px 0 14px;font-size:11px;color:#7186a1}
+.geo-engine-row{display:grid;grid-template-columns:92px minmax(0,1fr) 46px;gap:10px;align-items:center;margin:11px 0;font-size:12px}
+.geo-engine-row .label{font-weight:760;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.geo-engine-row .meter{height:11px;background:#eef1f8;border-radius:100px;overflow:hidden}
+.geo-engine-row .meter i{display:block;height:100%;background:linear-gradient(90deg,#08b9e9,#0969ee,#772df1);border-radius:100px;width:0}
+.geo-engine-row .value{font-variant-numeric:tabular-nums;text-align:right;font-weight:800}
+.geo-matrix-wrap{overflow-x:auto;margin:14px 0;border:1px solid #dce7fa;border-radius:13px}
+.geo-matrix{width:100%;border-collapse:collapse;font-size:11px;min-width:670px}
+.geo-matrix th,.geo-matrix td{padding:10px 8px;border-bottom:1px solid #e8eef8;text-align:center}
+.geo-matrix th:first-child,.geo-matrix td:first-child{text-align:left;min-width:250px;width:46%}
+.geo-matrix th{background:#f3f7fe}
+.geo-matrix .cell{display:inline-block;border-radius:8px;padding:4px 7px;white-space:nowrap;font-weight:800}
+.geo-matrix .cell.link-and-brand{background:#e0f7ed;color:#136243}
+.geo-matrix .cell.brand{background:#e8edff;color:#284cba}
+.geo-matrix .cell.source-only{background:#e1f6ff;color:#176087}
+.geo-matrix .cell.absent{background:#f1f3f6;color:#647287}
+.geo-matrix .cell.error{background:#ffebea;color:#af3b44}
+.geo-matrix .cell.pending{background:#fff7e4;color:#90661b}
+.geo-matrix .muted{font-weight:500;font-size:10px;color:#8695a9}
+.geo-faq{margin-top:30px}.geo-faq details{padding:13px 0;border-bottom:1px solid #e0e8f4}.geo-faq summary{font-size:15px;cursor:pointer;font-weight:750}.geo-faq p{font-size:13px;color:#586c86}
+@media(max-width:800px){.geo-scorecards{grid-template-columns:repeat(2,minmax(0,1fr))}.geo-report-graphs{grid-template-columns:1fr}}
+@media(max-width:520px){.geo-scorecards{gap:8px}.geo-scorecard{padding:13px 10px}.geo-scorecard .heading{font-size:11px}.geo-scorecard .number{font-size:27px}}
+@media print{
+  .geo-report-graphs{grid-template-columns:1fr 1fr;gap:12px}
+  .geo-scorecards{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .geo-scorecard{padding:12px}
+  .geo-scorecard .number{font-size:29px}
+  .geo-report-graphs,.geo-scorecards,.geo-graph,.geo-engine-row{break-inside:avoid}
+  .geo-matrix-wrap{overflow:visible}
+  .geo-matrix{min-width:0;font-size:9px}
+  .geo-matrix td,.geo-matrix th{padding:7px 4px}
+  #geo-live-matrix{display:none}
+  #geo-pdf-matrix tbody tr:nth-child(n+31){display:none}
+}
 </style></head><body><div class="wrap">
 <header class="noprint"><span class="brand">MIRVIX AI</span><a href="/">На главную</a></header>
 <section class="noprint"><h1>Проверим готовность вашего сайта к поиску в ИИ</h1>
@@ -103,6 +149,16 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p id="geo-runstatus" role="status" class="small">После создания вопросов одна кнопка запускает все выбранные запросы. Проверка выполняется в открытой вкладке; её можно остановить и продолжить.</p>
 <div class="geo-progress"><i id="geo-progressbar"></i></div>
 <div id="geo-metrics" class="geo-metrics"></div>
+<section id="geo-visual-report" aria-label="Процентный отчёт MIRVIX" hidden>
+<h3 class="geo-report-heading">Видимость бренда в ИИ — в процентах</h3>
+<p class="geo-report-explainer">Показатели основаны только на успешных ответах API. Для сравнения разные нейросети показаны отдельно; ответы GigaChat без веб-поиска не входят в общие поисковые проценты.</p>
+<div class="geo-scorecards" id="geo-live-scorecards"></div>
+<div class="geo-report-graphs"><div class="geo-graph"><h3>Упоминания по нейросетям</h3><p>Доля успешных ответов с названием компании</p><div id="geo-live-mentions"></div></div>
+<div class="geo-graph"><h3>Ссылки на сайт по нейросетям</h3><p>Доля успешных ответов, где процитирован сайт компании</p><div id="geo-live-links"></div></div></div>
+<h3>Матрица ответов по запросам</h3><p class="geo-report-explainer">✓+ссылка — бренд и домен; ✓ — бренд без ссылки; ↗ — только домен; — — нет упоминания; ! — ошибка; … — ожидается.</p>
+<div id="geo-live-matrix" class="geo-matrix-wrap"></div>
+<p class="geo-report-explainer">Доля голосов рассчитывается только по заранее указанным конкурентам; реферальный трафик — только по подключённой веб-аналитике. Изменение относительно прошлого периода без повторного измерения недоступно.</p>
+</section>
 <section id="geo-competitor-sites" class="giga-box">
 <h3>Какие сайты появляются вместо проверяемой компании</h3>
 <p class="small">Собираем сайты из реальных ответов нейросетей и ссылок-источников там, где бренд компании не упомянут. Каталоги и информационные площадки не считаем автоматически прямыми конкурентами.</p>
@@ -140,6 +196,14 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p class="geo-meta" id="geo-pdf-company"></p>
 <p class="geo-meta" id="geo-pdf-method"></p>
 <div class="geo-metrics" id="geo-pdf-metrics"></div>
+<section id="geo-pdf-visual" hidden>
+<h3 class="geo-report-heading">Сводка по видимости — подтверждённые показатели</h3>
+<div class="geo-scorecards" id="geo-pdf-scorecards"></div>
+<div class="geo-report-graphs"><div class="geo-graph"><h3>Упоминания бренда</h3><div id="geo-pdf-mentions"></div></div>
+<div class="geo-graph"><h3>Цитирование сайта</h3><div id="geo-pdf-links"></div></div></div>
+<h3>Матрица запросов и ответов</h3><p class="small">В печатном PDF — первые 30 строк; полная матрица доступна в CSV и JSON.</p><div id="geo-pdf-matrix" class="geo-matrix-wrap"></div>
+<p class="small">Изменение за период: нет данных предыдущего измерения. Реферальный трафик из нейросетей: аналитика не подключена. Позиция в топ-3 не измеряется — доступен только приблизительный показатель раннего упоминания.</p>
+</section>
 <table class="geo-table"><thead><tr><th>Система</th><th>Ответы</th><th>Упоминания</th><th>Ссылки</th><th>Ошибки</th></tr></thead><tbody id="geo-pdf-tbody"></tbody></table>
 <h3>Сайты, появляющиеся вместо бренда</h3>
 <p class="small">Домены из ответов и источников — потенциальные конкуренты и площадки публикаций; это не подтверждённый список прямых конкурентов.</p>
@@ -150,6 +214,16 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p class="small">Данные введены сотрудником MIRVIX на основании ссылок «Поделиться». MIRVIX не подтверждал ответы независимо; результаты не включаются в показатели API.</p>
 <div id="giga-print-list"></div></section>
 </section>
+<section class="panel geo-faq" id="faq"><h2>Частые вопросы о видимости в ИИ</h2>
+<details><summary>Что показывает проверка видимости компании в нейросетях?</summary><p>Как часто компания упоминается и как часто её домен цитируется в успешно полученных ответах по выбранным покупательским вопросам. Это не рыночная доля и не гарантированные рекомендации всех пользователей.</p></details>
+<details><summary>Чем отличаются упоминание бренда и цитирование сайта?</summary><p>Упоминание — название компании в тексте ответа; цитирование — ссылка на её домен среди источников. Возможен один показатель без другого.</p></details>
+<details><summary>Почему показатели ChatGPT, Gemini и других систем различаются?</summary><p>Модели используют разные данные, способы поиска и формирование ответов. Их нужно сравнивать отдельно. <a href="/useful/ai-visibility-not-one-score/">Подробнее в статье MIRVIX</a>.</p></details>
+<details><summary>Как рассчитать долю голосов среди конкурентов?</summary><p>Нужно заранее указать сравниваемые бренды. MIRVIX показывает условную долю упоминаний компании относительно упоминаний этой группы; без конкурентов метрика недоступна.</p></details>
+<details><summary>Можно ли увидеть позиции топ-3 и прирост процентов?</summary><p>Точный ранг в рекомендациях не подтверждён простой проверкой наличия названия. Прирост можно показать только при повторном измерении с сопоставимой методикой. Иначе выводится «Нет данных».</p></details>
+<details><summary>Как измеряется трафик с нейросетей?</summary><p>По данным аналитики сайта: UTM-метки, рефереры и согласованная атрибуция. Ответы API сами по себе не показывают переходы или продажи.</p></details>
+<details><summary>Чем бесплатная проверка отличается от регулярного мониторинга?</summary><p>Разовая проверка показывает состояние в момент измерения. Повторяющийся мониторинг помогает обнаруживать изменения, но требует сопоставимых запросов, версий моделей и дат.</p></details>
+<details><summary>Что сделать после отчёта?</summary><p>Проверить доступность страниц, описания услуг, сведения о компании и источники, затем повторить измерение. <a href="/useful/geo-checklist-30-days/">План действий на 30 дней</a>.</p></details>
+<p class="small">Методика: <a href="/useful/geo-report-metrics/">как читать GEO-отчёт</a>. Сравнивайте только подтверждённые результаты.</p></section>
 </div>
 <script>
 (()=>{'use strict';
@@ -223,7 +297,7 @@ render(d);$('message').textContent='Готово: техническая про�
 }catch(e){$('message').textContent='Ошибка проверки: '+e.message}finally{btn.disabled=false}});
 $('print').addEventListener('click',()=>window.print());
 })();
-</script><script src="/check/competitor-sites.js"></script><script>
+</script><script src="/check/competitor-sites.js"></script><script src="/check/report-metrics.js"></script><script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
 const PROVIDERS=[
