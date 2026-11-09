@@ -218,7 +218,7 @@ function extract(html) {
   const headings = [...main.matchAll(/<h[2-4]\b[^>]*>([\s\S]*?)<\/h[2-4]\s*>/gi)].map(x => clean(x[1])).filter(Boolean);
   const questionHeadings = headings.filter(x => /[?？]/.test(x) ||
     /^(как|где|что|зачем|почему|сколько|какой|какая|какие|когда|можно ли|how|where|what|why|which|when)\b/iu.test(x));
-  const firstParagraph = clean(match(main, /<p\b[^>]*>([\s\S]*?)<\/p\s*>/i));
+  const firstParagraph = match(main, /<p\b[^>]*>([\s\S]*?)<\/p\s*>/i).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 800);
   const firstParagraphWords = wordCount(firstParagraph);
   const visibleWords = wordCount(plain);
   const hasFaq = /"@type"\s*:\s*"FAQPage"/i.test(html) ||
