@@ -21,7 +21,7 @@
   const noPattern = /^(?:нет|не\s+совсем|неправильно|нужно\s+исправить|исправить|не\s+верно)$/i;
   const byePattern = /^(?:пока|до\s+свидания|до\s+связи|всего\s+доброго|всего\s+хорошего|спасибо[,! ]*пока|спасибо[,! ]*до\s+свидания)$/i;
   const helloPattern = /^(?:привет|здравствуй(?:те)?|добрый\s+(?:день|вечер|утро))[!. ]*$/i;
-  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, greeted: false, saidGoodbye: false };
+  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, greeted: false, saidGoodbye: false, reformulations: 0, lastAccepted: '', lastAcceptedAt: 0 };
 
   function bubble(text, own = false) {
     const node = document.createElement('div');
@@ -89,6 +89,9 @@
     state.busy = false;
     state.greeted = false;
     state.saidGoodbye = false;
+    state.reformulations = 0;
+    state.lastAccepted = '';
+    state.lastAcceptedAt = 0;
     input.value = '';
     aiConsent.checked = false;
     deliveryConsent.checked = false;
@@ -126,7 +129,8 @@
       }
     }
     state.brief = brief;
-    progress.textContent = 'Сформулирую так: ' + brief + '\n\nВсё верно или нужно что-то уточнить?';
+    progress.textContent = (state.reformulations ? 'Уточнила задачу: ' : 'Сформулирую так: ') + brief + (state.reformulations ? '\n\nЕсли описание подходит, напишите «да»; иначе уточните детали.' : '\n\nВсё верно или нужно что-то уточнить?');
+    state.reformulations += 1;
     state.phase = 'review';
     state.busy = false;
     updateControls();
@@ -181,6 +185,10 @@
     if (!message && state.phase === 'ready') return deliver();
     if (!message) return;
     if (message.length > 1800) { say('Пожалуйста, сократите сообщение до 1800 символов, чтобы я могла сохранить его целиком.'); return; }
+    const now=Date.now();
+    // Ignore duplicate click / Enter / voice confirmation of the same input in a short window.
+    if (message === state.lastAccepted && now - state.lastAcceptedAt < 2500) return;
+    state.lastAccepted=message;state.lastAcceptedAt=now;
     if (state.phase === 'sent') reset();
     input.value = '';
     bubble(message, true);
@@ -247,8 +255,37 @@
     }
   }
 
-  function open() { dialog.hidden = false; launch.setAttribute('aria-expanded','true'); input.focus(); }
-  function hide() { dialog.hidden = true; launch.setAttribute('aria-expanded','false'); if (state.recognition) state.recognition.abort(); }
+  const mobileMedia = window.matchMedia?.('(max-width: 960px)');
+  const widgetHome = root;
+  const header = document.querySelector('.site-header .header-inner');
+  function dockLauncher() {
+    // Desktop: viewport-fixed outside backdrop-filtered sticky header.
+    // Mobile: an ordinary flex item in the header, never floating over CTA buttons.
+    const toHeader=!!mobileMedia?.matches && !!header;
+    const destination=toHeader?header:widgetHome;
+    if (launch.parentElement !== destination) {
+      if (toHeader) {
+        const toggle=header.querySelector('.mobile-toggle');
+        if (toggle) header.insertBefore(launch,toggle);
+        else destination.appendChild(launch);
+      } else destination.insertBefore(launch,destination.firstChild);
+    }
+  }
+  dockLauncher();
+  mobileMedia?.addEventListener?.('change',dockLauncher);
+  function open() {
+    dialog.hidden = false;
+    launch.setAttribute('aria-expanded','true');
+    document.body.classList.add('mira-chat-open');
+    input.focus();
+  }
+  function hide() {
+    dialog.hidden = true;
+    launch.setAttribute('aria-expanded','false');
+    document.body.classList.remove('mira-chat-open');
+    if (state.recognition) state.recognition.abort();
+    launch.focus();
+  }
   launch.addEventListener('click', () => (dialog.hidden ? open() : hide()));
   close.addEventListener('click', hide);
   send.addEventListener('click', () => accept(input.value));

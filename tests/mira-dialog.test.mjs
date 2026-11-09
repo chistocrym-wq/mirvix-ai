@@ -12,8 +12,18 @@ class Element {
     this.checked=false;this.scrollHeight=100;this.scrollTop=0;
     this.classList={add(){},remove(){}};this.attributes={};this.style={};
   }
-  appendChild(node){this.children.push(node);return node;}
-  replaceChildren(){this.children=[];}
+  appendChild(node){
+    if(node.parentElement)node.parentElement.children=node.parentElement.children.filter(x=>x!==node);
+    this.children.push(node);node.parentElement=this;return node;
+  }
+  insertBefore(node,other){
+    if(node.parentElement)node.parentElement.children=node.parentElement.children.filter(x=>x!==node);
+    const i=this.children.indexOf(other);
+    this.children.splice(i<0?this.children.length:i,0,node);node.parentElement=this;
+    return node;
+  }
+  querySelector(selector){return this.children.find(x=>selector==='.mobile-toggle'&&x.name==='mobile-toggle')||null;}
+  replaceChildren(){for(const child of this.children)child.parentElement=null;this.children=[];}
   setAttribute(name,value){this.attributes[name]=value;}
   addEventListener(event,callback){this.listeners[event]=callback;}
   focus(){}
@@ -22,11 +32,19 @@ function prepareWidget(){
   const names=['launch','dialog','close','history','input','send','mic','voicecheck',
     'transcript','ai-consent','delivery-consent','delivery-panel','confirm','retry','cancel'];
   const elements=Object.fromEntries(names.map(n=>[n,new Element(n)]));
-  const root={querySelector:selector=>elements[selector.match(/data-mira="([^"]+)"/)?.[1]]};
-  const document={getElementById:id=>id==='mira-widget'?root:null,
+  const root=new Element('widget');
+  root.querySelector=selector=>elements[selector.match(/data-mira="([^"]+)"/)?.[1]];
+  root.appendChild(elements.launch);
+  const header=new Element('header');
+  const menu=new Element('mobile-toggle');header.appendChild(menu);
+  const mobile={matches:false,listeners:{},addEventListener(type,fn){this.listeners[type]=fn;}};
+  const body={classList:{add(){},remove(){}}};
+  const document={body,getElementById:id=>id==='mira-widget'?root:null,
+    querySelector:selector=>selector==='.site-header .header-inner'?header:null,
     createElement:tag=>new Element(tag)};
-  runInNewContext(read('assets/mira-widget.js'),{document,window:{}});
-  return elements;
+  runInNewContext(read('assets/mira-widget.js'),{document,
+    window:{matchMedia:()=>mobile}});
+  return {...elements,_header:header,_root:root,_mobile:mobile};
 }
 test('removed the entire developments block and its dead navigation links',()=>{
   const page=read('index.html');
@@ -94,4 +112,33 @@ test('server-side brief strips a prefix and extra sentences',async()=>{
     if(previous.key===undefined)delete process.env.OPENAI_API_KEY;else process.env.OPENAI_API_KEY=previous.key;
     if(previous.base===undefined)delete process.env.OPENAI_BASE_URL;else process.env.OPENAI_BASE_URL=previous.base;
   }
+});
+
+test('mobile MIRA launcher docks in header and is removed from floating widget',()=>{
+  const e=prepareWidget();
+  assert.equal(e.launch.parentElement,e._root);
+  e._mobile.matches=true;e._mobile.listeners.change();
+  assert.equal(e.launch.parentElement,e._header);
+  assert.ok(e._header.children.indexOf(e.launch)<e._header.children.findIndex(x=>x.name==='mobile-toggle'));
+  e._mobile.matches=false;e._mobile.listeners.change();
+  assert.equal(e.launch.parentElement,e._root);
+});
+
+test('duplicate same text is ignored within a short window',()=>{
+  const e=prepareWidget();
+  e.input.value='Нужен бот для салона красоты';
+  e.send.listeners.click();
+  const before=e.history.children.length;
+  e.input.value='Нужен бот для салона красоты';
+  e.send.listeners.click();
+  assert.equal(e.history.children.length,before);
+});
+
+test('mobile and desktop variants use breakpoint and fullscreen chat',()=>{
+  const css=read('assets/mira-widget-extra.css');
+  assert.match(css,/@media\(max-width:960px\)/);
+  assert.match(css,/\.site-header \.mira-launch/);
+  assert.match(css,/@media\(max-width:600px\)/);
+  assert.match(css,/height:100dvh/);
+  assert.match(css,/body\.mira-chat-open\{overflow:hidden\}/);
 });
