@@ -53,9 +53,9 @@ export default async function handler(request) {
     const json = await result.json();
     const formulated = json?.choices?.[0]?.message?.content;
     if (typeof formulated !== 'string' || formulated.trim().length < 8) return output({ error: 'Пустой ответ ИИ.' }, 503);
-    const normalized = formulated.trim().replace(/^Задача:\\s*/i,'').replace(/\\s+/g,' ');
-    const firstSentence = normalized.match(/^(.+?[.!?])(?:\\s|$)/)?.[1] || normalized;
-    const brief = firstSentence.replace(/[.!?\\s]+$/, '').slice(0, 320).trim();
+    const normalized = formulated.trim().replace(/^Задача:\s*/i,'').replace(/\s+/g,' ');
+    const firstSentence = normalized.match(/^(.+?[.!?])(?:\s|$)/)?.[1] || normalized;
+    const brief = firstSentence.replace(/[.!?\s]+$/, '').slice(0, 320).trim();
     if (brief.length < 12) return output({ error: 'Не удалось кратко сформулировать задачу.' }, 503);
     return output({ formulated: brief + '.' });
   } catch { return output({ error: 'ИИ-формулировка временно недоступна.' }, 503); }
