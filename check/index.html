@@ -42,6 +42,9 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 .giga-evidence a{overflow-wrap:anywhere;display:block;font-size:12px}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
 @media(max-width:690px){.geo-fields,.geo-models{grid-template-columns:1fr}}
 [hidden]{display:none!important}
+/* GEO printable report is a second representation, never show it below the on-screen report. */
+#geo-pdf{display:none}
+@media print{#geo-pdf:not([hidden]){display:block}}
 @media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
 @page{size:A4;margin:15mm 14mm}
 @media print{body{background:#fff;color:#111}.wrap{max-width:none;padding:0}.noprint{display:none!important}.sheet{border:0;border-radius:0;box-shadow:none;margin:0;padding:0}.sheet+.sheet{break-before:page}.fix,.rowcheck,.group{break-inside:avoid}.score{font-size:64px}.groups{grid-template-columns:repeat(3,minmax(0,1fr))}.rowcheck{padding:10px 0}.topline{font-size:10px}.sheet h2{margin-top:22px}}
@@ -205,7 +208,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div class="geo-report-graphs"><div class="geo-graph"><h3>Упоминания бренда</h3><div id="geo-pdf-mentions"></div></div>
 <div class="geo-graph"><h3>Цитирование сайта</h3><div id="geo-pdf-links"></div></div></div>
 <h3>Матрица запросов и ответов</h3><p class="small">В печатном PDF — первые 30 строк; полная матрица доступна в CSV и JSON.</p><div id="geo-pdf-matrix" class="geo-matrix-wrap"></div>
-<p class="small">Изменение за период: нет данных предыдущего измерения. Реферальный трафик из нейросетей: аналитика не подключена. Позиция в топ-3 не измеряется — доступен только приблизительный показатель раннего упоминания.</p>
+<p class="small">Изменение за период: нет данных предыдущего измерения. Реферальный трафик из нейросетей: данные Яндекс Метрики не интегрированы в этот отчёт; смотрите аналитику отдельно в Яндекс Метрике. Позиция в топ-3 не измеряется — доступен только приблизительный показатель раннего упоминания.</p>
 </section>
 <table class="geo-table"><thead><tr><th>Система</th><th>Ответы</th><th>Упоминания</th><th>Ссылки</th><th>Ошибки</th></tr></thead><tbody id="geo-pdf-tbody"></tbody></table>
 <h3>Сайты, появляющиеся вместо бренда</h3>
