@@ -43,3 +43,13 @@ test('robots user agent distinctions are preserved', () => {
   assert.equal(_test.robotsDecision(robots,'GPTBot').blocked,true);
   assert.equal(_test.robotsDecision(robots,'OAI-SearchBot').blocked,false);
 });
+
+
+test('extracts confirmed service headings without inventing specializations',()=>{
+  const html=sample('<h1>Клиника</h1><h2>Гинекология</h2><h2>Кардиология</h2><p>Прием врачей по предварительной записи.</p>');
+  const tags=_test.extract(html);
+  assert.ok(tags.serviceHeadings.includes('Гинекология'));
+  assert.ok(tags.serviceHeadings.includes('Кардиология'));
+  assert.ok(!tags.serviceHeadings.includes('Стоматология'));
+  assert.match(tags.contentSnippet,/Прием врачей/);
+});
