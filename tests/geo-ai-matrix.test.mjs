@@ -24,8 +24,8 @@ test('brand and duplicate prompts are removed, domain references rejected',()=>{
   assert.ok(q.every(x=>!x.includes('Петрович')));
 });
 
-test('API recognizes six requested providers and Perplexity as optional seventh',()=>{
-  for(const name of ['openai','gemini','deepseek','grok','gigachat','alice']){
+test('API recognizes all seven requested AI providers including Perplexity',()=>{
+  for(const name of ['openai','gemini','deepseek','grok','gigachat','alice','perplexity']){
     assert.equal(api.validate({provider:name,prompt:'Где купить гипсокартон в Санкт-Петербурге?',brand:'Магазин',domain:'shop.ru'}).provider,name);
   }
   assert.throws(()=>api.validate({provider:'random',prompt:'Где купить гипсокартон в Санкт-Петербурге?',brand:'Магазин'}));
@@ -139,4 +139,17 @@ test('website competitors are deduplicated, exclude owned domain and separate ci
   assert.equal(a.systems.length,2);
   assert.equal(rows.find(x=>x.domain==='clinic-c.ru').sourceCount,1);
   assert.ok(!rows.some(x=>x.domain==='myclinic.ru'||x.domain==='prodoctorov.ru'));
+});
+
+
+test('Perplexity is visible as seventh UI model and uses Agent API with grounded citations',()=>{
+  const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
+  assert.match(html,/id:'perplexity',name:'Perplexity'/);
+  assert.match(html,/Проверить подключения семи ИИ/);
+  const backend=readFileSync(new URL('../netlify/functions/direct-geo.mjs',import.meta.url),'utf8');
+  assert.match(backend,/PERPLEXITY_API_KEY/);
+  assert.match(backend,/api\.perplexity\.ai\/v1\/agent/);
+  assert.match(backend,/preset: 'fast'/);
+  assert.match(backend,/entry\.type === 'search_results'/);
+  assert.ok(!backend.includes("https://api.perplexity.ai/v1/sonar"));
 });
