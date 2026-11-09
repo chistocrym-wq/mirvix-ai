@@ -163,59 +163,6 @@ svg{display:block}
 .step span{position:relative;display:grid;place-items:center;width:42px;height:42px;background:#142f63;border:1px solid #5898dd;color:#d1eaff;font-size:12px;font-weight:800;border-radius:50%;box-shadow:0 0 0 7px #102757}
 .step h3{font-size:21px;letter-spacing:-.03em;font-weight:800;margin:24px 0 8px}
 .step p{font-size:13.5px;line-height:1.7;color:#b3cae4;max-width:225px;margin:0}
-/* Portfolio */
-.projects-section{background:linear-gradient(180deg,#f9fbff,#fff 45%)}
-.portfolio-heading{margin-bottom:33px}
-.project-filter{display:flex;gap:9px;flex-wrap:wrap;padding-bottom:20px;margin-bottom:29px;border-bottom:1px solid #dfe8f4}
-.filter-button{display:inline-flex;align-items:center;gap:10px;border:1px solid #d7e2f1;background:#fff;color:#536987;border-radius:12px;min-height:43px;padding:0 17px;font-size:13px;font-weight:760;transition:background .2s,color .2s,border-color .2s}
-.filter-button span{font-size:10px;color:#94a7be;font-weight:820}
-.filter-button:hover{border-color:#7cbbef;color:#0756c4}
-.filter-button.is-active{border-color:#174b9f;background:#112f67;color:#fff;box-shadow:0 8px 22px rgba(24,71,150,.14)}
-.filter-button.is-active span{color:#94d7fd}
-.project-group+.project-group{margin-top:59px}
-.group-title{display:flex;align-items:center;gap:18px;margin-bottom:19px}
-.group-index{color:#3b608c;font-size:12px;font-weight:850;letter-spacing:.115em;white-space:nowrap}
-.group-line{height:1px;background:#dce6f3;flex:1}
-.group-count{font-size:11px;color:#a2b2c8;font-weight:770;letter-spacing:.085em;white-space:nowrap}
-.feature-project{display:grid;grid-template-columns:1.08fr .92fr;background:linear-gradient(125deg,#10326f 0%,#0f2352 51%,#352179);border-radius:25px;overflow:hidden;min-height:380px;color:#fff;box-shadow:0 24px 62px rgba(25,54,119,.15)}
-.feature-content{padding:47px 44px 43px;display:flex;flex-direction:column;align-items:flex-start}
-.feature-state{display:inline-flex;align-items:center;gap:8px;border:1px solid #ffffff37;color:#acd7fa;border-radius:30px;padding:7px 12px;font-size:10px;font-weight:770;letter-spacing:.075em}
-.feature-state span{width:6px;height:6px;border-radius:50%;background:#2ce7df}
-.feature-content h3{font-size:clamp(33px,3.6vw,49px);font-weight:850;letter-spacing:-.06em;line-height:1.12;margin:22px 0 14px}
-.feature-content h3 em{font-style:normal;color:#6fdef9}
-.feature-content>p{color:#c0d4ed;font-size:14.5px;line-height:1.76;margin:0;max-width:560px}
-.feature-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:21px}
-.feature-tags span{background:#ffffff13;border:1px solid #ffffff1d;padding:6px 10px;border-radius:7px;font-size:10px;color:#d1e9ff;font-weight:750}
-.feature-link{display:inline-flex;gap:10px;margin-top:auto;padding-top:23px;color:#8be8fc;font-size:13px;font-weight:790}
-.feature-link:hover{color:#fff;text-decoration:underline;text-underline-offset:4px}
-.feature-demo{position:relative;display:flex;align-items:center;justify-content:center;padding:32px;overflow:hidden;background:radial-gradient(circle at 55% 45%,#4d66c64a,transparent 65%)}
-.feature-demo:before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff0d 1px,transparent 1px),linear-gradient(90deg,#ffffff0d 1px,transparent 1px);background-size:27px 27px;mask-image:linear-gradient(90deg,transparent,#000)}
-.demo-panel{position:relative;z-index:1;max-width:410px;width:100%;border-radius:19px;border:1px solid #aedfff50;background:linear-gradient(150deg,#ecf6ffef,#dce8ffdf);color:#18336d;padding:22px;transform:rotate(-3deg);box-shadow:0 24px 44px #071a4963}
-.demo-top{display:flex;align-items:center;gap:5px;border-bottom:1px solid #bed4f2;padding-bottom:15px}
-.demo-top .demo-circle{width:6px;height:6px;border-radius:50%;background:#5da4eb}
-.demo-top .demo-circle:nth-child(2){background:#55d0e1}.demo-top .demo-circle:nth-child(3){background:#8e7ce7}
-.demo-top>span:last-child{font-size:10px;font-weight:760;letter-spacing:.1em;color:#7c90b0;margin-left:auto}
-.demo-question{margin-top:21px;font-size:20px;font-weight:800;letter-spacing:-.035em}
-.demo-line{height:7px;background:#c7d7ef;border-radius:15px;margin-top:12px}.demo-line.line-1{width:91%}.demo-line.line-2{width:68%;margin-top:8px}
-.demo-route{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:25px 0;white-space:nowrap}
-.demo-route span{border-radius:7px;background:#daebff;color:#2754a5;padding:9px 10px;font-size:9px;font-weight:850}
-.demo-route i{font-style:normal;color:#3994df}
-.demo-output{display:flex;align-items:center;gap:11px;border:1px solid #d8e7f9;background:#fff;padding:15px;border-radius:12px}
-.demo-output>span:first-child{font-size:22px;color:#157add}
-.demo-output div{display:flex;flex-direction:column;line-height:1.35;min-width:0}.demo-output b{font-size:12px}.demo-output small{font-size:10px;color:#7c90b2;margin-top:3px}.demo-output>span:last-child{margin-left:auto;color:#2775d6}
-.project-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
-.project-grid.grid-four{grid-template-columns:repeat(2,minmax(0,1fr))}
-.project-card{display:flex;flex-direction:column;background:#fff;border:1px solid #e0e8f4;border-radius:19px;padding:26px;min-height:257px;box-shadow:0 8px 30px #15488706;transition:transform .28s,box-shadow .28s,border-color .28s}
-.project-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px #28508219;border-color:#aaccf4}
-.project-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
-.project-mark{display:grid;place-items:center;min-width:54px;width:54px;height:53px;border-radius:12px;font-size:21px;letter-spacing:-.055em;font-weight:860}
-.project-mark.sky{background:#e4f2ff;color:#1568d4}.project-mark.iris{background:#f0ebff;color:#7746ca}.project-mark.violet{background:#eee9ff;color:#6032b5}.project-mark.aqua{background:#e2f8fb;color:#068ca8}
-.status-chip{border:1px solid #e1e9f5;color:#7587a2;background:#f7faff;border-radius:30px;padding:6px 9px;font-size:10px;line-height:1.2;font-weight:735;text-align:center}
-.project-card h4{font-size:20px;line-height:1.22;font-weight:825;letter-spacing:-.035em;margin:24px 0 11px;text-wrap:balance}
-.project-card p{color:#64748e;font-size:13.4px;line-height:1.68;margin:0}
-.project-link{margin-top:auto;padding-top:19px;font-size:12.5px;font-weight:800;color:#146bd8;display:inline-flex;gap:9px;align-items:center}
-.project-link:hover{color:#6838d5}
-.portfolio-disclaimer{font-size:12px;color:#7a8aa2;line-height:1.7;margin:29px 0 0;padding-left:14px;border-left:2px solid #95c5fa;max-width:930px}
 /* About */
 .about-section{background:#f3f7fe;padding:105px 0}
 .about-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:88px;align-items:center}
@@ -867,7 +814,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       </span>
     </a>
     <nav class="desktop-nav" aria-label="Основное меню">
-      <a href="#services">Услуги</a><a href="#projects">Разработки</a><a href="#approach">Подход</a><a href="#about">О нас</a>
+      <a href="#services">Услуги</a><a href="#approach">Подход</a><a href="#about">О нас</a>
     </nav>
     <a class="header-contact" href="#contacts">Обсудить проект <span aria-hidden="true">↗</span></a>
     <button class="mobile-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-nav" aria-label="Открыть меню">
@@ -875,7 +822,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     </button>
   </div>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Меню на телефоне" hidden>
-    <a href="#services">Услуги</a><a href="#projects">Разработки</a><a href="#approach">Подход</a><a href="#about">О нас</a><a href="#contacts">Контакты</a>
+    <a href="#services">Услуги</a><a href="#approach">Подход</a><a href="#about">О нас</a><a href="#contacts">Контакты</a>
   </nav>
 </header>
 
@@ -952,83 +899,6 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       <article class="step" data-reveal><span class="step-bullet" aria-hidden="true"></span><h3>Создаём</h3><p>Рабочая версия и проверки сценариев.</p></article>
       <article class="step" data-reveal><span class="step-bullet" aria-hidden="true"></span><h3>Развиваем</h3><p>Улучшения по результатам эксплуатации.</p></article>
     </div>
-  </div>
-</section>
-
-<section class="section projects-section" id="projects">
-  <div class="container">
-    <div class="section-header portfolio-heading" data-reveal>
-      <div><span class="section-kicker">СОБСТВЕННЫЕ РАЗРАБОТКИ</span><h2>Не только внедряем.<br><span class="gradient">Создаём своё.</span></h2></div>
-      <p class="portfolio-intro">В нашем портфеле — инструменты для предпринимателей, обучение с ИИ-преподавателями и цифровые сервисы для повседневной жизни.</p>
-    </div>
-    <div class="project-filter" role="group" aria-label="Выберите направление разработок">
-      <button type="button" class="filter-button is-active" data-filter="all" aria-pressed="true">Все разработки </button>
-      <button type="button" class="filter-button" data-filter="business" aria-pressed="false">ИИ для бизнеса </button>
-      <button type="button" class="filter-button" data-filter="education" aria-pressed="false">Образование </button>
-      <button type="button" class="filter-button" data-filter="platforms" aria-pressed="false">Сервисы </button>
-    </div>
-
-    <div class="project-group" data-category="business">
-      <div class="group-title"><span class="group-index">ИИ ДЛЯ БИЗНЕСА</span><span class="group-line"></span></div>
-      <article class="feature-project" data-reveal>
-        <div class="feature-content">
-          <span class="feature-state"><span></span> В РАЗРАБОТКЕ</span>
-          <h3>Бизнес Советник <em>01</em></h3>
-          <p>ИИ-помощник для предпринимателей и тех, кто ищет бизнес-идею. Помогает сформулировать задачу, подключить нужного из 18 специалистов и получить структурированный анализ со следующим шагом.</p>
-          <div class="feature-tags"><span>18 ИИ-ролей</span><span>Бизнес-задачи</span><span>Единый кабинет</span></div>
-        </div>
-        <div class="feature-demo" aria-hidden="true">
-          <div class="demo-panel">
-            <div class="demo-top"><span class="demo-circle"></span><span class="demo-circle"></span><span class="demo-circle"></span><span>BUSINESS ADVISOR / 01</span></div>
-            <div class="demo-question">Что нужно решить?</div>
-            <div class="demo-line line-1"></div><div class="demo-line line-2"></div>
-            <div class="demo-route"><span>ЗАДАЧА</span><i>→</i><span>18 РОЛЕЙ</span><i>→</i><span>РЕШЕНИЕ</span></div>
-            <div class="demo-output"><span>◈</span><div><b>План действий</b><small>Анализ • источники • следующий шаг</small></div><span>↗</span></div>
-          </div>
-        </div>
-      </article>
-    </div>
-
-    <div class="project-group" data-category="education">
-      <div class="group-title"><span class="group-index">ИИ И ОБРАЗОВАНИЕ</span><span class="group-line"></span></div>
-      <div class="project-grid"><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark sky" aria-hidden="true">A1</span><span class="status-chip">Рабочая версия</span></div>
-      <h4>Super A1 Trainer</h4><p>Тренажёр подготовки к Goethe A1: аудирование, чтение, письмо и устная практика. Учебные сценарии и проверка знаний.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark iris" aria-hidden="true">DE</span><span class="status-chip">В разработке</span></div>
-      <h4>Немецкий с ИИ-преподавателем</h4><p>Персональные занятия по немецкому языку: объяснения, диалоги, работа над ошибками и адаптация учебного маршрута.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Е+</span><span class="status-chip">Проектируется</span></div>
-      <h4>Отто Экзамен+</h4><p>Платформа подготовки к ОГЭ и ЕГЭ по предметам с ИИ-преподавателем Викторией, диагностикой и планом занятий.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark sky" aria-hidden="true">∑</span><span class="status-chip">Концепция</span></div>
-      <h4>Математика с ИИ-учителем</h4><p>Пошаговое объяснение задач, поиск пробелов в знаниях и тренировка решения с разбором каждого шага.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark iris" aria-hidden="true">Φ</span><span class="status-chip">Концепция</span></div>
-      <h4>Физика с ИИ-учителем</h4><p>Понятные объяснения физических явлений, задачи с проверкой рассуждений и персональная практика.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Аа</span><span class="status-chip">Концепция</span></div>
-      <h4>Литература с ИИ-учителем</h4><p>Работа с произведениями, анализ текста, аргументация и подготовка письменных ответов с обратной связью.</p>
-    </article></div>
-    </div>
-
-    <div class="project-group" data-category="platforms">
-      <div class="group-title"><span class="group-index">ЦИФРОВЫЕ СЕРВИСЫ</span><span class="group-line"></span></div>
-      <div class="project-grid grid-four"><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark sky" aria-hidden="true">MD</span><span class="status-chip">Развитие платформы</span></div>
-      <h4>МойДиспетчер</h4><p>Платформа заказов спецтехники и строительных услуг: поиск исполнителей, размещение заказов и рабочее взаимодействие.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark violet" aria-hidden="true">Б</span><span class="status-chip">В разработке</span></div>
-      <h4>Буквай</h4><p>Сервис создания персональных книг с помощью ИИ: от идеи и текста до подготовки публикации и авторского проекта.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark aqua" aria-hidden="true">≈</span><span class="status-chip">В разработке</span></div>
-      <h4>Клёв Инфо</h4><p>Помощник рыболова: информация о водоёмах, условиях ловли и рекомендации по месту, времени и снастям.</p>
-    </article><article class="project-card" data-reveal>
-      <div class="project-head"><span class="project-mark iris" aria-hidden="true">Д</span><span class="status-chip">В разработке</span></div>
-      <h4>Династия</h4><p>Цифровая история семьи: родословное древо, фотографии, документы, воспоминания и семейный архив.</p>
-    </article></div>
-    </div>
-    <p class="portfolio-disclaimer">Проекты находятся на разных стадиях: от концепции до рабочих версий. Статус указан в каждой карточке; публичный запуск и доступность функций зависят от конкретного продукта.</p>
   </div>
 </section>
 
@@ -1142,7 +1012,6 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       
       <a href="/ai-search/">ИИ-поиск для бизнеса</a>
       <a href="#approach">Как мы работаем</a>
-      <a href="#projects">Наши разработки</a>
       <a href="#about">О нас</a>
       <a class="partner-cabinet-link" href="/cabinet/" aria-label="Вход в кабинет для партнёров">🔐 Кабинет для партнёров <span aria-hidden="true">↗</span></a>
       <a href="/audit/">Проверить сайт компании</a>
@@ -1201,20 +1070,6 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     menuButton.addEventListener('click', () => setMenu(menu.hidden));
     menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
   }
-
-  const filters = Array.from(document.querySelectorAll('[data-filter]'));
-  const groups = Array.from(document.querySelectorAll('[data-category]'));
-  function selectFilter(category) {
-    filters.forEach(button => {
-      const active = button.dataset.filter === category;
-      button.classList.toggle('is-active', active);
-      button.setAttribute('aria-pressed', String(active));
-    });
-    groups.forEach(group => {
-      group.hidden = category !== 'all' && group.dataset.category !== category;
-    });
-  }
-  filters.forEach(button => button.addEventListener('click', () => selectFilter(button.dataset.filter)));
 
   // Decorative entrance is progressive; content is always readable with JS disabled or reduced motion.
   const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
