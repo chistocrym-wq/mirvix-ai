@@ -106,19 +106,18 @@
       k.async = 1; k.src = r; a.parentNode.insertBefore(k,a);
     })(window, document, 'script', url, 'ym');
 
-    const safeCurrentUrl = isSensitivePage
-      ? location.origin + location.pathname
-      : location.href;
+    // Do not send query strings (which may contain tokens, contacts or user input).
+    const safeCurrentUrl = location.origin + location.pathname;
     window.ym(COUNTER_ID, 'init', {
       ssr: true,
       webvisor: !isSensitivePage,
-      trackHash: true,
+      trackHash: !isSensitivePage,
       clickmap: !isSensitivePage,
       ecommerce: 'dataLayer',
-      referrer: document.referrer,
+      referrer: (function(){const r=parseUrl(document.referrer);return r?r.origin+r.pathname:'';})(),
       url: safeCurrentUrl,
       accurateTrackBounce: true,
-      trackLinks: true
+      trackLinks: !isSensitivePage
     });
 
     const visit = sourceFromVisit();
