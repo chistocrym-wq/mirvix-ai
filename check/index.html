@@ -10,7 +10,7 @@ body{margin:0;font:15px/1.55 system-ui,-apple-system,"Segoe UI",Arial,sans-serif
 .formrow{display:grid;grid-template-columns:2fr 1fr;gap:12px}label{display:block;font-size:13px;font-weight:700;margin:0 0 7px}
 input{border:1px solid #b9cbd6;border-radius:8px;padding:13px 12px;width:100%;font:inherit;color:var(--ink)}
 button{background:var(--ink);color:white;border:0;border-radius:9px;padding:13px 19px;font:inherit;font-weight:700;cursor:pointer}
-button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}.secondary{background:white;color:var(--ink);border:1px solid var(--border)}
+button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align-items:center;justify-content:center;margin-top:2px;padding:11px 17px;border-radius:9px;border:1px solid #bac8d7;background:#eef4f8;color:#18314b;text-decoration:none;font-size:14px;font-weight:700;transition:background .15s}.employee-login:hover,.employee-login:focus-visible{background:#dbe9f1;outline:2px solid transparent}.buttons{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}.secondary{background:white;color:var(--ink);border:1px solid var(--border)}
 .notice{border-left:3px solid var(--blue);background:var(--pale);padding:11px 16px;border-radius:4px;font-size:13px;margin-top:16px}
 .sheet{margin-top:22px}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--muted);font-size:12px}
 .scoreline{display:flex;align-items:baseline;gap:9px;margin:18px 0 0}.score{font-size:74px;line-height:1;font-weight:850;letter-spacing:-.06em}
@@ -51,7 +51,8 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <p class="subtitle">22 прозрачных критерия. Результаты с доказательствами, объяснением ошибок и рекомендациями. Без выдуманных упоминаний ChatGPT.</p>
 <div class="panel"><form id="form"><div class="formrow"><div><label for="url">Адрес сайта</label><input id="url" type="text" placeholder="https://company.ru/" required maxlength="240"></div>
 <div><label for="brand">Название компании (необязательно)</label><input id="brand" placeholder="Название бренда" maxlength="120"></div></div>
-<div class="buttons"><button id="run" type="submit">Проверить сайт</button><button id="print" type="button" class="secondary" hidden>Сохранить PDF / печать</button></div></form>
+<div class="buttons"><button id="run" type="submit">Проверить сайт</button><button id="print" type="button" class="secondary" hidden>Сохранить PDF / печать</button></div>
+<a class="employee-login" href="/cabinet/?role=staff">Вход для сотрудника MIRVIX AI</a></form>
 <p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
 <section class="panel noprint" id="geo-check">
 <h2>Проверить упоминания компании в нейросетях</h2>
