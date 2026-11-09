@@ -85,10 +85,11 @@ test('generator validates brand and topic, allows brand-neutral questions',()=>{
 
 test('client automatically fetches site metadata before generating prompts',()=>{
   const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
-  assert.match(html,/async function readCompanyProfile\(/);
-  assert.match(html,/const profile=await readCompanyProfile\(company\)/);
-  assert.match(html,/action:'generate'/);
-  assert.match(html,/promptGeneratorReady/);
+  const generator=readFileSync(new URL('../check/prompt-generator.js',import.meta.url),'utf8');
+  assert.match(generator,/async function profileFromSite\(/);
+  assert.match(generator,/context=await profileFromSite\(context\)/);
+  assert.match(generator,/action:'generate'/);
+  assert.match(html,/prompt-generator\.js/);
 });
 
 
