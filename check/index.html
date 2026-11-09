@@ -292,6 +292,32 @@ function download(text,file,mime){
   const obj=URL.createObjectURL(new Blob([text],{type:mime}));
   const a=document.createElement('a');a.href=obj;a.download=file;a.click();setTimeout(()=>URL.revokeObjectURL(obj),2000);
 }
+
+function websiteCandidates(){
+  return window.MIRVIXCompetingSites?.aggregate(results,getCompany().domain,true)||[];
+}
+function renderCompetitorSites(){
+  const sites=websiteCandidates();
+  const grid=$('geo-site-rows'),print=$('geo-pdf-site-rows');
+  grid.replaceChildren();print.replaceChildren();
+  const eligible=results.filter(r=>!r.error&&r.answer&&!r.brandMention).length;
+  $('geo-site-summary').textContent=sites.length?
+    'Найдено '+sites.length+' сайтов в '+eligible+' успешных ответах без проверяемой компании. '+
+      'Столбец «В ответах» отражает прямо написанный домен, «В источниках» — ссылку-цитату.':
+    (eligible?'В '+eligible+' ответах без бренда не обнаружены сторонние сайты или домены.':
+      'Пока нет успешно полученных ответов без упоминания проверяемой компании.');
+  for(const site of sites){
+    for(const parent of [grid,print]){
+      const tr=line(parent,'tr');
+      const td=line(tr,'td');
+      const a=line(td,'a',site.domain);a.href=site.url;a.rel='noopener noreferrer';a.target='_blank';
+      line(tr,'td',site.systems.map(id=>(PROVIDERS.find(p=>p.id===id)?.name||id)).join(', '));
+      line(tr,'td',site.answerCount);
+      line(tr,'td',site.sourceCount);
+    }
+  }
+}
+
 function renderStats(){
   const metrics=$('geo-metrics');metrics.replaceChildren();
   const success=results.filter(x=>!x.error);
@@ -330,6 +356,7 @@ function renderStats(){
     box.append(document.createTextNode(result.prompt+' · '+(result.brandMention?'бренд упомянут':'бренд не упомянут')+
       ' · источников: '+(result.sources||[]).length));
   }
+  renderCompetitorSites();
   const holder=$('geo-results');holder.replaceChildren();
   const summary=line(holder,'div','','');
   for(const p of PROVIDERS){
