@@ -91,6 +91,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
   #geo-live-matrix{display:none}
   #geo-pdf-matrix tbody tr:nth-child(n+31){display:none}
 }
+.geo-generate-status{padding:12px 14px;border-radius:10px;border:1px solid #cbdff7;background:#f1f7ff;color:#174a88;font-size:13px;line-height:1.5;margin:8px 0 14px;overflow-wrap:anywhere}.geo-generate-status[data-state="error"]{background:#fff2ef;border-color:#f6c7be;color:#9c3327}.geo-generate-status[data-state="warning"]{background:#fff9e9;border-color:#f0d99c;color:#7b570c}.geo-generate-status[data-state="success"]{background:#e9f8f1;border-color:#a8dfc5;color:#156744}
 </style></head><body><div class="wrap">
 <header class="noprint"><span class="brand">MIRVIX AI</span><a href="/">На главную</a></header>
 <section class="noprint"><h1>Проверим готовность вашего сайта к поиску в ИИ</h1>
@@ -122,7 +123,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div id="geo-models" class="geo-models"></div>
 <p id="geo-cost" class="small"></p>
 <div class="buttons"><button type="button" id="geo-generate">Автоматически создать вопросы</button><button type="button" id="geo-clear" class="secondary">Очистить</button></div>
-<p class="small" id="geo-gen-diagnostic" role="status" aria-live="polite">Для генерации нужны название компании, тематика или доступный сайт, вход сотрудника и рабочий ключ OpenAI либо Gemini.</p>
+<p class="geo-generate-status" id="geo-gen-diagnostic" role="status" aria-live="polite" aria-atomic="true">Для генерации нужны название компании, тематика или доступный сайт, вход сотрудника и рабочий ключ OpenAI либо Gemini.</p>
 <label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
 <textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
 <section class="giga-box">
@@ -650,7 +651,7 @@ $('geo-run').onclick=async()=>{
         ' API-обращений. Сохраните JSON, CSV или PDF.';
   }finally{
     busy=false;$('geo-run').disabled=false;$('geo-stop').disabled=true;
-    $('geo-generate').disabled=!promptGeneratorReady;$('geo-clear').disabled=false;
+    $('geo-generate').disabled=false;$('geo-clear').disabled=false;
     $('geo-count').disabled=false;$('geo-questions').disabled=false;
     // Restore original availability rules rather than enabling unconfigured systems.
     for(const input of document.querySelectorAll('#geo-models input[data-provider]')){
