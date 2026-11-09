@@ -8,7 +8,7 @@ const PROVIDERS = Object.freeze({
   grok: { title: 'Grok · веб-поиск', env: 'XAI_API_KEY', model: 'grok-4.7', mode: 'web-grounded' },
   gigachat: { title: 'GigaChat · без веб-поиска', env: 'GIGACHAT_AUTH_KEY', model: 'GigaChat', mode: 'model-only' },
   alice: { title: 'Алиса AI · Yandex AI Studio Web Search', env: 'YANDEX_API_KEY', model: 'aliceai-llm', mode: 'web-grounded' },
-  perplexity: { title: 'Perplexity Sonar', env: 'PERPLEXITY_API_KEY', model: 'sonar', mode: 'web-grounded' }
+  perplexity: { title: 'Perplexity · Agent API', env: 'PERPLEXITY_API_KEY', model: 'fast preset', mode: 'web-grounded' }
 });
 
 const RESPONSE_HEADERS = {
@@ -210,27 +210,49 @@ async function callGemini(prompt, key) {
 }
 
 async function callPerplexity(prompt, key) {
+  // Perplexity ended legacy Sonar Chat Completions support in September 2026.
+  // Agent API is the provider-recommended replacement, with search_results
+  // and output_text returned as separate evidence in an Open Responses shape.
   const data = await requestJson(
-    'https://api.perplexity.ai/v1/sonar', key, {
-      model: 'sonar',
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: 1100,
-      web_search_options: { search_mode: 'web' }
-    }, { Authorization: 'Bearer ' + key }
+    'https://api.perplexity.ai/v1/agent', key, {
+      preset: 'fast',
+      input: prompt
+    }, { Authorization: 'Bearer ' + key }, 60000
   );
-  const citations = Array.isArray(data.citations) ? data.citations : [];
-  const searchResults = Array.isArray(data.search_results) ? data.search_results : [];
+  const answers = [];
+  const references = [];
+  let searched = false;
+  for (const entry of Array.isArray(data.output) ? data.output : []) {
+    if (entry.type === 'search_results') {
+      searched = true;
+      for (const result of Array.isArray(entry.results) ? entry.results : []) {
+        if (result?.url) references.push({url:result.url,title:result.title});
+      }
+    }
+    if (entry.type === 'fetch_url_results') {
+      for (const result of Array.isArray(entry.contents) ? entry.contents : []) {
+        if (result?.url) references.push({url:result.url,title:result.title});
+      }
+    }
+    if (entry.type === 'message') {
+      for (const part of Array.isArray(entry.content) ? entry.content : []) {
+        if (part.type === 'output_text' && typeof part.text === 'string')
+          answers.push(part.text);
+        for (const ref of Array.isArray(part.annotations) ? part.annotations : []) {
+          if (ref?.url) references.push({url:ref.url,title:ref.title});
+        }
+      }
+    }
+  }
+  const sources = uniqueSources(references);
   return {
-    answer: data.choices?.[0]?.message?.content || '',
-    sources: uniqueSources([
-      ...citations.map((url) => ({ url })),
-      ...searchResults.map((x) => ({ url: x.url, title: x.title }))
-    ]),
-    searched: citations.length > 0 || searchResults.length > 0,
-    model: data.model || 'sonar'
+    answer: answers.join('\n').trim() || text(data.output_text,12000),
+    sources,
+    searched: searched || sources.length > 0 ||
+      Number(data.usage?.tool_calls_details?.search_web?.invocation||0)>0,
+    model: text(data.model,120) || 'Perplexity Agent API · fast preset'
   };
 }
-
 
 function readResponseOutput(data, providerName) {
   const sourceList = [];
