@@ -5,6 +5,9 @@ on:
       - 'netlify/functions/site-audit.mjs'
       - 'check/**'
       - 'tests/geo-check.test.mjs'
+      - 'tests/geo-ai-matrix.test.mjs'
+      - 'netlify/functions/direct-geo.mjs'
+      - 'netlify/functions/geo-prompts.mjs'
       - '.github/workflows/geo-check.yml'
   workflow_dispatch:
 
@@ -20,5 +23,8 @@ jobs:
         run: |
           node --check netlify/functions/site-audit.mjs
           node --check tests/geo-check.test.mjs
-      - name: Run safety and HTML extraction tests
-        run: node --test tests/geo-check.test.mjs
+          node --check netlify/functions/direct-geo.mjs
+          node --check netlify/functions/geo-prompts.mjs
+          node --check tests/geo-ai-matrix.test.mjs
+      - name: Run safety and GEO matrix tests
+        run: node --test tests/geo-check.test.mjs tests/geo-ai-matrix.test.mjs
