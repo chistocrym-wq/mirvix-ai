@@ -2,9 +2,13 @@ import {isStaffRequest} from '../lib/cabinet-session.mjs';
 import crypto from 'node:crypto';
 
 const PROVIDERS = Object.freeze({
-  openai: { title: 'OpenAI (веб-поиск, экономичный режим)', env: 'OPENAI_API_KEY', model: 'gpt-6-luna' },
-  gemini: { title: 'Gemini (Google Search grounding)', env: 'GEMINI_API_KEY', model: 'gemini-3.8-flash' },
-  perplexity: { title: 'Perplexity Sonar', env: 'PERPLEXITY_API_KEY', model: 'sonar' }
+  openai: { title: 'ChatGPT · OpenAI Search', env: 'OPENAI_API_KEY', model: 'gpt-6-luna', mode: 'web-grounded' },
+  gemini: { title: 'Gemini · Google Search', env: 'GEMINI_API_KEY', model: 'gemini-3.8-flash', mode: 'web-grounded' },
+  deepseek: { title: 'DeepSeek · веб-поиск', env: 'DEEPSEEK_API_KEY', model: 'deepseek-v4-pro', mode: 'web-grounded' },
+  grok: { title: 'Grok · веб-поиск', env: 'XAI_API_KEY', model: 'grok-4.7', mode: 'web-grounded' },
+  gigachat: { title: 'GigaChat · без веб-поиска', env: 'GIGACHAT_AUTH_KEY', model: 'GigaChat', mode: 'model-only' },
+  alice: { title: 'Алиса AI · Yandex AI Studio Web Search', env: 'YANDEX_API_KEY', model: 'aliceai-llm', mode: 'web-grounded' },
+  perplexity: { title: 'Perplexity Sonar', env: 'PERPLEXITY_API_KEY', model: 'sonar', mode: 'web-grounded' }
 });
 
 const RESPONSE_HEADERS = {
@@ -227,7 +231,99 @@ async function callPerplexity(prompt, key) {
   };
 }
 
-const CALL = Object.freeze({ openai: callOpenai, gemini: callGemini, perplexity: callPerplexity });
+
+function readResponseOutput(data, providerName) {
+  const sourceList = [];
+  const answers = [];
+  const citations = Array.isArray(data.citations) ? data.citations : [];
+  let searched = false;
+  for (const url of citations) {
+    if (typeof url === 'string') sourceList.push({url});
+    else if (url?.url) sourceList.push({url:url.url,title:url.title});
+  }
+  for (const entry of Array.isArray(data.output) ? data.output : []) {
+    if (entry.type === 'web_search_call' || entry.type === 'tool_search_call') searched = true;
+    if (entry.type === 'message') {
+      for (const part of entry.content || []) {
+        if (part.type === 'output_text' && typeof part.text === 'string') answers.push(part.text);
+        for (const annotation of part.annotations || []) {
+          if (annotation?.url) sourceList.push({url:annotation.url,title:annotation.title});
+        }
+      }
+    }
+  }
+  const textAnswer = answers.join('\n').trim() || text(data.output_text,12000);
+  return {
+    answer:textAnswer,
+    sources:uniqueSources(sourceList),
+    searched:searched || Number(data.usage?.server_tool_use?.tool_search||0)>0,
+    model:data.model || providerName
+  };
+}
+
+async function callDeepSeek(prompt, key) {
+  const model=process.env.MIRVIX_DEEPSEEK_MODEL || PROVIDERS.deepseek.model;
+  const data=await requestJson('https://api.deepseek.com/responses',key,{
+    model,input:prompt,
+    tools:[{type:'web_search'}],
+    max_output_tokens:1400,
+    reasoning:{effort:'none'}
+  },{Authorization:'Bearer '+key},50000);
+  return readResponseOutput(data,model);
+}
+async function callGrok(prompt,key) {
+  const model=process.env.MIRVIX_GROK_MODEL || PROVIDERS.grok.model;
+  const data=await requestJson('https://api.x.ai/v1/responses',key,{
+    model,input:prompt,tools:[{type:'web_search'}],max_output_tokens:1400
+  },{Authorization:'Bearer '+key},60000);
+  return readResponseOutput(data,model);
+}
+let gigaToken='',gigaExpiry=0;
+async function gigaAccessToken(basic) {
+  if(gigaToken && Date.now()<gigaExpiry-60000)return gigaToken;
+  const auth=/^Basic\s+/i.test(basic)?basic:'Basic '+basic;
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),12000);
+  try{
+    const scope=process.env.GIGACHAT_SCOPE||'GIGACHAT_API_B2B';
+    if(!['GIGACHAT_API_PERS','GIGACHAT_API_B2B','GIGACHAT_API_CORP'].includes(scope)){
+      throw new Error('Недопустимый GIGACHAT_SCOPE.');
+    }
+    const result=await fetch('https://ngw.devices.sberbank.ru:9443/api/v2/oauth',{
+      method:'POST',signal:controller.signal,redirect:'error',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Accept':'application/json',
+        'RqUID':crypto.randomUUID(),'Authorization':auth},
+      body:'scope='+encodeURIComponent(scope)
+    });
+    const data=await result.json().catch(()=>null);
+    if(!result.ok||!data?.access_token)throw new Error('GigaChat OAuth HTTP '+result.status+
+      '. Проверьте ключ, scope и сертификаты HTTPS.');
+    gigaToken=data.access_token;
+    gigaExpiry=Number(data.expires_at||0)>0?(Number(data.expires_at)*1000):Date.now()+25*60*1000;
+    return gigaToken;
+  }finally{clearTimeout(timer);}
+}
+async function callGigaChat(prompt,basic) {
+  const token=await gigaAccessToken(basic);
+  const model=process.env.MIRVIX_GIGACHAT_MODEL || PROVIDERS.gigachat.model;
+  const data=await requestJson('https://api.giga.chat/v1/chat/completions',token,{
+    model,messages:[{role:'user',content:prompt}],stream:false
+  },{Authorization:'Bearer '+token},45000);
+  return {answer:text(data.choices?.[0]?.message?.content,12000),
+    sources:[],searched:false,model:data.model||model};
+}
+async function callAlice(prompt,key) {
+  const folder=process.env.YANDEX_FOLDER_ID||'';
+  if(!/^[a-z0-9_-]{8,80}$/i.test(folder))throw new Error('Добавьте YANDEX_FOLDER_ID в Netlify.');
+  const model='gpt://'+folder+'/'+(process.env.MIRVIX_ALICE_MODEL||PROVIDERS.alice.model);
+  const data=await requestJson('https://ai.api.cloud.yandex.net/v1/responses',key,{
+    model,input:prompt,tools:[{type:'web_search',search_context_size:'low'}],
+    max_output_tokens:1400
+  },{'Authorization':'Bearer '+key,'x-project':folder},50000);
+  return readResponseOutput(data,model);
+}
+
+const CALL = Object.freeze({ openai: callOpenai, gemini: callGemini, deepseek: callDeepSeek, grok: callGrok, gigachat: callGigaChat, alice: callAlice, perplexity: callPerplexity });
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return respond(405, { error: 'Разрешён только POST.' });
@@ -241,9 +337,14 @@ export async function handler(event) {
   if (request.action === 'config') {
     return respond(200, {
       configured: Object.entries(PROVIDERS)
-        .filter(([, item]) => !!process.env[item.env])
-        .map(([id, item]) => ({ id, name: item.title, model: item.model })),
-      providerNote: 'API-результаты; не идентичны персонализированным ответам приложений.'
+        .filter(([id,item]) => !!process.env[item.env] &&
+          (id !== 'alice' || !!process.env.YANDEX_FOLDER_ID))
+        .map(([id,item]) => ({ id, name: item.title, model: item.model, mode:item.mode })),
+      available: Object.entries(PROVIDERS)
+        .map(([id,item]) => ({ id, name:item.title, model:item.model, mode:item.mode,
+          configured:!!process.env[item.env] && (id!=='alice'||!!process.env.YANDEX_FOLDER_ID),
+          requires:id==='alice'?'YANDEX_API_KEY + YANDEX_FOLDER_ID':item.env })),
+      providerNote: 'Подключённость определяется наличием серверных ключей, работоспособность проверяется первым запросом. Это ответы API, не персонализированные ответы пользовательских приложений. GigaChat без встроенного веб-поиска не следует объединять с поисковыми результатами.'
     });
   }
   if (request.action !== 'query') return respond(400, { error: 'Неизвестная команда.' });
@@ -272,6 +373,8 @@ export async function handler(event) {
       brand: args.brand,
       answer: data.answer.slice(0, 12000),
       searched: data.searched,
+      mode: provider.mode,
+      searchEvidence: data.searched || sources.length>0,
       sources,
       brandMention: mentionIn(data.answer, [args.brand, ...args.aliases]),
       sourceMention: sources.some((s) => s.companyDomain),
@@ -279,7 +382,9 @@ export async function handler(event) {
       checkedAt: new Date().toISOString(),
       latencyMs: Date.now() - started,
       method: 'direct-api',
-      caution: 'Отражает один ответ выбранного API, а не рейтинг или персонализированную выдачу пользовательского приложения.'
+      caution: provider.mode === 'model-only'
+        ? 'Ответ API модели без подтверждённого поиска в интернете. Не сравнивайте с поисковыми ответами других систем.'
+        : 'Отражает один ответ API с доступом к веб-поиску; сам факт обращения к поиску не гарантирован, если модель его не использовала. Не является персонализированной выдачей приложения.'
     });
   } catch (err) {
     return respond(502, { error: err?.message || 'Ошибка запроса к внешнему API.' });
