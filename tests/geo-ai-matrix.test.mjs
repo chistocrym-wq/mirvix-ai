@@ -43,3 +43,24 @@ test('large paid checks cannot start without staff authentication',async()=>{
   const result=await handler({httpMethod:'POST',headers:{},body:JSON.stringify({count:20,brand:'Магазин',category:'Стройматериалы'})});
   assert.equal(result.statusCode,401);
 });
+
+test('AI audit uses dedicated website and company fields and one staff entry point',()=>{
+  const html=readFileSync(new URL('../check/index.html',import.meta.url),'utf8');
+  assert.match(html,/id="geo-url"/);
+  assert.match(html,/id="geo-brand"/);
+  assert.equal((html.match(/class="employee-login"/g)||[]).length,1);
+  const section=html.slice(html.indexOf('<section class="panel noprint" id="geo-check">'),html.indexOf('<main id="report"'));
+  assert.ok(section.indexOf('id="geo-connect"')<section.indexOf('class="employee-login"'));
+  assert.ok(section.indexOf('class="employee-login"')<section.indexOf('id="geo-work"'));
+  assert.match(html,/get\('staff'\)==='1'/);
+});
+
+test('staff login goes directly to AI check, with no duplicate staff dashboard navigation',()=>{
+  const html=readFileSync(new URL('../cabinet/index.html',import.meta.url),'utf8');
+  const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+  for(const [i,match] of scripts.entries())new Script(match[1],{filename:'cabinet-script-'+i+'.js'});
+  assert.match(html,/get\('next'\)==='geo-check'/);
+  assert.match(html,/returnToCheck\(\);return;/);
+  assert.ok(!html.includes("textContent='Открыть GEO-анализ →'"));
+  assert.ok(!html.includes("textContent='Технический аудит →'"));
+});
