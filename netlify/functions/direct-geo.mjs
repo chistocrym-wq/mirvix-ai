@@ -320,7 +320,7 @@ async function callAlice(prompt,key) {
   const data=await requestJson('https://ai.api.cloud.yandex.net/v1/responses',key,{
     model,input:prompt,tools:[{type:'web_search',search_context_size:'low'}],
     max_output_tokens:1400
-  },{'Authorization':'Bearer '+key,'x-project':folder},50000);
+  },{'Authorization':'Api-Key '+key},50000);
   return readResponseOutput(data,model);
 }
 
