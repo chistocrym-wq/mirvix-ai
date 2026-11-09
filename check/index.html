@@ -91,6 +91,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
   #geo-live-matrix{display:none}
   #geo-pdf-matrix tbody tr:nth-child(n+31){display:none}
 }
+.geo-generate-status{padding:12px 14px;border-radius:10px;border:1px solid #cbdff7;background:#f1f7ff;color:#174a88;font-size:13px;line-height:1.5;margin:8px 0 14px;overflow-wrap:anywhere}.geo-generate-status[data-state="error"]{background:#fff2ef;border-color:#f6c7be;color:#9c3327}.geo-generate-status[data-state="warning"]{background:#fff9e9;border-color:#f0d99c;color:#7b570c}.geo-generate-status[data-state="success"]{background:#e9f8f1;border-color:#a8dfc5;color:#156744}
 </style></head><body><div class="wrap">
 <header class="noprint"><span class="brand">MIRVIX AI</span><a href="/">На главную</a></header>
 <section class="noprint"><h1>Проверим готовность вашего сайта к поиску в ИИ</h1>
@@ -111,18 +112,18 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div class="buttons" style="margin-bottom:4px"><button type="button" id="geo-connect">Проверить подключения семи ИИ</button></div>
 <a class="employee-login" href="/cabinet/?role=staff&amp;next=geo-check">Вход для сотрудника MIRVIX AI</a>
 <p id="geo-status" class="small" role="status">Подключения ещё не проверены.</p>
-<div id="geo-work" hidden>
+<div id="geo-work">
 <div class="geo-fields">
 <div><label for="geo-category">Тематика, товары или услуги компании</label><input id="geo-category" maxlength="180" placeholder="Например: строительные материалы, ОСБ, гипсокартон"></div>
 <div><label for="geo-city">Регион или город</label><input id="geo-city" maxlength="120" placeholder="Например: Санкт-Петербург"></div>
-<div><label for="geo-count">Количество уникальных вопросов</label><select id="geo-count"><option value="30">30 запросов</option><option value="50">50 запросов</option><option value="70">70 запросов</option><option value="100">100 запросов</option></select></div>
+<div><label for="geo-count">Количество уникальных вопросов</label><select id="geo-count"><option value="5">5 запросов</option><option value="10">10 запросов</option><option value="15">15 запросов</option><option value="30">30 запросов</option><option value="50">50 запросов</option><option value="70">70 запросов</option><option value="100">100 запросов</option></select></div>
 <div><label for="geo-competitors">Конкуренты, через запятую (по желанию)</label><input id="geo-competitors" maxlength="450" placeholder="Конкурент 1, Конкурент 2"></div>
 </div>
 <h3>Выберите нейросети</h3>
 <div id="geo-models" class="geo-models"></div>
 <p id="geo-cost" class="small"></p>
 <div class="buttons"><button type="button" id="geo-generate">Автоматически создать вопросы</button><button type="button" id="geo-clear" class="secondary">Очистить</button></div>
-<p class="small" id="geo-gen-diagnostic" role="status">Для генерации нужны название компании, тематика или доступный сайт, вход сотрудника и рабочий ключ OpenAI либо Gemini.</p>
+<p class="geo-generate-status" id="geo-gen-diagnostic" role="status" aria-live="polite" aria-atomic="true">Для генерации нужны название компании, тематика или доступный сайт, вход сотрудника и рабочий ключ OpenAI либо Gemini.</p>
 <label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
 <textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
 <section class="giga-box">
@@ -580,11 +581,9 @@ $('geo-connect').onclick=async()=>{
         (gen.available.openai&&gen.available.gemini?' / ':'')+(gen.available.gemini?'Gemini':'')+'.':
         ' Генерация вопросов пока недоступна: '+gen.message;
       status($('geo-status').textContent+note);
-      $('geo-generate').disabled=false;
       $('geo-gen-diagnostic').textContent=gen.configured?'Ключ генератора найден. Укажите компанию и тематику, затем нажмите «Автоматически создать вопросы».':'Нет ключей для генератора на сервере. Нужен OPENAI_API_KEY или GEMINI_API_KEY в Netlify Functions; затем повторный deploy.';
     }catch(e){
       promptGeneratorReady=false;
-      $('geo-generate').disabled=false;
       $('geo-gen-diagnostic').textContent='Не удалось проверить генератор: '+e.message+'. Обновите вход сотрудника, затем повторите проверку.';
       status('Генератор вопросов не проверен: '+e.message+'. Проверьте сессию сотрудника.');
     }
@@ -596,60 +595,8 @@ $('geo-clear').onclick=()=>{if(busy)return;if(!confirm('Очистить воп�
   $('geo-questions').value='';questions=[];results=[];planned=[];profile=null;stopRequested=false;
   $('geo-run').textContent='Запустить проверку по всем запросам';$('geo-run').disabled=false;
   renderStats();updateCosts();syncGigaQuestions();};
-$('geo-generate').onclick=async()=>{
-  if(busy)return;
-  let company=getCompany();
-  const goal=Number($('geo-count').value);
-  if(company.brand.length<3){status('Укажите название компании в разделе «Проверить упоминания».');return;}
-  if(!promptGeneratorReady){
-    const reason='Генератор недоступен: сначала войдите как сотрудник, нажмите «Проверить подключения семи ИИ» и проверьте ключи OPENAI_API_KEY / GEMINI_API_KEY.';
-    $('geo-gen-diagnostic').textContent=reason;status(reason);return;
-  }
-  if(!company.category&&!company.title&&!company.description){
-    if(!company.domain){status('Укажите ссылку на сайт или тематику компании для корректных вопросов.');return;}
-    busy=true;$('geo-generate').disabled=true;
-    status('Определяю тематику по сайту '+company.domain+'...');
-    try{
-      const profile=await readCompanyProfile(company);
-      company={...company,...profile};
-      status('Тема получена по title/description сайта. Проверьте соответствие перед генерацией.');
-    }catch(e){
-      status('Не удалось определить сферу автоматически: '+e.message+' Заполните поле «Тематика, товары или услуги компании» и повторите.');
-      return;
-    }finally{busy=false;$('geo-generate').disabled=false;}
-  }
-  if(!confirm('Создать '+goal+' покупательских вопросов через платный API OpenAI или Gemini? Текущие вопросы будут заменены.'))return;
-  busy=true;$('geo-generate').disabled=true;$('geo-run').disabled=true;
-  const originalQuestions=$('geo-questions').value;
-  questions=[];results=[];planned=[];profile=null;stopRequested=false;
-  $('geo-run').textContent='Запустить проверку по всем запросам';$('geo-run').disabled=false;
-  $('geo-questions').value='';renderStats();syncGigaQuestions();
-  $('geo-gen-diagnostic').textContent='Отправляю запросы генератору. Если API недоступен, покажу причину здесь.';
-  try{
-    let stalled=0;
-    for(let batch=0;questions.length<goal&&batch<12;batch++){
-      const needed=Math.min(15,goal-questions.length);
-      status('Генерация вопросов: '+questions.length+' из '+goal+' (партия '+(batch+1)+').');
-      const data=await call('geo-prompts',{action:'generate',...company,count:needed,existing:questions,batch});
-      const before=questions.length;
-      for(const item of data.prompts||[]){
-        const normalized=item.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ');
-        if(!questions.some(x=>x.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ')===normalized))questions.push(item);
-      }
-      $('geo-questions').value=questions.slice(0,goal).join('\n');
-      syncGigaQuestions();updateCosts();
-      if(questions.length===before)stalled++;else stalled=0;
-      if(stalled>=2||!data.prompts?.length)break;
-    }
-    const message='Создано '+questions.length+' из '+goal+' уникальных вопросов. '+(questions.length<goal?'Часть ответов не прошла проверку уникальности; можно повторить генерацию. ':'')+'Проверьте релевантность перед платными запросами.';
-    status(message);$('geo-gen-diagnostic').textContent=message;
-  }catch(e){
-    if(!questions.length&&originalQuestions.trim()){$('geo-questions').value=originalQuestions;syncGigaQuestions();}
-    const message='Создано '+questions.length+' из '+goal+' вопросов. Причина остановки: '+e.message;
-    status(message);$('geo-gen-diagnostic').textContent=message;
-  }
-  finally{busy=false;$('geo-generate').disabled=false;$('geo-run').disabled=false;updateCosts();}
-};
+// Генерация вынесена в отдельный скрипт /check/prompt-generator.js.
+
 function buildPlan(){
   const prompts=parseLines(),ids=selected().filter(id=>providers.some(p=>p.id===id&&p.configured));
   if(!prompts.length||!ids.length)throw Error('Нужны вопросы и хотя бы одна подключённая система.');
@@ -704,7 +651,7 @@ $('geo-run').onclick=async()=>{
         ' API-обращений. Сохраните JSON, CSV или PDF.';
   }finally{
     busy=false;$('geo-run').disabled=false;$('geo-stop').disabled=true;
-    $('geo-generate').disabled=!promptGeneratorReady;$('geo-clear').disabled=false;
+    $('geo-generate').disabled=false;$('geo-clear').disabled=false;
     $('geo-count').disabled=false;$('geo-questions').disabled=false;
     // Restore original availability rules rather than enabling unconfigured systems.
     for(const input of document.querySelectorAll('#geo-models input[data-provider]')){
@@ -843,4 +790,4 @@ if(new URLSearchParams(location.search).get('staff')==='1'){
 }
 
 })();
-</script></body></html>
+</script><script defer src="/check/prompt-generator.js"></script></body></html>
