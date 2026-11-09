@@ -26,6 +26,13 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 .rowcheck .tip{font-size:12px;color:var(--ink);margin-top:6px}
 .callout{background:#f3f8fb;padding:22px;border:1px solid #d9e8f2;border-radius:12px}
 .mini{display:flex;gap:14px;flex-wrap:wrap}.mini span{font-size:12px;color:var(--muted)}
+.geo-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}.geo-fields select,.geo-fields textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #b9cbd6;font:inherit;background:white;color:var(--ink)}
+.geo-fields textarea{resize:vertical;min-height:105px}.geo-models{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}.geo-model{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:13px}
+.geo-model input{width:auto;margin-top:4px}.geo-model small{display:block;color:var(--muted)}.geo-model.disabled{opacity:.55}.geo-metrics{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.geo-metric{flex:1;min-width:145px;padding:12px;border:1px solid var(--border);border-radius:10px;background:white}.geo-metric b{display:block;font-size:23px}
+.geo-result{border-top:1px solid var(--border);padding:12px 0}.geo-result summary{cursor:pointer;font-weight:650}.geo-result pre{white-space:pre-wrap;word-break:break-word;font:13px/1.5 system-ui,sans-serif}
+.geo-links a{display:block;font-size:12px;overflow-wrap:anywhere;margin:5px 0}.geo-progress{height:9px;border-radius:7px;overflow:hidden;background:#e9eff4;margin:8px 0}.geo-progress i{display:block;height:100%;background:var(--ok);width:0%}
+@media(max-width:690px){.geo-fields,.geo-models{grid-template-columns:1fr}}
 [hidden]{display:none!important}
 @media(max-width:690px){.wrap{padding:16px 14px}.panel,.sheet{padding:18px}.formrow,.groups{grid-template-columns:1fr}.score{font-size:56px}.group strong{font-size:20px}}
 @page{size:A4;margin:15mm 14mm}
@@ -38,6 +45,32 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <div><label for="brand">Название компании (необязательно)</label><input id="brand" placeholder="Название бренда" maxlength="120"></div></div>
 <div class="buttons"><button id="run" type="submit">Проверить сайт</button><button id="print" type="button" class="secondary" hidden>Сохранить PDF / печать</button></div></form>
 <p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
+<section class="panel noprint" id="geo-check">
+<h2>Проверить упоминания компании в нейросетях</h2>
+<p class="subtitle">Отдельный GEO-аудит на одинаковых вопросах. ИИ автоматически составляет 30, 50, 70 или 100 покупательских запросов без названия проверяемой компании.</p>
+<div class="notice"><b>Платная проверка только для сотрудников MIRVIX.</b> Войдите через <a href="/cabinet/">кабинет</a> на этом же домене. Ключи остаются на сервере. Сначала создаём вопросы, затем отдельно подтверждаем и запускаем API-проверки.</div>
+<div class="buttons"><button type="button" id="geo-connect">Проверить подключения шести ИИ</button></div>
+<p id="geo-status" class="small" role="status">Подключения ещё не проверены.</p>
+<div id="geo-work" hidden>
+<div class="geo-fields">
+<div><label for="geo-category">Тематика, товары или услуги компании</label><input id="geo-category" maxlength="180" placeholder="Например: строительные материалы, ОСБ, гипсокартон"></div>
+<div><label for="geo-city">Регион или город</label><input id="geo-city" maxlength="120" placeholder="Например: Санкт-Петербург"></div>
+<div><label for="geo-count">Количество уникальных вопросов</label><select id="geo-count"><option value="30">30 запросов</option><option value="50">50 запросов</option><option value="70">70 запросов</option><option value="100">100 запросов</option></select></div>
+<div><label for="geo-competitors">Конкуренты, через запятую (по желанию)</label><input id="geo-competitors" maxlength="450" placeholder="Конкурент 1, Конкурент 2"></div>
+</div>
+<h3>Выберите нейросети</h3>
+<div id="geo-models" class="geo-models"></div>
+<p id="geo-cost" class="small"></p>
+<div class="buttons"><button type="button" id="geo-generate">Автоматически создать вопросы</button><button type="button" id="geo-clear" class="secondary">Очистить</button></div>
+<label for="geo-questions">Покупательские вопросы — их можно изменить перед проверкой</label>
+<textarea id="geo-questions" rows="11" style="width:100%;min-height:190px;border:1px solid #b9cbd6;border-radius:8px;padding:12px;font:inherit" placeholder="После генерации здесь появятся вопросы — один на строку."></textarea>
+<div class="buttons"><button type="button" id="geo-run">Запустить следующие 20 проверок</button>
+<button type="button" id="geo-export" class="secondary">Скачать результаты JSON</button><button type="button" id="geo-csv" class="secondary">Скачать таблицу CSV</button></div>
+<p id="geo-runstatus" role="status" class="small">Проверка выполняется только в открытой вкладке. Запускайте серии по 20 API-вызовов, чтобы контролировать расходы и видеть ошибки.</p>
+<div class="geo-progress"><i id="geo-progressbar"></i></div>
+<div id="geo-metrics" class="geo-metrics"></div><div id="geo-results"></div>
+</div>
+</section>
 <main id="report" hidden>
 <section class="sheet"><div class="topline"><span class="brand">MIRVIX AI</span><span>GEO Check · <span class="date"></span></span></div>
 <p class="sectionlabel">Техническая диагностика сайта</p><h2 id="domain"></h2>
@@ -52,7 +85,7 @@ button:disabled{opacity:.5;cursor:wait}.buttons{display:flex;flex-wrap:wrap;gap:
 <h2>Источники и ограничения</h2><div id="evidence"></div>
 <h2>Следующий этап — реальные ответы нейросетей</h2>
 <div class="callout"><p>Технически хороший сайт не обязательно появляется в ответах ИИ. Для фактической проверки нужны вопросы покупателей, ответы подключённых API, упоминания брендов и ссылки на процитированные источники.</p>
-<p><b>Проверка ChatGPT, Gemini и Perplexity проводится отдельно.</b> Она не входит в технический балл.</p>
+<p><b>Проверка ChatGPT, Gemini, DeepSeek, Grok, GigaChat и Алисы AI</b> доступна выше в разделе «Проверить упоминания компании». Ответы без подтверждённого веб-поиска отделяются от поисковых результатов; они не входят в технический балл.</p>
 <p><a href="/geo-live/">Проверить реальные ответы через внутренний кабинет MIRVIX GEO</a></p></div>
 <p class="small">MIRVIX AI · Отчёт сформирован из публично доступных технических данных. Дата: <span class="date"></span>. Повторная проверка может дать другие результаты.</p></section>
 </main></div>
@@ -76,6 +109,7 @@ sitemap:'Карта сайта помогает обнаруживать опу�
 })[id]||'Этот технический параметр влияет на доступность, понятность или оформление страницы; сам по себе не гарантирует показ в ИИ.';
 function status(s){return s==='ok'?'ok':s==='issue'?'issue':'unknown'}
 function render(d){
+window.MIRVIX_AUDIT_CTX={domain:d.domain||'',title:d.extras?.title||'',description:d.extras?.description||''};
 $('report').hidden=false;$('print').hidden=false;$('domain').textContent=d.domain||d.url;
 document.querySelectorAll('.date').forEach(x=>x.textContent=new Date(d.checkedAt).toLocaleString('ru-RU'));
 $('score').textContent=d.geoScore==null?'—':d.geoScore;
@@ -115,5 +149,209 @@ const d=await r.json();if(!r.ok)throw Error(d.error||'Ошибка сервер�
 render(d);$('message').textContent='Готово: техническая проверка завершена.';document.getElementById('report').scrollIntoView({behavior:'smooth'});
 }catch(e){$('message').textContent='Ошибка проверки: '+e.message}finally{btn.disabled=false}});
 $('print').addEventListener('click',()=>window.print());
+})();
+</script><script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const PROVIDERS=[
+{id:'openai',name:'ChatGPT'},
+{id:'gemini',name:'Gemini'},
+{id:'deepseek',name:'DeepSeek'},
+{id:'grok',name:'Grok'},
+{id:'gigachat',name:'GigaChat'},
+{id:'alice',name:'Алиса AI'}
+];
+let providers=[],questions=[],results=[],planned=[],busy=false,profile=null;
+const status=(t)=>{$('geo-status').textContent=t;};
+const line=(parent,tag,text,cls)=>{const item=document.createElement(tag);item.textContent=text==null?'':String(text);if(cls)item.className=cls;parent.append(item);return item};
+const parseLines=()=>[...new Set($('geo-questions').value.split('\n').map(s=>s.trim()).filter(Boolean))].slice(0,100);
+const selected=()=>PROVIDERS.filter(x=>document.querySelector('input[data-provider="'+x.id+'"]:checked')).map(x=>x.id);
+const getCompany=()=>({
+  brand:$('brand').value.trim(),
+  domain:$('url').value.trim(),
+  city:$('geo-city').value.trim(),
+  category:$('geo-category').value.trim(),
+  title:window.MIRVIX_AUDIT_CTX?.title||'',
+  description:window.MIRVIX_AUDIT_CTX?.description||''
+});
+async function call(name,payload){
+  const response=await fetch('/.netlify/functions/'+name,{
+    method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Mirvix-Cabinet':'1'},
+    body:JSON.stringify(payload)
+  });
+  let data;try{data=await response.json();}catch{throw Error('Сервер вернул некорректный ответ.');}
+  if(!response.ok)throw Error(data.error||'HTTP '+response.status);
+  return data;
+}
+function download(text,file,mime){
+  const obj=URL.createObjectURL(new Blob([text],{type:mime}));
+  const a=document.createElement('a');a.href=obj;a.download=file;a.click();setTimeout(()=>URL.revokeObjectURL(obj),2000);
+}
+function renderStats(){
+  const metrics=$('geo-metrics');metrics.replaceChildren();
+  const success=results.filter(x=>!x.error);
+  const pairs=[['Запланировано',planned.length],['Выполнено',results.length],
+    ['Получено ответов',success.length],['Упоминаний бренда',success.filter(x=>x.brandMention).length],
+    ['Ссылок на сайт',success.filter(x=>x.sourceMention).length],
+    ['Ошибок API',results.length-success.length]];
+  for(const [title,value] of pairs){
+    const b=line(metrics,'div','', 'geo-metric');line(b,'span',title,'small');line(b,'b',value);
+  }
+  $('geo-progressbar').style.width=planned.length?(100*results.length/planned.length)+'%':'0%';
+  const holder=$('geo-results');holder.replaceChildren();
+  const summary=line(holder,'div','','');
+  for(const p of PROVIDERS){
+    const group=success.filter(x=>x.provider===p.id);
+    const count=results.filter(x=>x.provider===p.id).length;
+    if(!count)continue;
+    line(summary,'p',p.name+': '+group.filter(x=>x.brandMention).length+' упоминаний из '+group.length+
+      ' успешных ответов; ошибок: '+(count-group.length)+
+      (p.id==='gigachat'?' (режим без веб-поиска)':'') ,'small');
+  }
+  for(const result of results.slice(-25).reverse()){
+    const detail=line(holder,'details','', 'geo-result');
+    line(detail,'summary',(result.error?'Ошибка · ':'')+
+      (PROVIDERS.find(p=>p.id===result.provider)?.name||result.provider)+' · '+
+      result.prompt+(result.error?'':' · '+(result.brandMention?'бренд найден':'бренд не найден')));
+    if(result.error){line(detail,'p',result.error,'small');continue}
+    line(detail,'p','Модель: '+result.model+' · Источник: '+(result.mode==='model-only'?
+      'ответ модели без веб-поиска':result.searchEvidence?'свидетельства веб-поиска есть':
+      'веб-поиск не подтверждён')+
+      ' · '+new Date(result.checkedAt).toLocaleString('ru-RU'),'small');
+    line(detail,'pre',result.answer);
+    line(detail,'p','Конкуренты: '+(result.competitorsMentioned?.join(', ')||'не упомянуты'),'small');
+    const links=line(detail,'div','', 'geo-links');
+    for(const source of result.sources||[]){
+      const a=line(links,'a',source.title||source.url);
+      a.href=source.url;a.target='_blank';a.rel='noopener noreferrer';
+    }
+  }
+}
+function updateCosts(){
+  const q=parseLines().length||Number($('geo-count').value);
+  const chosen=selected();
+  const configured=chosen.filter(id=>providers.some(p=>p.id===id&&p.configured));
+  const pending= Math.max(0,(planned.length||q*configured.length)-results.length);
+  $('geo-cost').textContent='Выбрано систем: '+configured.length+' из 6 · вопросов: '+q+
+    ' · всего платных API-ответов: '+q*configured.length+
+    ' · осталось по текущему плану: '+pending+
+    '. Цена зависит от тарифов провайдеров; автоматический запуск без подтверждения отключён.';
+}
+function uiProviders(){
+  const box=$('geo-models');box.replaceChildren();
+  for(const p of PROVIDERS){
+    const meta=providers.find(x=>x.id===p.id)||{};
+    const row=line(box,'label','', 'geo-model'+(meta.configured?'':' disabled'));
+    const check=line(row,'input');check.type='checkbox';check.dataset.provider=p.id;check.checked=!!meta.configured;check.disabled=!meta.configured;
+    const caption=line(row,'span',p.name);
+    line(caption,'small',meta.configured?
+      (meta.mode==='model-only'?'Подключён ключ · без веб-поиска':'Подключён ключ · поиск тестируется при запросе'):
+      'Нет подключения · '+(meta.requires||'нужен API-ключ'));
+    check.addEventListener('change',()=>{planned=[];results=[];renderStats();updateCosts();});
+  }
+  updateCosts();
+}
+$('geo-connect').onclick=async()=>{
+  if(busy)return;
+  status('Проверяю подключения...');
+  try{
+    const config=await call('direct-geo',{action:'config'});
+    providers=config.available||config.configured.map(p=>({...p,configured:true}));
+    if(!$('brand').value.trim()){
+      status('Укажите название компании в поле основного аудита, затем подключите модели.');
+    }else status('Доступ подтверждён. Выберите модели, число вопросов и создайте матрицу.');
+    $('geo-work').hidden=false;uiProviders();
+  }catch(e){status('Нужен вход сотрудника: '+e.message+' Откройте /cabinet/, войдите и нажмите снова.');}
+};
+$('geo-count').onchange=()=>{planned=[];results=[];renderStats();updateCosts();};
+$('geo-questions').oninput=()=>{planned=[];results=[];renderStats();updateCosts();};
+$('geo-clear').onclick=()=>{if(busy)return;if(!confirm('Очистить вопросы и текущие результаты?'))return;
+  $('geo-questions').value='';questions=[];results=[];planned=[];renderStats();updateCosts();};
+$('geo-generate').onclick=async()=>{
+  if(busy)return;
+  const company=getCompany(),goal=Number($('geo-count').value);
+  if(company.brand.length<3){status('Укажите название проверяемой компании в начале страницы.');return}
+  if(!company.category&&!company.title&&!company.description){
+    status('Для достоверных вопросов укажите сферу деятельности компании или сначала проверьте сайт.');return
+  }
+  if(!confirm('Сгенерировать '+goal+' вопросов через платный API OpenAI? Предыдущие вопросы и результаты будут очищены.'))return;
+  busy=true;$('geo-generate').disabled=true;$('geo-run').disabled=true;
+  questions=[];results=[];planned=[];$('geo-questions').value='';renderStats();
+  try{
+    for(let batch=0;questions.length<goal && batch<8;batch++){
+      const needed=Math.min(20,goal-questions.length);
+      status('Генерация вопросов: '+questions.length+' из '+goal+' (партия '+(batch+1)+')');
+      const data=await call('geo-prompts',{...company,count:needed,existing:questions,batch});
+      for(const item of data.prompts||[]){
+        const normalized=item.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ');
+        if(!questions.some(x=>x.toLocaleLowerCase('ru-RU').replace(/\s+/g,' ')===normalized))questions.push(item);
+      }
+      $('geo-questions').value=questions.slice(0,goal).join('\n');
+      if(!data.prompts?.length)break;
+    }
+    status('Создано '+questions.length+' из '+goal+' уникальных вопросов. Измените список при необходимости, затем запускайте проверки партиями.');
+    updateCosts();
+  }catch(e){status('Создано '+questions.length+' вопросов. Ошибка: '+e.message);
+  }finally{busy=false;$('geo-generate').disabled=false;$('geo-run').disabled=false;}
+};
+function buildPlan(){
+  const prompts=parseLines(),ids=selected().filter(id=>providers.some(p=>p.id===id&&p.configured));
+  if(!prompts.length||!ids.length)throw Error('Нужны вопросы и хотя бы одна подключённая система.');
+  if(prompts.length>100)throw Error('Не более 100 вопросов.');
+  const company=getCompany();if(company.brand.length<3)throw Error('Укажите название компании.');
+  const fingerprint=JSON.stringify({prompts,ids,company});
+  if(profile&&fingerprint!==profile && results.length)throw Error('Параметры изменены после старта. Сначала сохраните результаты и нажмите «Очистить».');
+  profile=fingerprint;
+  if(!planned.length)planned=prompts.flatMap(prompt=>ids.map(provider=>({prompt,provider})));
+  return {company,prompts,ids};
+}
+$('geo-run').onclick=async()=>{
+  if(busy)return;
+  let plan;
+  try{plan=buildPlan();}catch(e){status(e.message);return;}
+  if(results.length>=planned.length){status('Все запланированные проверки завершены.');return}
+  const slice=planned.slice(results.length,results.length+20);
+  if(!confirm('Запустить '+slice.length+' платных запросов к API? Всего по матрице: '+planned.length+
+    '. Результаты сохраняются в текущей вкладке и могут быть экспортированы.'))return;
+  busy=true;$('geo-run').disabled=true;$('geo-generate').disabled=true;
+  const competitors=$('geo-competitors').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,10);
+  try{
+    for(const job of slice){
+      $('geo-runstatus').textContent='Выполнено '+results.length+' из '+planned.length+
+        ' · запускаю '+job.provider+' / '+job.prompt;
+      try{
+        const response=await call('direct-geo',{action:'query',provider:job.provider,
+          prompt:job.prompt,brand:plan.company.brand,domain:plan.company.domain,competitors});
+        results.push(response);
+      }catch(e){
+        results.push({provider:job.provider,prompt:job.prompt,error:e.message,
+          checkedAt:new Date().toISOString()});
+      }
+      renderStats();
+    }
+    $('geo-runstatus').textContent='Партия завершена. Проверок '+results.length+' из '+planned.length+
+      '. Для следующей партии нажмите кнопку снова.';
+  }finally{busy=false;$('geo-run').disabled=false;$('geo-generate').disabled=false;updateCosts();}
+};
+$('geo-export').onclick=()=>{
+  if(!results.length){status('Сначала выполните хотя бы одну проверку.');return}
+  const data={schema:1,generatedAt:new Date().toISOString(),company:getCompany(),
+    questions:parseLines(),models:selected(),planned:planned.length,
+    performed:results.length,results,
+    caveat:'Отдельные API, не идентичны пользовательским приложениям. Ответы GigaChat без подтверждённого веб-поиска не сравниваются с поисковыми ответами.'};
+  download(JSON.stringify(data,null,2),'mirvix-geo-'+Date.now()+'.json','application/json');
+};
+$('geo-csv').onclick=()=>{
+  if(!results.length){status('Сначала выполните хотя бы одну проверку.');return}
+  const rows=[['система','вопрос','статус','упоминание бренда','ссылка на сайт','веб-поиск подтверждён',
+    'конкуренты','модель','дата','ответ','источники','ошибка']];
+  for(const x of results)rows.push([x.provider,x.prompt,x.error?'ошибка':'успех',
+    x.error?'':x.brandMention?'да':'нет',x.error?'':x.sourceMention?'да':'нет',
+    x.error?'':x.searchEvidence?'да':'нет',(x.competitorsMentioned||[]).join('; '),
+    x.model||'',x.checkedAt||'',x.answer||'',(x.sources||[]).map(s=>s.url).join('; '),x.error||'']);
+  const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+  download(csv,'mirvix-geo-'+Date.now()+'.csv','text/csv;charset=utf-8');
+};
+renderStats();updateCosts();
 })();
 </script></body></html>
