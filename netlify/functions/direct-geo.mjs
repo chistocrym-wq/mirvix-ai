@@ -242,7 +242,12 @@ function readResponseOutput(data, providerName) {
     else if (url?.url) sourceList.push({url:url.url,title:url.title});
   }
   for (const entry of Array.isArray(data.output) ? data.output : []) {
-    if (entry.type === 'web_search_call' || entry.type === 'tool_search_call') searched = true;
+    if (entry.type === 'web_search_call' || entry.type === 'tool_search_call') {
+      searched = true;
+      for (const source of entry.action?.sources || []) {
+        if (source?.url) sourceList.push({url:source.url,title:source.title});
+      }
+    }
     if (entry.type === 'message') {
       for (const part of entry.content || []) {
         if (part.type === 'output_text' && typeof part.text === 'string') answers.push(part.text);
