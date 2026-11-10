@@ -1,4 +1,5 @@
 import {randomUUID,createHash} from 'node:crypto';
+import {_test as products} from './competitor-products.mjs';
 import {identify,sameOrigin,statusResponse,TOOL_PRICES,paymentsConfigured,toolsConfigured,
   packageForRivals,store,getOrder,verifyPayment} from '../lib/tools-access.mjs';
 
@@ -22,15 +23,19 @@ export async function handler(event){
   const urls=body.urls;
   const count=Array.isArray(urls)?urls.length-1:0;
   const packageId=packageForRivals(count);
-  if(!packageId||!Array.isArray(urls)||urls.some(u=>typeof u!=='string'||u.length>1200||!/^https:\/\/[^?#]+$/i.test(u)))
-   return respond(422,{error:'Нужны HTTPS-ссылки на свой товар и 1–5 конкурентов.'});
+  if(!packageId||!Array.isArray(urls))return respond(422,{error:'Нужны ссылки на свой товар и 1–5 конкурентов.'});
+  let verifiedUrls;
+  try{
+   verifiedUrls=urls.map(u=>products.validUrl(u).href);
+   if(new Set(verifiedUrls).size!==verifiedUrls.length)throw Error('Ссылки товаров должны различаться.');
+  }catch(error){return respond(422,{error:error.message});}
   if(!validEmail(body.email))return respond(422,{error:'Укажите email для чека и подтверждения покупки.'});
   const price=TOOL_PRICES[packageId].rub;
   const vatCode=Number(process.env.MIRVIX_TOOLS_VAT_CODE);
   if(!Number.isInteger(vatCode)||vatCode<1||vatCode>20)
    return respond(503,{error:'Не настроен код НДС для чеков ЮKassa.'});
   const id=randomUUID(),order={id,visitorHash:createHash('sha256').update(visitor.id).digest('hex'),
-   tool:'competitor-products',packageId,urlsHash:digest(urls),createdAt:Date.now()};
+   tool:'competitor-products',packageId,urlsHash:digest(verifiedUrls),createdAt:Date.now()};
   const saved=await store().setJSON('orders/'+id,order,{onlyIfNew:true});
   if(!saved.modified)return respond(409,{error:'Заказ уже существует.'});
   const payload={
