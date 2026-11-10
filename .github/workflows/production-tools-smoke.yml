@@ -37,6 +37,11 @@ jobs:
           if(result.status!==403||!data.error)
             throw new Error('Full comparison must reject requests without authorized site origin');
           const allowedOrigin='https://mirvixai.com';
+          const configTest=await fetch(site+'/.netlify/functions/tools-checkout',{
+            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
+            body:JSON.stringify({action:'config'})
+          });
+          console.log('Tools checkout configuration HTTP '+configTest.status+'; '+(await configTest.text()).slice(0,350));
           const noCookieFull=await fetch(site+'/.netlify/functions/competitor-products',{
             method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
             body:JSON.stringify({action:'compare',mode:'full',urls:[site+'/tools/',site+'/tariffs/']})
@@ -48,8 +53,10 @@ jobs:
             method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
             body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})
           });
-          const demoData=await demo.json();
-          console.log('First anonymous preview HTTP '+demo.status+'; '+String(demoData.error||demoData.notice||'').slice(0,150));
+          const rawDemo=await demo.text();
+          let demoData={};
+          try{demoData=JSON.parse(rawDemo)}catch{}
+          console.log('First anonymous preview HTTP '+demo.status+'; content type '+demo.headers.get('content-type')+'; '+String(demoData.error||demoData.notice||rawDemo).slice(0,350));
           if(demo.status===503)throw new Error('Anonymous preview not configured; set MIRVIX_TOOLS_SESSION_SECRET or MIRVIX_CABINET_SESSION_SECRET in Netlify.');
           if(!demo.ok||!demoData.preview||demoData.pages?.length!==2)
             throw new Error('One-time preview did not return a limited two-card sample.');
