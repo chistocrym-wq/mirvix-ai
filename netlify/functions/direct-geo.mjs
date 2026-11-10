@@ -110,6 +110,35 @@ function validate(data) {
   return { provider, prompt, brand, aliases, competitors, domain };
 }
 
+// Explain provider errors to staff without exposing credential values.
+function providerError(status, data) {
+  const rawCode = data?.error?.code || data?.code || '';
+  const code = typeof rawCode === 'string' && /^[a-z0-9_.-]{1,45}$/i.test(rawCode)
+    ? ' (' + rawCode + ')' : '';
+  const hints = {
+    400: 'Провайдер отклонил формат запроса или параметры модели.',
+    401: 'Неверный или отозванный API-ключ.',
+    402: 'Недостаточно средств или оплаченных токенов у этого провайдера.',
+    403: 'Нет доступа к модели или инструменту; проверьте права ключа, регион и активность аккаунта.',
+    404: 'Модель либо API-адрес недоступен вашему аккаунту.',
+    408: 'Тайм-аут на стороне провайдера.',
+    409: 'Конфликт состояния или параллельных запросов.',
+    422: 'Некорректные параметры запроса для выбранной модели.',
+    429: 'Лимит скорости или дневная квота. Не обязательно проблема с деньгами.',
+    500: 'Внутренняя ошибка провайдера.',
+    502: 'Провайдер временно недоступен.',
+    503: 'Провайдер перегружен или временно недоступен.'
+  };
+  const hint = hints[status] || 'Проверьте статус API провайдера.';
+  const raw = data?.error?.message || data?.message || data?.error_description || '';
+  const detail = text(raw, 230).replace(/[A-Za-z0-9_+/=-]{32,}/g, '[скрыто]')
+    .replace(/Bearer\s+[^\s,;]+/ig, 'Bearer [скрыто]')
+    .replace(/Api-Key\s+[^\s,;]+/ig, 'Api-Key [скрыто]');
+  return 'API HTTP ' + status + code + ': ' + hint +
+    (detail && !/^(?:unauthorized|forbidden|payment required|not found)$/i.test(detail)
+      ? ' Причина: ' + detail : '');
+}
+
 async function requestJson(url, key, body, headers, timeoutMs = 45000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -127,12 +156,7 @@ async function requestJson(url, key, body, headers, timeoutMs = 45000) {
     try { data = JSON.parse(raw); }
     catch { throw new Error('Провайдер не вернул корректный JSON-ответ.'); }
     if (!response.ok) {
-      const detail = text(data?.error?.message || data?.message, 130);
-      const hint = response.status === 401 || response.status === 403
-        ? 'Проверьте API-ключ и права доступа.'
-        : response.status === 429 ? 'Достигнут лимит запросов или средств.'
-        : (response.status === 400 && detail ? detail : 'Повторите позже.');
-      throw new Error('Ошибка ' + response.status + ' у провайдера: ' + hint);
+      throw new Error(providerError(response.status, data));
     }
     return data;
   } catch (err) {
@@ -323,8 +347,11 @@ async function gigaAccessToken(basic) {
       body:'scope='+encodeURIComponent(scope)
     });
     const data=await result.json().catch(()=>null);
-    if(!result.ok||!data?.access_token)throw new Error('GigaChat OAuth HTTP '+result.status+
-      '. Проверьте ключ, scope и сертификаты HTTPS.');
+    if(!result.ok||!data?.access_token) {
+      throw new Error('GigaChat OAuth. ' + providerError(result.status, data) +
+        ' Проверьте GIGACHAT_SCOPE в Netlify: PERS для физлица, B2B для ИП/юрлица с предоплатой, CORP для оплаты по факту. ' +
+        'Тип должен совпадать с ключом авторизации из личного кабинета.');
+    }
     gigaToken=data.access_token;
     const expiry=Number(data.expires_at||0);
     gigaExpiry=expiry>1e12?expiry:expiry>1e9?expiry*1000:Date.now()+25*60*1000;
@@ -336,7 +363,7 @@ async function callGigaChat(prompt,basic) {
   const model=process.env.MIRVIX_GIGACHAT_MODEL || PROVIDERS.gigachat.model;
   const data=await requestJson('https://api.giga.chat/v1/chat/completions',token,{
     model,messages:[{role:'user',content:prompt}],stream:false
-  },{Authorization:'Bearer '+token},45000);
+  },{Authorization:'Bearer '+token,'User-Agent':'MIRVIX-AI/1.0'},45000);
   return {answer:text(data.choices?.[0]?.message?.content,12000),
     sources:[],searched:false,model:data.model||model};
 }
@@ -419,4 +446,4 @@ export async function handler(event) {
   }
 }
 
-export const _test = { normalize, mentionIn, safeUrl, uniqueSources, domainInSource, validate, passwordMatches };
+export const _test = { normalize, mentionIn, safeUrl, uniqueSources, domainInSource, validate, passwordMatches, providerError };
