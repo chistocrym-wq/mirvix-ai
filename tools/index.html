@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f8ff">
+<title>MIRVIX GEO Tools — анализ конкурентов, товаров, цен и видимости в ИИ</title>
+<meta name="description" content="MIRVIX GEO Tools: сравнение товаров конкурентов по ценам, фотографиям и характеристикам, технический GEO-аудит, проверка присутствия в нейросетях.">
+<link rel="canonical" href="https://mirvixai.com/tools/">
+<link rel="icon" type="image/png" href="/assets/favicon-32.png">
+<link rel="stylesheet" href="/assets/geo-tools.css">
+<script defer src="/assets/mirvix-metrika.js"></script>
+<script defer src="/assets/geo-tools.js"></script>
+</head>
+<body>
+<header class="header"><div class="shell head-inner">
+  <a class="brand" href="/" aria-label="MIRVIX AI — на главную"><img src="/assets/brand-wordmark.png" width="164" height="35" alt="MIRVIX AI"><span>GEO Tools</span></a>
+  <nav aria-label="Главное меню"><a class="active" href="/tools/">Инструменты</a><a href="/check/">GEO-проверка</a><a href="/tariffs/">Услуги</a><a href="/useful/">База знаний</a></nav>
+  <a class="head-cta" href="/#contacts">Обсудить задачу <span aria-hidden="true">↗</span></a>
+</div></header>
+<main>
+<section class="hero"><div class="shell">
+  <div class="eyebrow"><span class="dot"></span> MIRVIX AI · ИНСТРУМЕНТЫ РОСТА</div>
+  <h1>Узнайте, где вы <span>теряете клиентов</span> и как выглядите на фоне конкурентов</h1>
+  <p class="lead">Сравнивайте цены, товары и оформление карточек. Проверяйте техническую готовность сайта к ИИ-поиску и видимость компании в нейросетях. Не обещаем невозможного — показываем проверяемые данные и их источники.</p>
+  <div class="hero-actions"><a class="primary" href="#compare">Сравнить товары <span aria-hidden="true">↗</span></a><a class="secondary" href="#catalog">Все инструменты</a></div>
+  <div class="hero-stats"><span><b>До 5</b> конкурентов</span><span><b>Фото и цена</b> из карточки</span><span><b>Прозрачно</b> ссылки на источники</span></div>
+</div></section>
+<section class="shell tool-wrap" id="compare">
+  <div class="section-top"><div><div class="overline">01 / КОНКУРЕНТНАЯ РАЗВЕДКА</div><h2>Сравнение товаров и цен</h2><p>Откройте карточки рядом, как на витрине. Никаких выдуманных скидок, цен или фотографий.</p></div><span class="tag-live">Работает · публичные карточки</span></div>
+  <div class="compare-shell">
+    <div class="compare-form">
+      <div class="info-note"><span aria-hidden="true">ⓘ</span><div><b>Как работает проверка</b><p>Вставьте прямую ссылку на ваш товар и на аналогичные товары конкурентов (от 1 до 5). Сервис читает открытые данные с этих страниц. Если они скрыты или цены генерируются JavaScript, результат будет отмечен как недоступный. Нужны публичные HTTPS-ссылки без параметров после «?». </p></div></div>
+      <form id="compare-form">
+        <label for="own-product">Карточка вашего товара</label>
+        <input id="own-product" name="own" type="url" required maxlength="1200" inputmode="url" placeholder="https://ваш-сайт.ru/product/..." autocomplete="url">
+        <div class="competitor-heading"><label>Карточки конкурентов</label><span id="competitor-count">1 из 5</span></div>
+        <div id="competitor-inputs" class="competitor-fields">
+          <div class="competitor-entry"><label for="competitor-0">Конкурент 1</label><input id="competitor-0" name="competitor" type="url" required maxlength="1200" inputmode="url" placeholder="https://сайт-конкурента.ru/product/..."></div>
+        </div>
+        <div class="form-actions"><button type="button" class="add-competitor" id="add-competitor">+ Добавить конкурента</button><button type="submit" class="submit" id="compare-submit">Сравнить товары <span aria-hidden="true">↗</span></button></div>
+      </form>
+      <p class="fine">Доступно без оплаты в тестовом режиме. Для точного сравнения цен нужны одинаковый артикул (SKU) и валюта. Автоматический поиск по целой категории и динамические цены пока не подключены.</p>
+      <div id="compare-status" class="compare-status" role="status" aria-live="polite">Введите ссылки на товары, чтобы получить сравнение.</div>
+    </div>
+    <div class="showcase"><div class="floating-orb orb-one"></div><div class="floating-orb orb-two"></div><div class="showcase-content"><div class="showcase-tag">MIRVIX / PRODUCT INTELLIGENCE</div><div class="showcase-title">Витрина<br>конкурентов<span>.</span></div><p>Вся картина — в одной проверке. Настоящие изображения и цены, подтверждённые страницами магазинов.</p><div class="showcase-chips"><span>₽ Цена</span><span>▣ Фото</span><span>◉ Наличие</span><span>↗ Источник</span></div></div></div>
+  </div>
+  <section id="compare-output" class="result-section" hidden aria-live="polite">
+    <div class="result-top"><div><div class="overline">РЕЗУЛЬТАТ ПРОВЕРКИ</div><h3>Товары рядом</h3><p id="result-summary"></p></div><button class="export" type="button" id="export-csv">Скачать CSV <span aria-hidden="true">↓</span></button></div>
+    <div id="product-cards" class="product-cards"></div>
+    <div id="compare-findings" class="findings"></div>
+    <p class="result-disclaimer">Внимание: цены и наличие могут измениться после проверки. Если нет совпадающего артикула или проверенной валюты, сервис <b>не делает числовое сравнение</b>. Сведения получены из открытого HTML, JSON-LD или метаданных и не подтверждают качество товара.</p>
+  </section>
+</section>
+<section id="catalog" class="catalog"><div class="shell">
+  <div class="section-top"><div><div class="overline">02 / GEO &amp; AI TOOLS</div><h2>Другие инструменты MIRVIX</h2><p>Базовые проверки уже доступны. Дополнительные сервисы будем вводить после испытаний и оценки себестоимости API.</p></div></div>
+  <div class="tool-grid">
+    <article class="tool-card"><div class="tool-icon">⌘</div><span class="state state-live">Доступно</span><h3>Технический GEO-аудит</h3><p>22 критерия: индексация, robots.txt, разметка, доступность для ИИ-ботов и рекомендации.</p><a href="/check/">Проверить сайт <span>↗</span></a></article>
+    <article class="tool-card"><div class="tool-icon">◎</div><span class="state state-internal">Доступ сотрудникам</span><h3>Видимость в нейросетях</h3><p>Реальные ответы подключённых API, упоминания бренда, источники и матрица вопросов.</p><a href="/check/#geo-check">Открыть GEO Check <span>↗</span></a></article>
+    <article class="tool-card"><div class="tool-icon">✦</div><span class="state state-internal">Доступ сотрудникам</span><h3>Генератор покупательских вопросов</h3><p>Небрендовые запросы для анализа ниши: от 5 до 100 вопросов, с проверкой релевантности.</p><a href="/check/#geo-check">Создать вопросы <span>↗</span></a></article>
+    <article class="tool-card"><div class="tool-icon">↗</div><span class="state state-internal">Доступ сотрудникам</span><h3>Конкуренты в ответах ИИ</h3><p>Домены, на которые ссылаются нейросети, когда не называют вашу компанию. Каталоги отделяются от конкурентов.</p><a href="/check/#geo-check">Открыть анализ <span>↗</span></a></article>
+    <article class="tool-card muted"><div class="tool-icon">◇</div><span class="state state-planned">В разработке</span><h3>История видимости и GEO Rank</h3><p>Повторяемые замеры, история ответов и собственный рейтинг на подтверждённых данных.</p><span class="coming">Не продаётся до запуска</span></article>
+    <article class="tool-card muted"><div class="tool-icon">▤</div><span class="state state-planned">В разработке</span><h3>Генератор GEO-материалов</h3><p>FAQ, сравнения, статьи и рекомендации по найденным пробелам в информации о компании.</p><span class="coming">Не продаётся до запуска</span></article>
+    <article class="tool-card muted"><div class="tool-icon">▥</div><span class="state state-planned">В разработке</span><h3>Мониторинг цен и ассортимента</h3><p>Периодическая проверка выбранных товаров, изменение цен и уведомления.</p><span class="coming">Не продаётся до запуска</span></article>
+    <article class="tool-card muted"><div class="tool-icon">◈</div><span class="state state-planned">В разработке</span><h3>Отдельные платные проверки</h3><p>Самообслуживание, безопасные платежи, квоты и сохранение клиентских отчётов.</p><span class="coming">Не продаётся до запуска</span></article>
+  </div>
+</div></section>
+<section class="cta"><div class="shell"><div class="cta-inner"><div><div class="overline">MIRVIX AI</div><h2>Не просто цифры —<br>понятный следующий шаг</h2><p>После диагностики поможем исправить карточки, структуру сайта и представление бизнеса в ИИ.</p></div><a href="/#contacts">Обсудить продвижение <span aria-hidden="true">↗</span></a></div></div></section>
+</main>
+<footer class="footer"><div class="shell"><span>© 2026 MIRVIX AI · GEO Tools</span><div><a href="/">Главная</a><a href="/legal/privacy/">Конфиденциальность</a><a href="/tariffs/">Тарифы</a></div></div></footer>
+</body></html>
