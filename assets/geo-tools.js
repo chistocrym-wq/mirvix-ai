@@ -4,6 +4,11 @@ const $=id=>document.getElementById(id);
 const form=$('compare-form'),container=$('competitor-inputs'),add=$('add-competitor'),out=$('compare-output');
 if(!form||!container||!add||!out)return;
 let current=null;
+let paymentsEnabled=false,activeOrder=null,paidVerified=false;
+const priceForCount=count=>count<=1?490:count<=3?990:1990;
+const setPurchaseStatus=(msg,state='info')=>{const el=$('purchase-status');el.textContent=msg;el.dataset.state=state;};
+const priceLabel=()=>{const n=container.querySelectorAll('input').length;$('purchase-price').textContent=priceForCount(n).toLocaleString('ru-RU')+' ₽';};
+const urlsForForm=()=>[validateUrl($('own-product').value),...[...container.querySelectorAll('input')].map(i=>validateUrl(i.value))];
 const elem=(tag,text,cls)=>{
   const el=document.createElement(tag);
   if(text!==undefined&&text!==null)el.textContent=String(text);
@@ -27,6 +32,7 @@ function refresh(){
   });
   $('competitor-count').textContent=entries.length+' из 5';
   add.disabled=entries.length>=5;
+  priceLabel();
 }
 function buildRow(){
   const row=elem('div',null,'competitor-entry');
@@ -116,11 +122,16 @@ function findings(data){
 }
 function render(data){
   current=data;
+  const isPreview=data.access==='preview'||data.preview===true;
+  $('export-csv').hidden=isPreview;
+  $('compare-findings').hidden=isPreview;
   const gallery=$('product-cards');gallery.replaceChildren();
   for(const row of data.pages)gallery.appendChild(renderCard(row));
   $('result-summary').textContent='По состоянию на '+new Date(data.checkedAt).toLocaleString('ru-RU')+
     ' · '+data.successful+' подтверждённых страниц из '+data.pages.length+'.';
-  findings(data);out.hidden=false;
+  if(!isPreview)findings(data);
+  else{$('compare-findings').replaceChildren();}
+  out.hidden=false;
   out.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function validateUrl(raw){
@@ -137,7 +148,7 @@ form.addEventListener('submit',async event=>{
   if(btn.disabled)return;
   let urls;
   try{
-    urls=[validateUrl($('own-product').value),...[...container.querySelectorAll('input')].map(i=>validateUrl(i.value))];
+    urls=urlsForForm();
     if(new Set(urls).size!==urls.length)throw Error('Нужны разные ссылки на товары.');
   }catch(error){setStatus(error.message,'error');return;}
   btn.disabled=true;btn.textContent='Проверяю карточки…';
@@ -147,21 +158,111 @@ form.addEventListener('submit',async event=>{
   try{
     const response=await fetch('/.netlify/functions/competitor-products',{
       method:'POST',headers:{'Content-Type':'application/json'},
-      signal:controller.signal,body:JSON.stringify({action:'compare',urls})
+      signal:controller.signal,credentials:'same-origin',body:JSON.stringify({action:'compare',mode:'preview',urls})
     });
     let data;try{data=await response.json()}catch{throw Error('Сервис вернул некорректный ответ.');}
     if(!response.ok)throw Error(data.error||'Сервис временно недоступен (HTTP '+response.status+').');
     if(!Array.isArray(data.pages))throw Error('Ответ не содержит карточек товаров.');
     render(data);
-    setStatus('Готово. Проверено '+data.pages.length+' страниц. Если магазин закрыл цены от автоматического чтения, это указано на карточке.','success');
+    setStatus('Ознакомительный просмотр получен. Показан только 1 конкурент без полной аналитики и CSV. Остальные данные доступны после покупки.','success');
   }catch(error){
     setStatus(error.name==='AbortError'?'Не удалось завершить проверку за 59 секунд. Попробуйте меньше конкурентов.':
       'Не удалось получить сравнение: '+error.message,'error');
-  }finally{clearTimeout(timeout);btn.disabled=false;btn.textContent='Сравнить товары ↗';}
+  }finally{clearTimeout(timeout);btn.disabled=false;btn.textContent='Посмотреть часть результата бесплатно ↗';}
 });
+
+async function checkoutRequest(payload){
+ const response=await fetch('/.netlify/functions/tools-checkout',{
+   method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify(payload)
+ });
+ const data=await response.json().catch(()=>({error:'Сервер вернул нечитабельный ответ.'}));
+ if(!response.ok)throw Error(data.error||'Ошибка HTTP '+response.status);
+ return data;
+}
+async function loadPaymentConfig(){
+ try{
+  const config=await checkoutRequest({action:'config'});
+  paymentsEnabled=!!config.paymentsEnabled;
+  const btn=$('purchase-submit');btn.disabled=!paymentsEnabled;
+  if(paymentsEnabled)setPurchaseStatus('Платёжная система готова. Выберите товары и укажите email для чека.','success');
+  else setPurchaseStatus('Оплата пока подключается. Полный отчёт купить нельзя, пока мы не настроили приём платежей и выдачу чека.');
+  const orderId=new URL(location.href).searchParams.get('order_id');
+  if(orderId&&/^[a-f0-9-]{36}$/.test(orderId)){
+   activeOrder=orderId;
+   $('payment-check').hidden=false;
+   const saved=sessionStorage.getItem('mirvix_tools_pending_order_v1');
+   if(saved){
+    try{
+      const record=JSON.parse(saved);
+      if(record.id===orderId&&Array.isArray(record.urls)){
+       $('own-product').value=record.urls[0]||'';
+       container.replaceChildren();
+       for(const url of record.urls.slice(1,6)){
+        const row=buildRow();row.querySelector('input').value=url;container.appendChild(row);
+       }
+       refresh();
+       if(record.email)$('buyer-email').value=record.email;
+      }
+    }catch{/* Ignore corrupt browser state. */}
+   }
+   await checkPayment();
+  }
+ }catch(error){paymentsEnabled=false;$('purchase-submit').disabled=true;
+   setPurchaseStatus('Покупка пока недоступна: '+error.message,'error');}
+}
+async function checkPayment(){
+ if(!activeOrder){setPurchaseStatus('Не найден номер заказа.','error');return;}
+ $('payment-check').hidden=false;
+ try{
+  const result=await checkoutRequest({action:'payment-status',orderId:activeOrder});
+  paidVerified=!!result.paid;
+  $('run-paid').hidden=!paidVerified;
+  setPurchaseStatus(result.description,paidVerified?'success':'info');
+ }catch(error){paidVerified=false;setPurchaseStatus('Проверка платежа: '+error.message,'error');}
+}
+$('payment-check').addEventListener('click',checkPayment);
+$('purchase-submit').addEventListener('click',async()=>{
+ if(!paymentsEnabled)return;
+ let urls;try{urls=urlsForForm();if(new Set(urls).size!==urls.length)throw Error('Повторяющиеся адреса товаров.');}
+ catch(error){setPurchaseStatus(error.message,'error');return;}
+ const email=$('buyer-email').value.trim();
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setPurchaseStatus('Укажите действующий email для получения чека.','error');return;}
+ const button=$('purchase-submit');button.disabled=true;
+ setPurchaseStatus('Создаю заказ в ЮKassa. Пока никаких списаний не произошло.');
+ try{
+  const response=await checkoutRequest({action:'checkout',urls,email});
+  sessionStorage.setItem('mirvix_tools_pending_order_v1',JSON.stringify({id:response.orderId,urls,email}));
+  const payment=new URL(response.confirmationUrl);
+  if(payment.protocol!=='https:')throw Error('Небезопасный адрес оплаты.');
+  location.assign(payment.href);
+ }catch(error){setPurchaseStatus('Не удалось начать оплату: '+error.message,'error');button.disabled=false;}
+});
+$('run-paid').addEventListener('click',async()=>{
+ if(!paidVerified||!activeOrder)return;
+ let urls;try{urls=urlsForForm();}
+ catch(error){setPurchaseStatus(error.message,'error');return;}
+ const button=$('run-paid');button.disabled=true;
+ setPurchaseStatus('Платёж подтверждён. Получаю полные карточки и расчёты…');
+ try{
+  const response=await fetch('/.netlify/functions/competitor-products',{
+   method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({action:'compare',mode:'full',urls,orderId:activeOrder})
+  });
+  const data=await response.json().catch(()=>({error:'Некорректный ответ.'}));
+  if(!response.ok)throw Error(data.error||'HTTP '+response.status);
+  render(data);
+  setPurchaseStatus('Полный отчёт получен. Сохраните CSV. Эта покупка включает одну полную проверку.','success');
+  sessionStorage.removeItem('mirvix_tools_pending_order_v1');
+  paidVerified=false;$('payment-check').hidden=true;
+ }catch(error){setPurchaseStatus('Не удалось получить оплаченный отчёт: '+error.message+'. Если платёж подтверждён, обратитесь в поддержку с номером заказа.','error');}
+ finally{button.disabled=false;}
+});
+loadPaymentConfig();
+
 const csv=(value)=>{const raw=String(value??'').replace(/[\r\n]+/g,' ');const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replace(/"/g,'""')+'"';};
 $('export-csv').addEventListener('click',()=>{
-  if(!current)return;
+  if(!current||current.preview||current.access==='preview')return;
   const rows=[['Роль','Сайт','Название','Цена','Валюта','Наличие','SKU','Бренд','Полнота %','Фото URL','URL товара','Ошибка']];
   for(const p of current.pages)rows.push([
     p.index===0?'Мой товар':'Конкурент '+p.index,
