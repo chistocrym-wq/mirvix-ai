@@ -77,12 +77,14 @@ function renderCard(row){
     (!row.ok||row.price===null?' unavailable':'')));
   details.appendChild(elem('div',row.ok?(stock[row.availability]||'Наличие не указано'):'Проверка не выполнена','stock'));
   if(row.ok){
-    const q=elem('div',null,'quality-label');
-    q.append(elem('span','Полнота карточки'),elem('b',(row.completeness||0)+'%'));
-    details.appendChild(q);
-    const track=elem('div',null,'quality-track');const bar=elem('i');
-    bar.style.width=Math.min(100,Math.max(0,Number(row.completeness)||0))+'%';
-    track.appendChild(bar);details.appendChild(track);
+    if(row.completeness!==null&&row.completeness!==undefined){
+      const q=elem('div',null,'quality-label');
+      q.append(elem('span','Полнота карточки'),elem('b',(row.completeness||0)+'%'));
+      details.appendChild(q);
+      const track=elem('div',null,'quality-track');const bar=elem('i');
+      bar.style.width=Math.min(100,Math.max(0,Number(row.completeness)||0))+'%';
+      track.appendChild(bar);details.appendChild(track);
+    }
     const confirmed=[];
     if(row.sku)confirmed.push('Артикул: '+row.sku);
     if(row.brand)confirmed.push('Бренд: '+row.brand);
