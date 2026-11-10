@@ -1,0 +1,40 @@
+name: MIRVIX GEO Tools
+on:
+  pull_request:
+    paths:
+      - 'tools/**'
+      - 'assets/geo-tools.*'
+      - 'netlify/functions/competitor-products.mjs'
+      - 'netlify/functions/site-audit.mjs'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'tests/competitor-products.test.mjs'
+      - '.github/workflows/geo-tools.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/**'
+      - 'assets/geo-tools.*'
+      - 'netlify/functions/competitor-products.mjs'
+      - 'netlify/functions/site-audit.mjs'
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'tests/competitor-products.test.mjs'
+      - '.github/workflows/geo-tools.yml'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check syntax
+        run: |
+          node --check netlify/functions/site-audit.mjs
+          node --check netlify/functions/competitor-products.mjs
+          node --check assets/geo-tools.js
+          node --check tests/competitor-products.test.mjs
+      - name: Verify safe product comparisons
+        run: node --test tests/competitor-products.test.mjs tests/geo-check.test.mjs

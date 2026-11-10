@@ -7,7 +7,7 @@ const root=new URL('../',import.meta.url);
 const read=(path)=>readFileSync(new URL(path,root),'utf8');
 const pages=[
   'index.html','ai-search/index.html','audit/index.html','cabinet/index.html',
-  'check/index.html','geo-live/index.html','geo/index.html',
+  'check/index.html','geo-live/index.html','geo/index.html','tools/index.html',
   'legal/contacts/index.html','legal/privacy/index.html',
   'legal/terms/index.html','tariffs/index.html','useful/index.html',
   'useful/ai-visibility-not-one-score/index.html',
@@ -15,7 +15,7 @@ const pages=[
   'useful/geo-report-metrics/index.html'
 ];
 
-test('Metrika loader included exactly once on all 15 public and restricted HTML pages',()=>{
+test('Metrika loader included exactly once on all 16 public and restricted HTML pages',()=>{
   for(const path of pages){
     const html=read(path);
     assert.equal((html.match(/src="\/assets\/mirvix-metrika\.js"/g)||[]).length,1,path);

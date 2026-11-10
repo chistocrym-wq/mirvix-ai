@@ -608,4 +608,4 @@ export const handler = async (event) => {
   }
 };
 
-export const _test = { validateTarget, publicIp, extract, botBlocked, robotsDecision, pinnedLookup, audit };
+export const _test = { validateTarget, publicIp, extract, botBlocked, robotsDecision, pinnedLookup, getText, audit };
