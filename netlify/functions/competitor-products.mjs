@@ -179,7 +179,7 @@ async function inspectOne(url,index){
   return {index,url:validated.href,host:validated.hostname,ok:true,httpStatus:200,
     checkedAt:new Date().toISOString(),...data};
 }
-export async function handler(event){
+export async function _legacyHandler(event){
   if(event.httpMethod!=='POST')return send(405,{error:'Нужен POST-запрос.'});
   if(Buffer.byteLength(event.body||'')>12500)return send(413,{error:'Слишком много данных.'});
   let request;try{request=JSON.parse(event.body||'{}')}catch{return send(400,{error:'Некорректные данные.'})}
@@ -249,3 +249,18 @@ export async function handler(event){
   return reply(200,payload);
 }
 export const _test={validUrl,attrs,metas,schemas,imageUrl,amount,availability,extract,comparable};
+
+
+// Netlify Functions v2 is required: Netlify injects Blobs configuration
+// into its Request/Context runtime. Legacy exports.handler does not receive
+// that context and throws MissingBlobsEnvironmentError on getStore().
+export default async function onRequest(request, context) {
+  const headers=Object.fromEntries(request.headers.entries());
+  const event={
+    httpMethod:request.method,
+    body:request.method==='POST'?await request.text():'',
+    headers:{...headers,host:new URL(request.url).host}
+  };
+  const result=await _legacyHandler(event);
+  return new Response(result.body||'',{status:result.statusCode||500,headers:result.headers||{}});
+}
