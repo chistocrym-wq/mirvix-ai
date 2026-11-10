@@ -215,7 +215,9 @@ export async function handler(event){
        order.urlsHash!==createHash('sha256').update(JSON.stringify(validated.map(u=>u.href))).digest('hex'))
       return reply(403,{error:'Покупка не соответствует этим товарам или текущему браузеру.'});
     if(!await verifyPayment(order))return reply(402,{error:'Оплата не подтверждена ЮKassa. Проверьте статус платежа.'});
-    if(!await markConsumed(order))return reply(409,{error:'Оплаченная проверка уже использована. Для следующей требуется отдельный заказ.'});
+    const storedReport=await store().get('reports/'+order.id,{type:'json',consistency:'strong'});
+    if(storedReport)return reply(200,{...storedReport,cached:true});
+    if(!await markConsumed(order))return reply(409,{error:'Оплаченная проверка уже выполняется. Повторите открытие готового отчёта через несколько секунд. Если ошибка сохраняется, обратитесь в поддержку с номером заказа.'});
   }else return reply(422,{error:'Неизвестный режим просмотра.'});
   const results=await Promise.allSettled(scanned.map((item,index)=>inspectOne(item.href,index)));
   const rows=results.map((value,index)=>value.status==='fulfilled'?value.value:
@@ -234,7 +236,7 @@ export async function handler(event){
     if(order)await store().delete('redeemed/'+order.id);
   }
   const preview=mode==='preview';
-  return reply(200,{checkedAt:new Date().toISOString(),mode:'public-product-pages',
+  const payload={checkedAt:new Date().toISOString(),mode:'public-product-pages',
     access:preview?'preview':'paid',preview,
     disclaimer:'Показаны только данные, подтверждённые HTML/JSON-LD/метаданными. Нет доступа к JS-каталогам, авторизованным ценам и закрытым страницам. Цена не означает наличие. Сравнение цен разрешено только при совпадении SKU и валюты.',
     pages:preview?rows.map(p=>({...p,
@@ -242,6 +244,8 @@ export async function handler(event){
       completeness:null})):rows,
     comparisons:preview?[]:comparisons,successful:success,
     completePrices:rows.filter(x=>x.ok&&x.price!==null).length,
-    ...(preview?{notice:'Ознакомление: только 1 конкурент, без подробных характеристик, сравнения и CSV. Полный отчёт после подтверждённой оплаты.'}:{})});
+    ...(preview?{notice:'Ознакомление: только 1 конкурент, без подробных характеристик, сравнения и CSV. Полный отчёт после подтверждённой оплаты.'}:{})};
+  if(order&&success>0)await store().setJSON('reports/'+order.id,payload,{onlyIfNew:true});
+  return reply(200,payload);
 }
 export const _test={validUrl,attrs,metas,schemas,imageUrl,amount,availability,extract,comparable};
