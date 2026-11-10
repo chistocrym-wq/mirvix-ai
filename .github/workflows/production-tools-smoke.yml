@@ -36,5 +36,31 @@ jobs:
           console.log('Protected comparison probe HTTP '+result.status+'; code '+String(data.error||data.status||'no error').slice(0,180));
           if(result.status!==403||!data.error)
             throw new Error('Full comparison must reject requests without authorized site origin');
-          console.log('Production GEO Tools is available and unauthenticated full API bypass is blocked.');
+          const allowedOrigin='https://mirvixai.com';
+          const noCookieFull=await fetch(site+'/.netlify/functions/competitor-products',{
+            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
+            body:JSON.stringify({action:'compare',mode:'full',urls:[site+'/tools/',site+'/tariffs/']})
+          });
+          if(![403,503].includes(noCookieFull.status))
+            throw new Error('Full report without paid browser identity returned unexpected HTTP '+noCookieFull.status);
+          console.log('Full report without purchase rejected: HTTP '+noCookieFull.status);
+          const demo=await fetch(site+'/.netlify/functions/competitor-products',{
+            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
+            body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})
+          });
+          const demoData=await demo.json();
+          console.log('First anonymous preview HTTP '+demo.status+'; '+String(demoData.error||demoData.notice||'').slice(0,150));
+          if(demo.status===503)throw new Error('Anonymous preview not configured; set MIRVIX_TOOLS_SESSION_SECRET or MIRVIX_CABINET_SESSION_SECRET in Netlify.');
+          if(!demo.ok||!demoData.preview||demoData.pages?.length!==2)
+            throw new Error('One-time preview did not return a limited two-card sample.');
+          const cookie=(demo.headers.get('set-cookie')||'').split(';')[0];
+          if(!cookie.includes('__Host-mirvix_tools_visitor='))throw new Error('Signed visitor cookie missing');
+          const repeat=await fetch(site+'/.netlify/functions/competitor-products',{
+            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin,'Cookie':cookie},
+            body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})
+          });
+          console.log('Repeat preview HTTP '+repeat.status);
+          if(repeat.status!==402)throw new Error('Repeat free preview was not blocked by the server');
+          console.log('Production GEO Tools available; repeat-free-trial and unpaid-report access blocked.');
+
           NODE
