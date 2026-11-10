@@ -252,8 +252,8 @@ $('run-paid').addEventListener('click',async()=>{
   const data=await response.json().catch(()=>({error:'Некорректный ответ.'}));
   if(!response.ok)throw Error(data.error||'HTTP '+response.status);
   render(data);
-  setPurchaseStatus('Полный отчёт получен. Сохраните CSV. Эта покупка включает одну полную проверку.','success');
-  sessionStorage.removeItem('mirvix_tools_pending_order_v1');
+  setPurchaseStatus('Полный отчёт получен и сохранён для повторного просмотра в этом браузере. Скачайте CSV. Одна покупка — один набор товаров.','success');
+  // Keep the purchased URL set in this browser, so the same archived report can be reopened.
   paidVerified=false;$('payment-check').hidden=true;
  }catch(error){setPurchaseStatus('Не удалось получить оплаченный отчёт: '+error.message+'. Если платёж подтверждён, обратитесь в поддержку с номером заказа.','error');}
  finally{button.disabled=false;}
