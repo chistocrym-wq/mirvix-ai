@@ -5,7 +5,7 @@ import {identify,sameOrigin,statusResponse,TOOL_PRICES,paymentsConfigured,toolsC
 
 const digest=urls=>createHash('sha256').update(JSON.stringify(urls)).digest('hex');
 const validEmail=s=>typeof s==='string'&&s.length<=180&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
-export async function handler(event){
+export async function _legacyHandler(event){
  if(event.httpMethod!=='POST')return statusResponse(405,{error:'Нужен POST.'});
  if(!sameOrigin(event))return statusResponse(403,{error:'Запрос должен быть отправлен с сайта MIRVIX.'});
  if(Buffer.byteLength(event.body||'')>14000)return statusResponse(413,{error:'Запрос слишком большой.'});
@@ -80,3 +80,18 @@ export async function handler(event){
  return respond(400,{error:'Неизвестная операция.'});
 }
 export const _test={digest,validEmail};
+
+
+// Netlify Functions v2 is required: Netlify injects Blobs configuration
+// into its Request/Context runtime. Legacy exports.handler does not receive
+// that context and throws MissingBlobsEnvironmentError on getStore().
+export default async function onRequest(request, context) {
+  const headers=Object.fromEntries(request.headers.entries());
+  const event={
+    httpMethod:request.method,
+    body:request.method==='POST'?await request.text():'',
+    headers:{...headers,host:new URL(request.url).host}
+  };
+  const result=await _legacyHandler(event);
+  return new Response(result.body||'',{status:result.statusCode||500,headers:result.headers||{}});
+}
