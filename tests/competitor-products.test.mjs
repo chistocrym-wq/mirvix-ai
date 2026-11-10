@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Script} from 'node:vm';
-import {_test as product,handler} from '../netlify/functions/competitor-products.mjs';
+import {_test as product,_legacyHandler as handler} from '../netlify/functions/competitor-products.mjs';
 import {_test as audit} from '../netlify/functions/site-audit.mjs';
 const root=new URL('../',import.meta.url);
 const read=p=>readFileSync(new URL(p,root),'utf8');
@@ -79,4 +79,16 @@ test('missing identity does not grant free preview',async()=>{
   action:'compare',mode:'preview',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']
  })});
  assert.equal(response.statusCode,403);
+});
+
+test('Netlify Blobs functions use v2 request handlers, not legacy handler exports',async()=>{
+ const {default:competitor}=await import('../netlify/functions/competitor-products.mjs');
+ const {default:checkout}=await import('../netlify/functions/tools-checkout.mjs');
+ assert.equal(typeof competitor,'function');
+ assert.equal(typeof checkout,'function');
+ const response=await competitor(new Request('https://mirvixai.com/.netlify/functions/competitor-products',{method:'GET'}),{});
+ assert.equal(response.status,405);
+ assert.match(await response.text(),/Нужен POST/);
+ const payment=await checkout(new Request('https://mirvixai.com/.netlify/functions/tools-checkout',{method:'GET'}),{});
+ assert.equal(payment.status,405);
 });
