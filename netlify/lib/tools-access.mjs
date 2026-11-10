@@ -9,7 +9,7 @@ export const TOOL_PRICES=Object.freeze({
 export const COOKIE='__Host-mirvix_tools_visitor';
 const STORE='mirvix-tools-access-v1';
 const hash=(input)=>createHash('sha256').update(String(input)).digest('hex');
-const secret=()=>process.env.MIRVIX_TOOLS_SESSION_SECRET||'';
+const secret=()=>process.env.MIRVIX_TOOLS_SESSION_SECRET||process.env.MIRVIX_CABINET_SESSION_SECRET||'';
 export const toolsConfigured=()=>secret().length>=32;
 export const paymentsConfigured=()=>toolsConfigured()&&
  process.env.MIRVIX_TOOLS_PAYMENTS_ENABLED==='1'&&
