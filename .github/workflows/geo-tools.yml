@@ -5,6 +5,10 @@ on:
       - 'tools/**'
       - 'assets/geo-tools.*'
       - 'netlify/functions/competitor-products.mjs'
+      - 'netlify/functions/tools-checkout.mjs'
+      - 'netlify/lib/tools-access.mjs'
+      - 'tests/tools-access.test.mjs'
+      - 'package.json'
       - 'netlify/functions/site-audit.mjs'
       - 'index.html'
       - 'sitemap.xml'
@@ -30,11 +34,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
       - name: Check syntax
         run: |
           node --check netlify/functions/site-audit.mjs
           node --check netlify/functions/competitor-products.mjs
           node --check assets/geo-tools.js
           node --check tests/competitor-products.test.mjs
+          node --check tests/tools-access.test.mjs
+          node --check netlify/lib/tools-access.mjs
+          node --check netlify/functions/tools-checkout.mjs
       - name: Verify safe product comparisons
-        run: node --test tests/competitor-products.test.mjs tests/geo-check.test.mjs
+        run: node --test tests/competitor-products.test.mjs tests/tools-access.test.mjs tests/geo-check.test.mjs
