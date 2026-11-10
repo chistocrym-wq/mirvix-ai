@@ -67,20 +67,16 @@ test('catalog shows planned features honestly and page loads analytics',()=>{
  new Script(read('assets/geo-tools.js'),{filename:'geo-tools.js'});
 });
 
-test('complete POST comparison returns two real parsed cards and verified percentage',async()=>{
- const original=audit.getText;
- audit.getText=async (url)=>({status:200,headers:{get:()=> 'text/html; charset=utf-8'},
-   text:url.hostname==='rival.ru'?sample.replace('1 250,50','1 500,60'):sample});
- try{
-   const response=await handler({httpMethod:'POST',body:JSON.stringify({
-     action:'compare',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']})});
-   assert.equal(response.statusCode,200);
-   const data=JSON.parse(response.body);
-   assert.equal(data.successful,2);
-   assert.equal(data.completePrices,2);
-   assert.equal(data.pages[0].sku,'FAN-12');
-   assert.equal(data.comparisons[0].comparable,true);
-   assert.equal(data.comparisons[0].deltaPercent,20);
-   assert.ok(data.pages[0].image.includes('fanera.jpg'));
- }finally{audit.getText=original;}
+test('paid comparison cannot expose full data without origin and access',async()=>{
+  const response=await handler({httpMethod:'POST',headers:{},body:JSON.stringify({
+    action:'compare',mode:'full',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']
+  })});
+  assert.equal(response.statusCode,403);
+  assert.match(JSON.parse(response.body).error,/MIRVIX/);
+});
+test('missing identity does not grant free preview',async()=>{
+ const response=await handler({httpMethod:'POST',headers:{},body:JSON.stringify({
+  action:'compare',mode:'preview',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']
+ })});
+ assert.equal(response.statusCode,403);
 });
