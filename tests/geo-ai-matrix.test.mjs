@@ -154,3 +154,21 @@ test('Perplexity is visible as seventh UI model and uses Agent API with grounded
   assert.match(backend,/entry\.type === 'search_results'/);
   assert.ok(!backend.includes("https://api.perplexity.ai/v1/sonar"));
 });
+
+
+test('provider errors distinguish billing, keys, permissions, bad model and quota',()=>{
+  const render=api.providerError;
+  assert.match(render(402,{error:{code:'insufficient_balance',message:'Balance too low'}}),/Недостаточно средств/);
+  assert.match(render(401,{error:{message:'Bad key'}}),/Неверный или отозванный API-ключ/);
+  assert.match(render(403,{error:{message:'Tool restricted'}}),/Нет доступа/);
+  assert.match(render(404,{error:{message:'Unknown model'}}),/Модель либо API-адрес/);
+  assert.match(render(429,{error:{message:'Rate limit exceeded'}}),/Не обязательно проблема с деньгами/);
+  assert.match(render(400,{error:{message:'Invalid tool type'}}),/Invalid tool type/);
+});
+
+test('provider errors do not echo long credential-like values',()=>{
+  const fake='sk-'+'x'.repeat(60);
+  const shown=api.providerError(401,{error:{message:'Authorization Bearer '+fake}});
+  assert.doesNotMatch(shown,/sk-x{20}/);
+  assert.match(shown,/\[скрыто\]/);
+});
