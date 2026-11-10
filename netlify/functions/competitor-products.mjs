@@ -1,4 +1,7 @@
 import { _test as audit } from './site-audit.mjs';
+import {identify,sameOrigin,statusResponse,claimPreview,packageForRivals,TOOL_PRICES,
+  getOrder,verifyPayment,markConsumed,paymentsConfigured,toolsConfigured,store,keyFor} from '../lib/tools-access.mjs';
+import {createHash} from 'node:crypto';
 
 const HEADERS={
   'content-type':'application/json; charset=utf-8',
@@ -188,9 +191,37 @@ export async function handler(event){
     validated=items.map(validUrl);
     if(new Set(validated.map(u=>u.href)).size!==validated.length)throw Error('Ссылки на товары должны различаться.');
   }catch(error){return send(422,{error:error.message});}
-  const results=await Promise.allSettled(validated.map((item,index)=>inspectOne(item.href,index)));
+  // Public access is limited on the server, not just by hiding a client-side button.
+  // One preview is permitted per signed anonymous browser identity; strict per-person
+  // enforcement requires verified user accounts.
+  if(!sameOrigin(event))return send(403,{error:'Запрос разрешён только со страницы MIRVIX GEO Tools.'});
+  if(!toolsConfigured())return send(503,{error:'Доступ к инструментам ещё не настроен на сервере.'});
+  let visitor;
+  try{visitor=identify(event)}catch{return send(503,{error:'Не настроена сессия пробной проверки.'})}
+  const reply=(code,data)=>statusResponse(code,data,visitor.cookie);
+  const mode=request.mode||'preview';
+  let scanned=validated;
+  let order=null;
+  if(mode==='preview'){
+    // Only the first competitor is sampled, even if the user submitted five.
+    scanned=validated.slice(0,2);
+    const fresh=await claimPreview(visitor.id,'competitor-products');
+    if(!fresh)return reply(402,{error:'Единственный ознакомительный просмотр использован. Для нового полного сравнения потребуется покупка.',paywall:true});
+  }else if(mode==='full'){
+    if(!paymentsConfigured())return reply(503,{error:'Приём оплат ещё не настроен. Полные проверки пока недоступны.'});
+    order=await getOrder(request.orderId,visitor.id);
+    const expectedPackage=packageForRivals(validated.length-1);
+    if(!order||order.tool!=='competitor-products'||order.packageId!==expectedPackage||
+       order.urlsHash!==createHash('sha256').update(JSON.stringify(validated.map(u=>u.href))).digest('hex'))
+      return reply(403,{error:'Покупка не соответствует этим товарам или текущему браузеру.'});
+    if(!await verifyPayment(order))return reply(402,{error:'Оплата не подтверждена ЮKassa. Проверьте статус платежа.'});
+    const storedReport=await store().get('reports/'+order.id,{type:'json',consistency:'strong'});
+    if(storedReport)return reply(200,{...storedReport,cached:true});
+    if(!await markConsumed(order))return reply(409,{error:'Оплаченная проверка уже выполняется. Повторите открытие готового отчёта через несколько секунд. Если ошибка сохраняется, обратитесь в поддержку с номером заказа.'});
+  }else return reply(422,{error:'Неизвестный режим просмотра.'});
+  const results=await Promise.allSettled(scanned.map((item,index)=>inspectOne(item.href,index)));
   const rows=results.map((value,index)=>value.status==='fulfilled'?value.value:
-    {index,url:validated[index].href,ok:false,error:text(value.reason?.message||'Не удалось получить страницу.',200)});
+    {index,url:scanned[index].href,ok:false,error:text(value.reason?.message||'Не удалось получить страницу.',200)});
   const own=rows[0];
   const comparisons=rows.slice(1).map(item=>{
     const match=own.ok&&item.ok?comparable(own,item):{ok:false,reason:'Одна из карточек не прочитана.'};
@@ -198,9 +229,23 @@ export async function handler(event){
     return {index:item.index,comparable:match.ok,method:match.method||null,
       reason:match.reason||null,deltaPercent:delta===null?null:Math.round(delta*10)/10};
   });
-  return send(200,{checkedAt:new Date().toISOString(),mode:'public-product-pages',
+  const success=rows.filter(x=>x.ok).length;
+  // If every page failed, do not penalize a preview/paid purchase.
+  if(success===0){
+    if(mode==='preview')await store().delete(keyFor('preview',visitor.id,'competitor-products'));
+    if(order)await store().delete('redeemed/'+order.id);
+  }
+  const preview=mode==='preview';
+  const payload={checkedAt:new Date().toISOString(),mode:'public-product-pages',
+    access:preview?'preview':'paid',preview,
     disclaimer:'Показаны только данные, подтверждённые HTML/JSON-LD/метаданными. Нет доступа к JS-каталогам, авторизованным ценам и закрытым страницам. Цена не означает наличие. Сравнение цен разрешено только при совпадении SKU и валюты.',
-    pages:rows,comparisons,successful:rows.filter(x=>x.ok).length,
-    completePrices:rows.filter(x=>x.ok&&x.price!==null).length});
+    pages:preview?rows.map(p=>({...p,
+      specifications:{},description:'',missing:[],evidence:{},sku:'',brand:'',
+      completeness:null})):rows,
+    comparisons:preview?[]:comparisons,successful:success,
+    completePrices:rows.filter(x=>x.ok&&x.price!==null).length,
+    ...(preview?{notice:'Ознакомление: только 1 конкурент, без подробных характеристик, сравнения и CSV. Полный отчёт после подтверждённой оплаты.'}:{})};
+  if(order&&success>0)await store().setJSON('reports/'+order.id,payload,{onlyIfNew:true});
+  return reply(200,payload);
 }
 export const _test={validUrl,attrs,metas,schemas,imageUrl,amount,availability,extract,comparable};
