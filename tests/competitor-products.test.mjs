@@ -59,7 +59,7 @@ test('catalog shows planned features honestly and page loads analytics',()=>{
  assert.match(html,/id="compare-form"/);
  assert.match(html,/id="product-cards"/);
  assert.match(html,/В разработке/);
- assert.match(html,/Доступ сотрудникам/);
+ assert.match(html,/Публичный доступ готовится/);
  assert.match(html,/assets\/mirvix-metrika\.js/);
  assert.match(html,/src="\/assets\/geo-tools\.js"/);
  assert.match(read('index.html'),/href="\/tools\/"/);
