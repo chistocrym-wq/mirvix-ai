@@ -33,6 +33,7 @@ jobs:
             ]})
           });
           const data = await result.json();
+          console.log('Protected comparison probe HTTP '+result.status+'; code '+String(data.error||data.status||'no error').slice(0,180));
           if(result.status!==403||!data.error)
             throw new Error('Full comparison must reject requests without authorized site origin');
           console.log('Production GEO Tools is available and unauthenticated full API bypass is blocked.');
