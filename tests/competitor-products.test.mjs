@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {Script} from 'node:vm';
 import {_test as product,handler} from '../netlify/functions/competitor-products.mjs';
+import {_test as audit} from '../netlify/functions/site-audit.mjs';
 const root=new URL('../',import.meta.url);
 const read=p=>readFileSync(new URL(p,root),'utf8');
 const sample='<!doctype html><html><head><title>Фанера 12 мм</title>'+
@@ -64,4 +65,22 @@ test('catalog shows planned features honestly and page loads analytics',()=>{
  assert.match(read('index.html'),/href="\/tools\/"/);
  assert.match(read('sitemap.xml'),/https:\/\/mirvixai\.com\/tools\//);
  new Script(read('assets/geo-tools.js'),{filename:'geo-tools.js'});
+});
+
+test('complete POST comparison returns two real parsed cards and verified percentage',async()=>{
+ const original=audit.getText;
+ audit.getText=async (url)=>({status:200,headers:{get:()=> 'text/html; charset=utf-8'},
+   text:url.hostname==='rival.ru'?sample.replace('1 250,50','1 500,60'):sample});
+ try{
+   const response=await handler({httpMethod:'POST',body:JSON.stringify({
+     action:'compare',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']})});
+   assert.equal(response.statusCode,200);
+   const data=JSON.parse(response.body);
+   assert.equal(data.successful,2);
+   assert.equal(data.completePrices,2);
+   assert.equal(data.pages[0].sku,'FAN-12');
+   assert.equal(data.comparisons[0].comparable,true);
+   assert.equal(data.comparisons[0].deltaPercent,20);
+   assert.ok(data.pages[0].image.includes('fanera.jpg'));
+ }finally{audit.getText=original;}
 });
