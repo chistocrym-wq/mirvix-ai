@@ -129,8 +129,9 @@ function extract(html,pageUrl){
   const price=amount(offerPrice);
   const currency=text(first(offer?.priceCurrency,offer?.priceSpecification?.priceCurrency,
     meta['product:price:currency'],meta['og:price:currency']),8).toUpperCase()||null;
-  const imgRaw=first(p?.image?.[0],p?.image,meta['og:image:secure_url'],meta['og:image']);
+  const imgRaw=first(Array.isArray(p?.image)?p.image[0]:p?.image,meta['og:image:secure_url'],meta['og:image']);
   const image=imageUrl(imgRaw,pageUrl);
+  const documentTitle = title || 'Название не обнаружено';
   const stocked=availability(offer?.availability);
   const signals={
     productSchema:!!p,price:price!==null,image:!!image,description:!!desc,
@@ -142,7 +143,7 @@ function extract(html,pageUrl){
     ['Описание',!!desc],['Артикул',!!sku],['Бренд',!!brand],
     ['Характеристики',Object.keys(spec).length>0],['Наличие',stocked!==null]
   ];
-  return {title,description:desc,sku,brand,image,price,currency,availability:stocked,
+  return {title:documentTitle,description:desc,sku,brand,image,price,currency,availability:stocked,
     specifications:spec,signals,completeness:Math.round(100*fields.filter(x=>x[1]).length/fields.length),
     missing:fields.filter(x=>!x[1]).map(x=>x[0]),schemaConfirmed:!!p,
     // Schema.org or metadata evidence only. Never infer prices from arbitrary page text.
