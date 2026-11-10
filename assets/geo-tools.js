@@ -81,6 +81,7 @@ function renderCard(row){
     if(row.sku)confirmed.push('Артикул: '+row.sku);
     if(row.brand)confirmed.push('Бренд: '+row.brand);
     if(row.evidence?.price)confirmed.push('Цена: '+row.evidence.price);
+    if(!row.schemaConfirmed)confirmed.push('Тип товара не подтверждён разметкой Product');
     if(row.missing?.length)confirmed.push('Не найдено: '+row.missing.join(', '));
     if(confirmed.length)details.appendChild(elem('div',confirmed.join(' · '),'product-spec'));
   }else details.appendChild(elem('div',row.error||'Сайт не вернул данные.','product-error'));
@@ -158,7 +159,7 @@ form.addEventListener('submit',async event=>{
       'Не удалось получить сравнение: '+error.message,'error');
   }finally{clearTimeout(timeout);btn.disabled=false;btn.textContent='Сравнить товары ↗';}
 });
-const csv=(value)=>'"'+String(value??'').replace(/"/g,'""').replace(/[\r\n]+/g,' ')+'"';
+const csv=(value)=>{const raw=String(value??'').replace(/[\r\n]+/g,' ');const safe=/^\s*[=+@-]/.test(raw)?"'"+raw:raw;return '"'+safe.replace(/"/g,'""')+'"';};
 $('export-csv').addEventListener('click',()=>{
   if(!current)return;
   const rows=[['Роль','Сайт','Название','Цена','Валюта','Наличие','SKU','Бренд','Полнота %','Фото URL','URL товара','Ошибка']];
