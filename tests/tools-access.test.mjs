@@ -64,12 +64,16 @@ test('payment status must be tied to a browser, verified server-side and prices 
  assert.equal(payment.validEmail('user@example.com'),true);
  assert.equal(payment.validEmail('bad-email'),false);
 });
-test('client permits full report only after confirmation and prohibits preview CSV',()=>{
- const js=read('assets/geo-tools.js');
- new Script(js,{filename:'geo-tools.js'});
- assert.match(js,/paymentsEnabled=!!config.paymentsEnabled/);
- assert.match(js,/confirmed|подтверждён/);
- assert.match(js,/activeOrder/);
- assert.match(js,/if\(!current\|\|current.preview\|\|current.access==='preview'\)return/);
- assert.match(read('tools/index.html'),/Купить полный отчёт/);
+test('public tools no longer offer direct checks, payment, preview or price list',()=>{
+ const html=read('tools/index.html');
+ const js=read('tools/request.js');
+ new Script(js,{filename:'tools/request.js'});
+ assert.match(html,/Инструменты/);
+ assert.match(html,/tools-request-form/);
+ assert.match(html,/Домен \/ ссылка на сайт конкурента/);
+ assert.doesNotMatch(html,/Купить полный отчёт|490 ₽|id="compare-form"/);
+ assert.doesNotMatch(html,/geo-tools\.js/);
+ assert.match(js,/api\/ai-visibility-request/);
+ assert.match(read('netlify/functions/tools-checkout.mjs'),/Самостоятельная покупка отчёта отключена/);
+ assert.match(read('netlify/functions/competitor-products.mjs'),/Самостоятельное сравнение больше не доступно/);
 });
