@@ -54,6 +54,25 @@ function getInput(){
     competitors:$('competitors').value,exclusions:$('exclusions').value
   };
 }
+$('pilotMirvix').addEventListener('click',()=>{
+  $('site').value='https://mirvixai.com/';
+  $('brand').value='MIRVIX AI';
+  $('region').value='Санкт-Петербург, Россия';
+  $('search').value='both';
+  $('lr').value='2';
+  $('gl').value='ru';
+  $('max').value='30';
+  $('queries').value=[
+    'продвижение компании в нейросетях',
+    'GEO продвижение бизнеса',
+    'как повысить видимость бренда в ChatGPT'
+  ].join('\\n');
+  $('audience').value='Владельцы и руководители малого и среднего бизнеса';
+  $('competitors').value='';
+  $('exclusions').value='';
+  $('budget').value='';
+  setNotice('Пилот MIRVIX AI заполнен. Данные не отправлены в поиск. Для запуска нужен подключённый SERP API.','good');
+});
 $('launchForm').addEventListener('submit',async event=>{
   event.preventDefault();
   if(!state.configured){setNotice('Сначала подключите MIRVIX_SERPAPI_KEY в настройках Netlify.','error');return;}
