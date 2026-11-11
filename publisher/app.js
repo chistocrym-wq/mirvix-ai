@@ -149,6 +149,8 @@ function drawDetail(p){
   $('detail').innerHTML='<div class="toolbar"><div><h3>'+safe(p.domain)+'</h3><div class="small">'+safe(p.type)+' · '+safe(p.priority)+' · рейтинг: '+(p.score==null?'недостаточно подтверждений':p.score+'/100')+'</div></div><button class="ghost" id="closeDetail">Закрыть</button></div>'+
     '<div class="notice">Диапазон с учётом неизвестных критериев: '+safe(p.scoreMin)+'–'+safe(p.scoreMax)+'. Охват оценки: '+safe(p.coverage)+'%. Поисковые позиции подтверждены API, но право публикации и редакционные условия требуют отдельного подтверждения.</div>'+
     '<h4>Найденные страницы и позиции</h4><div class="source-list">'+matches+'</div>'+
+    '<div class="actions"><button class="secondary" id="inspectSite">Найти контакты и условия редакции</button></div>'+
+    '<div id="inspectCandidates">'+(p.candidates?.length?'<h4>Найденные страницы редакции (не подтверждение условий)</h4><div class="source-list">'+p.candidates.map(x=>'<p><a target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+safe(x.title||x.url)+'</a> · '+safe(x.excerpt)+'</p>').join('')+'</div>':'')+'</div>'+
     '<div class="details-grid">'+
     '<label>Рабочий статус<select id="dStatus">'+options(statuses,p.workStatus)+'</select></label>'+
     '<label>Доступность размещения<select id="dPub">'+options(['unknown','confirmed','unavailable'],p.publication?.status||'unknown')+'</select></label>'+
@@ -167,6 +169,16 @@ function drawDetail(p){
   $('detail').classList.remove('hidden');
   $('closeDetail').addEventListener('click',()=>{state.active=null;$('detail').classList.add('hidden');});
   $('saveDetail').addEventListener('click',saveDetail);
+  $('inspectSite').addEventListener('click',async()=>{
+    $('inspectSite').disabled=true;
+    try{
+      const result=await api('inspect',{id:state.id,domain:p.domain});
+      const rows=result.candidates||[];
+      $('inspectCandidates').innerHTML=rows.length?'<h4>Найденные страницы редакции (проверить вручную)</h4><div class="source-list">'+rows.map(x=>'<p><a target="_blank" rel="noopener noreferrer" href="'+safe(x.url)+'">'+safe(x.title||x.url)+'</a> · '+safe(x.excerpt)+'</p>').join('')+'</div>':'<div class="notice">На стандартных адресах редакционных условий не найдено. Это не означает, что публикация невозможна.</div>';
+      setNotice(result.notice,'good');
+    }catch(e){setNotice(e.message,'error');}
+    finally{$('inspectSite').disabled=false;}
+  });
   $('copyBrief').addEventListener('click',async()=>{await navigator.clipboard.writeText(p.brief);setNotice('ТЗ скопировано.','good');});
   $('downloadBrief').addEventListener('click',()=>download(new Blob([p.brief],{type:'text/plain;charset=utf-8'}),'mirvix-brief-'+p.domain+'.txt'));
 }
