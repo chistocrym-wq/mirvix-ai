@@ -135,6 +135,34 @@ async function action(request,store,body){
   const current=await viewRun(store,id);
   const platform=current.platforms.find(p=>p.domain===domain);
   if(!platform)throw Error('Эта площадка отсутствует в результатах запуска.');
+  if(cmd==='inspect'){
+    // Public source discovery only: do not claim an editorial agreement or invent a price.
+    // Existing audit reader pins public DNS and rejects unsafe redirects.
+    const paths=['/advertising/','/contacts/','/write-for-us/','/reklama/','/contact/'];
+    const pages=await Promise.all(paths.map(async (path)=>{
+      const target=new URL(path,'https://'+domain+'/');
+      try{
+        const page=await audit.getText(target,90000,6500);
+        if(page.status!==200 || !/text\/html/i.test(String(page.headers.get('content-type')||'text/html')))
+          return null;
+        const html=page.text||'';
+        const text=html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi,' ')
+          .replace(/<[^>]+>/g,' ').replace(/&nbsp;|&#160;/gi,' ')
+          .replace(/&amp;/gi,'&').replace(/\s+/g,' ').trim();
+        const terms=/(разместить|публикац|реклам|редакц|сотрудничест|guest post|sponsored|advertis|contact|контакт)/i;
+        const at=text.search(terms);
+        return {url:target.href,title:(html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1]||'').replace(/<[^>]+>/g,' ').slice(0,120),
+          excerpt:(at>=0?text.slice(Math.max(0,at-160),at+550):text.slice(0,500)),
+          mayContainTerms:at>=0,httpStatus:page.status,checkedAt:isoNow()};
+      }catch{return null;}
+    }));
+    const candidates=pages.filter(Boolean);
+    await persist(store,editKey(id,domain),{
+      ...(await getJSON(store,editKey(id,domain))||{}),
+      candidates,checkedAt:isoNow()
+    });
+    return {domain,candidates,notice:'Найденные страницы — только кандидаты для ручной проверки. Они не подтверждают возможность публикации и стоимость.'};
+  }
   if(cmd==='edit'){
     const changes={};
     if(body.workStatus!==undefined){
