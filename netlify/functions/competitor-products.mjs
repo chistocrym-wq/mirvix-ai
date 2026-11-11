@@ -184,6 +184,7 @@ export async function _legacyHandler(event){
   if(Buffer.byteLength(event.body||'')>12500)return send(413,{error:'Слишком много данных.'});
   let request;try{request=JSON.parse(event.body||'{}')}catch{return send(400,{error:'Некорректные данные.'})}
   if(request.action!=='compare')return send(400,{error:'Неизвестная операция.'});
+  if(request.mode==='preview')return send(410,{error:'Самостоятельное сравнение больше не доступно. Отправьте бесплатную заявку через /tools/.'});
   const items=request.urls;
   if(!Array.isArray(items)||items.length<2||items.length>6)return send(422,{error:'Укажите ссылку на свой товар и от 1 до 5 ссылок конкурентов.'});
   let validated;
