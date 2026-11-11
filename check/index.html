@@ -95,6 +95,45 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
   #geo-pdf-matrix tbody tr:nth-child(n+31){display:none}
 }
 .geo-generate-status{padding:12px 14px;border-radius:10px;border:1px solid #cbdff7;background:#f1f7ff;color:#174a88;font-size:13px;line-height:1.5;margin:8px 0 14px;overflow-wrap:anywhere}.geo-generate-status[data-state="error"]{background:#fff2ef;border-color:#f6c7be;color:#9c3327}.geo-generate-status[data-state="warning"]{background:#fff9e9;border-color:#f0d99c;color:#7b570c}.geo-generate-status[data-state="success"]{background:#e9f8f1;border-color:#a8dfc5;color:#156744}
+
+/* Public free AI visibility request — accessible without cabinet account. */
+.free-ai-panel{border:1px solid #d7e6f7;border-radius:22px;padding:clamp(20px,4vw,34px);background:linear-gradient(145deg,#f3f8ff,#fff 62%,#f6f0ff);box-shadow:0 14px 32px #152b5210;margin:30px 0}
+.free-ai-panel .free-label{color:#176aca;font-size:12px;font-weight:850;letter-spacing:.11em}
+.free-ai-panel h2{font-size:clamp(25px,3.8vw,34px);margin:10px 0}
+.free-ai-panel .free-lead{font-size:15px;line-height:1.7;color:#516985;max-width:790px}
+.free-ai-panel .free-note{background:#fff;padding:11px 14px;border-radius:11px;border:1px solid #e3eaf7;font-size:13px;color:#49627f}
+.ai-platforms{display:flex;flex-wrap:wrap;gap:9px;margin:19px 0}
+.ai-platforms span{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid #dce6f6;border-radius:999px;padding:8px 12px;font-size:13px;color:#244565;font-weight:700}
+.ai-platforms svg{height:21px;width:21px;flex-shrink:0}
+.ai-platforms .platform-glyph{width:22px;height:22px;display:grid;place-items:center;font-weight:850;border-radius:6px;color:#fff;background:#386ac1;font-size:12px}
+.ai-platforms .platform-glyph.gemini{background:linear-gradient(140deg,#4c65ed,#bb64c5)}
+.ai-platforms .platform-glyph.deepseek{background:#3266d0}
+.ai-platforms .platform-glyph.grok{background:#16191f}
+.ai-platforms .platform-glyph.gigachat{background:#6a3dda}
+.ai-platforms .platform-glyph.alice{background:linear-gradient(140deg,#ab43f0,#ff5473)}
+.ai-platforms .platform-glyph.perplexity{background:#188a8e}
+.ai-request-form{margin-top:22px;display:grid;gap:17px}
+.ai-request-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.ai-request-form label{font-size:13px;font-weight:730;color:#254360;display:grid;gap:6px}
+.ai-request-form input,.ai-request-form select,.ai-request-form textarea{width:100%;box-sizing:border-box;border:1px solid #c7d7ed;border-radius:10px;padding:12px 14px;background:#fff;color:#193455;font:inherit;min-height:45px}
+.ai-request-form textarea{min-height:100px;resize:vertical}
+.ai-request-form .full{grid-column:1 / -1}
+.ai-request-form .optional{font-weight:400;font-size:12px;color:#687b91}
+.ai-request-form .check-row{display:flex;align-items:flex-start;gap:9px;font-size:13px;font-weight:500;line-height:1.5}
+.ai-request-form .check-row input{width:17px;min-height:17px;height:17px;flex-shrink:0;margin-top:2px;accent-color:#176dea}
+.ai-request-form .contact-row{display:grid;grid-template-columns:1fr 1.4fr;gap:15px}
+.ai-request-form .request-submit{background:linear-gradient(110deg,#126be2,#6737db);border:0;color:white;border-radius:11px;padding:14px 22px;font-weight:800;width:max-content;max-width:100%}
+.ai-request-form button:disabled{opacity:.6;cursor:wait}
+.ai-request-form .request-status{font-size:13px;color:#456280;margin:0}
+.ai-request-form .request-status[data-state="error"]{color:#aa3140}
+.ai-request-form .request-status[data-state="success"]{color:#13784e}
+.ai-request-form .competitor-fields[hidden]{display:none!important}
+.ai-request-form .hidden-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.free-ai-bottom{margin-top:16px;border-top:1px solid #dbe6f5;padding-top:15px;font-size:13px;color:#61748e}
+.free-ai-bottom a{font-weight:750}
+#geo-check[hidden],#free-ai-disclosure[hidden]{display:none!important}
+@media(max-width:620px){.ai-request-grid,.ai-request-form .contact-row{grid-template-columns:1fr}.ai-request-form .full{grid-column:auto}.ai-platforms span{padding:7px 10px}}
+@media print{.free-ai-panel{display:none!important}}
 </style><script defer src="/assets/mirvix-metrika.js"></script>
 </head><body><div class="wrap">
 <header class="noprint"><span class="brand">MIRVIX AI</span><a href="/">На главную</a></header>
@@ -105,7 +144,46 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <div class="buttons"><button id="run" type="submit">Проверить сайт</button><button id="print" type="button" class="secondary" hidden>Сохранить PDF / печать</button></div>
 </form>
 <p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
-<section class="panel noprint" id="geo-check">
+<section class="free-ai-panel noprint" id="free-ai-request" aria-labelledby="free-ai-title">
+<button type="button" id="free-ai-toggle" class="request-submit" aria-controls="free-ai-disclosure" aria-expanded="false" style="font-size:clamp(16px,2.5vw,21px);width:100%;text-align:center;border-radius:13px;padding:17px 20px;margin-bottom:10px">Проверить упоминания компании в нейросетях ↓</button>
+<div id="free-ai-disclosure" hidden>
+<div class="free-label">MIRVIX AI · БЕСПЛАТНО ДЛЯ КОМПАНИЙ</div>
+<h2 id="free-ai-title">Бесплатная проверка упоминаний компании в нейросетях</h2>
+<p class="free-lead">Оставьте заявку — мы проверим вашу компанию по подходящим покупательским вопросам, сравним с конкурентом, если вы его укажете, и пришлём отчёт удобным способом. Это бесплатно: без оплаты и подписки.</p>
+<div class="ai-platforms" aria-label="Нейросети для проверки">
+<span><span class="platform-glyph" aria-hidden="true">✳</span> ChatGPT</span>
+<span><span class="platform-glyph gemini" aria-hidden="true">✦</span> Gemini</span>
+<span><span class="platform-glyph perplexity" aria-hidden="true">◈</span> Perplexity</span>
+<span><span class="platform-glyph alice" aria-hidden="true">А</span> Алиса AI</span>
+<span><span class="platform-glyph gigachat" aria-hidden="true">G</span> GigaChat</span>
+<span><span class="platform-glyph deepseek" aria-hidden="true">◉</span> DeepSeek</span>
+<span><span class="platform-glyph grok" aria-hidden="true">𝕏</span> Grok</span>
+</div>
+<p class="free-note">В отчёте укажем, какие ИИ удалось проверить и по каким вопросам. Результаты зависят от доступности сервисов и могут отличаться от персонализированных ответов в приложениях. Сама заявка не запускает платную API-проверку.</p>
+<form class="ai-request-form" id="free-ai-form" autocomplete="on">
+<div class="ai-request-grid">
+<label>Название компании <span aria-hidden="true">*</span><input required name="company" maxlength="120" placeholder="Например, Шурик Маркет"></label>
+<label>Домен / ссылка на сайт компании <span aria-hidden="true">*</span><input required name="site" maxlength="240" inputmode="url" placeholder="https://company.ru/"></label>
+<label class="full">Чем занимается компания <span aria-hidden="true">*</span><input required name="category" maxlength="180" placeholder="Например, продажа стройматериалов в Санкт-Петербурге"></label>
+<label class="full check-row"><input type="checkbox" id="free-ai-compare" name="wantsCompetitor" checked> <span>Добавить конкурента для сравнения <span class="optional">(по желанию, тоже бесплатно)</span></span></label>
+<div class="competitor-fields full ai-request-grid" id="free-ai-competitor">
+<label>Название конкурента <span class="optional">(по желанию)</span><input name="competitor" maxlength="120" placeholder="Название фирмы-конкурента"></label>
+<label>Домен / ссылка на сайт конкурента <span class="optional">(по желанию)</span><input name="competitorSite" maxlength="240" inputmode="url" placeholder="https://competitor.ru/"></label>
+</div>
+<label class="full">По каким запросам вас проверить <span class="optional">(по желанию)</span><textarea name="questions" maxlength="1000" rows="3" placeholder="Например: «Где купить ОСП с доставкой в СПб?»&#10;Если не знаете — мы сами подберём вопросы по вашей деятельности."></textarea></label>
+<label>Как к вам обращаться <span aria-hidden="true">*</span><input required name="name" maxlength="100" autocomplete="name" placeholder="Ваше имя"></label>
+<label>Куда прислать результат <span aria-hidden="true">*</span><select name="channel" id="free-ai-channel"><option value="email">Электронная почта</option><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option></select></label>
+<label class="full">Ваш контакт для отправки результатов <span aria-hidden="true">*</span><input required name="contact" id="free-ai-contact" maxlength="180" autocomplete="email" inputmode="email" type="email" placeholder="you@company.ru"></label>
+</div>
+<label class="check-row"><input required type="checkbox" name="consent" id="free-ai-consent"><span>Согласен(на) на обработку данных заявки и передачу контактных сведений для подготовки ответа согласно <a href="/legal/privacy/" target="_blank" rel="noopener">политике конфиденциальности</a>. <span aria-hidden="true">*</span></span></label>
+<div class="hidden-trap" aria-hidden="true"><label>Оставьте поле пустым<input name="extra_url" autocomplete="off" tabindex="-1"></label></div>
+<div class="buttons"><button class="request-submit" type="submit" id="free-ai-submit">Получить бесплатную проверку →</button></div>
+<p class="request-status" id="free-ai-status" role="status" aria-live="polite">Заполните заявку — после отправки подтвердим её получение.</p>
+</form>
+<p class="free-ai-bottom">Вы хотите выполнить ИИ-проверку самостоятельно как сотрудник MIRVIX? <a href="/cabinet/?role=staff&amp;next=geo-check">Войти через кабинет →</a></p>
+</div>
+</section>
+<section class="panel noprint" id="geo-check" hidden aria-label="Закрытая проверка ИИ для сотрудников">
 <h2>Проверить упоминания компании в нейросетях</h2>
 <p class="subtitle">Отдельный GEO-аудит на одинаковых вопросах. ИИ составляет 30, 50, 70 или 100 запросов: короткие («Посоветуй хорошего гинеколога в Санкт-Петербурге»), средние и подробные. Специализации и услуги берутся из подтверждённых данных сайта, без названия проверяемой компании.</p>
 <div class="geo-fields" style="margin:15px 0 12px">
@@ -794,4 +872,4 @@ if(new URLSearchParams(location.search).get('staff')==='1'){
 }
 
 })();
-</script><script defer src="/check/prompt-generator.js"></script></body></html>
+</script><script defer src="/check/prompt-generator.js"></script><script defer src="/check/free-ai-request.js"></script></body></html>

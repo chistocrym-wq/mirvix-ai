@@ -19,6 +19,7 @@ export async function _legacyHandler(event){
    prices:TOOL_PRICES});
  }
  if(body.action==='checkout'){
+  return respond(410,{error:'Самостоятельная покупка отчёта отключена. Оставьте бесплатную заявку на /tools/.'});
   if(!paymentsConfigured())return respond(503,{error:'Оплата ещё не подключена. Мы не принимаем платежи, пока не настроены ЮKassa и фискализация.'});
   const urls=body.urls;
   const count=Array.isArray(urls)?urls.length-1:0;

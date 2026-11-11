@@ -54,17 +54,18 @@ test('HTTPS only; reject internal domains, ports, query credentials and duplicat
  assert.equal((await call(Array(7).fill('https://shop.ru/p'))).statusCode,422);
  assert.equal((await handler({httpMethod:'GET'})).statusCode,405);
 });
-test('catalog shows planned features honestly and page loads analytics',()=>{
+test('tools catalog only accepts free requests and does not expose comparison or payment widgets',()=>{
  const html=read('tools/index.html');
- assert.match(html,/id="compare-form"/);
- assert.match(html,/id="product-cards"/);
- assert.match(html,/В разработке/);
- assert.match(html,/Публичный доступ готовится/);
- assert.match(html,/assets\/mirvix-metrika\.js/);
- assert.match(html,/src="\/assets\/geo-tools\.js"/);
+ assert.match(html,/id="tools-request-form"/);
+ assert.match(html,/name="competitorSite"/);
+ assert.match(html,/name="site"/);
+ assert.match(html,/data-service="product-comparison"/);
+ assert.match(html,/src="\/tools\/request\.js"/);
+ assert.doesNotMatch(html,/id="compare-form"|id="purchase-price"|490 ₽|Купить полный отчёт/);
+ assert.match(html,/Инструменты/);
  assert.match(read('index.html'),/href="\/tools\/"/);
  assert.match(read('sitemap.xml'),/https:\/\/mirvixai\.com\/tools\//);
- new Script(read('assets/geo-tools.js'),{filename:'geo-tools.js'});
+ new Script(read('tools/request.js'),{filename:'request.js'});
 });
 
 test('paid comparison cannot expose full data without origin and access',async()=>{
@@ -74,11 +75,11 @@ test('paid comparison cannot expose full data without origin and access',async()
   assert.equal(response.statusCode,403);
   assert.match(JSON.parse(response.body).error,/MIRVIX/);
 });
-test('missing identity does not grant free preview',async()=>{
+test('anonymous self-service previews are disabled',async()=>{
  const response=await handler({httpMethod:'POST',headers:{},body:JSON.stringify({
   action:'compare',mode:'preview',urls:['https://myshop.ru/fanera','https://rival.ru/fanera']
  })});
- assert.equal(response.statusCode,403);
+ assert.equal(response.statusCode,410);
 });
 
 test('Netlify Blobs functions use v2 request handlers, not legacy handler exports',async()=>{

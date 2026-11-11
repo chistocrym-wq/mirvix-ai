@@ -1,71 +1,83 @@
 <!doctype html>
-<html lang="ru">
-<head>
+<html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4f8ff">
-<title>MIRVIX GEO Tools — анализ конкурентов, товаров, цен и видимости в ИИ</title>
-<meta name="description" content="MIRVIX GEO Tools: сравнение товаров конкурентов по ценам, фотографиям и характеристикам, технический GEO-аудит, проверка присутствия в нейросетях.">
+<meta name="description" content="Инструменты MIRVIX AI: бесплатная заявка на проверку конкурентов, товаров, SEO и упоминаний в нейросетях. Готовый отчёт пришлёт специалист.">
+<title>Инструменты MIRVIX AI — заказать бесплатную проверку сайта и конкурентов</title>
 <link rel="canonical" href="https://mirvixai.com/tools/">
 <link rel="icon" type="image/png" href="/assets/favicon-32.png">
-<link rel="stylesheet" href="/assets/geo-tools.css">
 <script defer src="/assets/mirvix-metrika.js"></script>
-<script defer src="/assets/geo-tools.js"></script>
-</head>
-<body>
-<header class="header"><div class="shell head-inner">
-  <a class="brand" href="/" aria-label="MIRVIX AI — на главную"><img src="/assets/brand-wordmark.png" width="164" height="35" alt="MIRVIX AI"><span>GEO Tools</span></a>
-  <nav aria-label="Главное меню"><a class="active" href="/tools/">Инструменты</a><a href="/check/">GEO-проверка</a><a href="/tariffs/">Услуги</a><a href="/useful/">База знаний</a></nav>
-  <a class="head-cta" href="/#contacts">Обсудить задачу <span aria-hidden="true">↗</span></a>
-</div></header>
+<script defer src="/tools/request.js"></script>
+<style>
+:root{--ink:#152a52;--muted:#687d9d;--line:#dfe9f8;--blue:#196be3;--purple:#6840dd;--bg:#f6f9ff}
+*{box-sizing:border-box}html{scroll-behavior:smooth}[hidden]{display:none!important}body{margin:0;background:white;color:var(--ink);font:15px/1.6 Inter,"Segoe UI",Arial,sans-serif}
+a{color:inherit;text-decoration:none}.shell{max-width:1170px;margin:auto;padding-left:24px;padding-right:24px}
+header{border-bottom:1px solid var(--line);background:white}.top{min-height:75px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{display:flex;align-items:center;gap:11px;font-size:17px;font-weight:850}.brand img{max-width:150px;width:145px;height:auto}.brand span{color:#57729a;border-left:1px solid #d4dfed;padding-left:12px}.nav{display:flex;gap:24px;flex-wrap:wrap;font-size:13px;font-weight:700}.nav a:hover{color:var(--blue)}
+.hero{padding:72px 0 65px;background:radial-gradient(ellipse at 82% 0%,#dce9ff 0%,transparent 48%),linear-gradient(130deg,#f4f8ff,#fff)}
+.eyebrow{letter-spacing:.14em;font-size:11px;color:#346fc5;font-weight:900}.hero h1{max-width:930px;font-size:clamp(33px,5.2vw,60px);line-height:1.12;letter-spacing:-.045em;margin:14px 0 18px}.hero h1 span{color:#236bda}.hero p{max-width:770px;color:#617596;font-size:17px}.pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}.pills span{padding:7px 13px;background:white;border:1px solid #dce7f6;border-radius:999px;font-size:12px;color:#4b6b92}
+button,.button{border:0;background:linear-gradient(115deg,var(--blue),var(--purple));color:#fff;font:inherit;font-weight:750;padding:12px 19px;border-radius:11px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:9px}
+button:disabled{opacity:.5;cursor:wait}.button.white{background:#f0f5ff;color:#225aa4}.button.ghost{background:white;border:1px solid #cadbf0;color:#275a9d}
+.section{padding-top:62px;padding-bottom:65px}.section h2{font-size:clamp(26px,4vw,38px);letter-spacing:-.035em;margin:6px 0 10px}.sub{color:var(--muted);max-width:780px;margin:0 0 27px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.card{border:1px solid #e0e9f6;background:white;border-radius:18px;padding:25px;box-shadow:0 9px 25px #18274c09;display:flex;flex-direction:column;gap:10px}.card-icon{background:linear-gradient(130deg,#e6efff,#eee9ff);width:45px;height:45px;border-radius:13px;display:grid;place-items:center;color:#3e63b2;font-size:24px;font-weight:800}.card h3{font-size:18px;line-height:1.35;margin:0}.card p{color:#637895;font-size:13px;margin:0 0 8px;flex:1}.card button{align-self:flex-start;font-size:13px}.tag{color:#167652;background:#e9f7f0;font-size:11px;padding:5px 10px;border-radius:15px;width:max-content;font-weight:800}
+.form-section{background:var(--bg);padding:70px 0}.form-card{background:#fff;border:1px solid #dce8f8;box-shadow:0 14px 34px #193a6410;border-radius:22px;padding:clamp(20px,4vw,37px);max-width:980px;margin:auto}
+.form-card h2{margin:6px 0 10px;font-size:clamp(26px,4vw,38px)}.form-card .lead{color:#687d99;max-width:780px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;margin-top:23px}
+label{font-weight:730;font-size:13px;color:#315171;display:grid;gap:7px}label small{font-size:11px;font-weight:450;color:#70849e}
+input,textarea,select{font:inherit;border:1px solid #cbd9ed;border-radius:11px;padding:12px 13px;background:#fff;color:#143055;width:100%}textarea{min-height:106px;resize:vertical}.wide{grid-column:1/-1}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:520;line-height:1.5}.check input{height:18px;width:18px;flex-shrink:0;margin-top:2px;accent-color:#226ae8}
+.form-actions{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:18px}.form-status{font-size:13px;color:#607898}.form-status[data-state=error]{color:#a53840}.form-status[data-state=success]{color:#0c7954}
+.note{padding:14px 17px;background:#f1f6ff;border:1px solid #deebfb;border-radius:12px;color:#527098;font-size:12px;margin:18px 0}
+.simple-links{display:flex;gap:16px;flex-wrap:wrap;font-weight:700;font-size:13px;margin-top:18px}.simple-links a{color:#2469c6}
+footer{border-top:1px solid var(--line);padding:32px 0;font-size:12px;color:#647b9b}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.bot-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+@media(max-width:920px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.shell{padding-left:17px;padding-right:17px}.top{align-items:flex-start;flex-direction:column;padding:17px}.hero{padding:47px 0}.cards,.form-grid{grid-template-columns:1fr}.wide{grid-column:auto}.form-section{padding:40px 0}.card{padding:20px}}
+</style></head><body>
+<header><div class="shell top"><a class="brand" href="/"><img src="/assets/brand-wordmark.png" alt="MIRVIX AI"><span>Инструменты</span></a><nav class="nav" aria-label="Основное меню"><a href="/">Главная</a><a href="/tools/" aria-current="page">Инструменты</a><a href="/check/">Проверить сайт</a><a href="/tariffs/">Услуги</a><a href="/cabinet/">Кабинет</a></nav></div></header>
 <main>
-<section class="hero"><div class="shell">
-  <div class="eyebrow"><span class="dot"></span> MIRVIX AI · ИНСТРУМЕНТЫ РОСТА</div>
-  <h1>Узнайте, где вы <span>теряете клиентов</span> и как выглядите на фоне конкурентов</h1>
-  <p class="lead">У каждого рабочего инструмента будет короткое ознакомление, а полный результат — за отдельную плату. Начинаем с реального сравнения карточек товаров; остальные инструменты подключаем только после технических и платёжных тестов.</p>
-  <div class="hero-actions"><a class="primary" href="#compare">Сравнить товары <span aria-hidden="true">↗</span></a><a class="secondary" href="#catalog">Все инструменты</a></div>
-  <div class="hero-stats"><span><b>До 5</b> конкурентов</span><span><b>Фото и цена</b> из карточки</span><span><b>Прозрачно</b> ссылки на источники</span></div>
-</div></section>
-<section class="shell tool-wrap" id="compare">
-  <div class="section-top"><div><div class="overline">01 / КОНКУРЕНТНАЯ РАЗВЕДКА</div><h2>Сравнение товаров и цен</h2><p>Откройте карточки рядом, как на витрине. Никаких выдуманных скидок, цен или фотографий.</p></div><span class="tag-live">1 ознакомление бесплатно</span></div>
-  <div class="compare-shell">
-    <div class="compare-form">
-      <div class="info-note"><span aria-hidden="true">ⓘ</span><div><b>Как работает проверка</b><p>Вставьте прямую ссылку на ваш товар и на аналогичные товары конкурентов (от 1 до 5). Сервис читает открытые данные с этих страниц. Если они скрыты или цены генерируются JavaScript, результат будет отмечен как недоступный. Нужны публичные HTTPS-ссылки без параметров после «?». </p></div></div>
-      <form id="compare-form">
-        <label for="own-product">Карточка вашего товара</label>
-        <input id="own-product" name="own" type="url" required maxlength="1200" inputmode="url" placeholder="https://ваш-сайт.ru/product/..." autocomplete="url">
-        <div class="competitor-heading"><label>Карточки конкурентов</label><span id="competitor-count">1 из 5</span></div>
-        <div id="competitor-inputs" class="competitor-fields">
-          <div class="competitor-entry"><label for="competitor-0">Конкурент 1</label><input id="competitor-0" name="competitor" type="url" required maxlength="1200" inputmode="url" placeholder="https://сайт-конкурента.ru/product/..."></div>
-        </div>
-        <div class="form-actions"><button type="button" class="add-competitor" id="add-competitor">+ Добавить конкурента</button><button type="submit" class="submit" id="compare-submit">Посмотреть часть результата бесплатно <span aria-hidden="true">↗</span></button></div>
-      </form>
-      <p class="fine">Один ограниченный просмотр для каждого браузера: только 1 конкурент, без подробных характеристик, сравнения процентов и CSV. Для строгого ограничения на человека потребуется регистрация. Повторное использование бесплатного доступа невозможно без новой идентификации. Магазины могут не отдавать цены автоматически.</p>
-<div class="purchase-box" id="purchase-box"><div class="purchase-top"><b>Полный сравнительный отчёт</b><strong id="purchase-price">от 490 ₽</strong></div><p>Все выбранные конкуренты (до пяти), полные карточки, сопоставление подтверждённых SKU и CSV-выгрузка. Оплата разовая — без подписки.</p><label for="buyer-email">Электронная почта для чека</label><input id="buyer-email" type="email" maxlength="180" autocomplete="email" placeholder="email@example.ru"><div class="purchase-actions"><button id="purchase-submit" type="button">Купить полный отчёт</button><button id="payment-check" type="button" hidden>Проверить оплату</button><button id="run-paid" type="button" hidden>Получить полный отчёт</button></div><p id="purchase-status" role="status" aria-live="polite">Платные проверки включатся после настройки ЮKassa и чеков. До этого оплату не принимаем.</p></div>
-      <div id="compare-status" class="compare-status" role="status" aria-live="polite">Введите ссылки на товары, чтобы получить сравнение.</div>
-    </div>
-    <div class="showcase"><div class="floating-orb orb-one"></div><div class="floating-orb orb-two"></div><div class="showcase-content"><div class="showcase-tag">MIRVIX / PRODUCT INTELLIGENCE</div><div class="showcase-title">Витрина<br>конкурентов<span>.</span></div><p>Вся картина — в одной проверке. Настоящие изображения и цены, подтверждённые страницами магазинов.</p><div class="showcase-chips"><span>₽ Цена</span><span>▣ Фото</span><span>◉ Наличие</span><span>↗ Источник</span></div></div></div>
-  </div>
-  <section id="compare-output" class="result-section" hidden aria-live="polite">
-    <div class="result-top"><div><div class="overline">РЕЗУЛЬТАТ ПРОВЕРКИ</div><h3>Товары рядом</h3><p id="result-summary"></p></div><button class="export" type="button" id="export-csv" hidden>Скачать CSV <span aria-hidden="true">↓</span></button></div>
-    <div id="product-cards" class="product-cards"></div>
-    <div id="compare-findings" class="findings"></div>
-    <p class="result-disclaimer">Внимание: цены и наличие могут измениться после проверки. Если нет совпадающего артикула или проверенной валюты, сервис <b>не делает числовое сравнение</b>. Сведения получены из открытого HTML, JSON-LD или метаданных и не подтверждают качество товара.</p>
-  </section>
+<section class="hero"><div class="shell"><div class="eyebrow">MIRVIX AI · ИНСТРУМЕНТЫ ДЛЯ БИЗНЕСА</div><h1>Узнайте, как выглядит ваш бизнес <span>на фоне конкурентов</span></h1><p>Проверим ваш сайт, товары, поисковую и ИИ-видимость. Вы оставляете заявку, мы проводим анализ и присылаем отчёт. Вам не нужно самостоятельно запускать сложные проверки или подключать API.</p><div class="pills"><span>Бесплатная заявка</span><span>Отчёт от специалиста</span><span>Реальные данные и ссылки на источники</span></div><div style="margin-top:26px"><a class="button" href="#request">Выбрать проверку и оставить заявку ↗</a></div></div></section>
+<section class="section shell" id="catalog"><div class="eyebrow">ВЫБЕРИТЕ НАПРАВЛЕНИЕ</div><h2>Какая проверка вам нужна?</h2><p class="sub">Выберите инструмент — мы подготовим результат и отправим удобным способом. Для сравнения с конкурентом укажите название и адрес его сайта.</p>
+<div class="cards">
+<article class="card"><div class="card-icon">◈</div><span class="tag">Бесплатно</span><h3>Сравнение товаров и цен</h3><p>Сопоставим доступные карточки товаров, их характеристики, цены, фотографии и условия. Если данные скрыты, честно обозначим ограничение.</p><button type="button" data-service="product-comparison">Заказать сравнение →</button></article>
+<article class="card"><div class="card-icon">✳</div><span class="tag">Бесплатно</span><h3>Упоминания в нейросетях</h3><p>Проверим, называют ли вашу компанию ChatGPT, Gemini, Perplexity, Алиса, GigaChat и другие доступные сервисы.</p><button type="button" data-service="ai-visibility">Заказать проверку →</button></article>
+<article class="card"><div class="card-icon">⌘</div><span class="tag">Бесплатно</span><h3>Техническое состояние сайта</h3><p>Проверим 22 критерия: индексацию, метатеги, доступность страниц, разметку и правила для поисковых роботов.</p><button type="button" data-service="technical-audit">Получить отчёт →</button></article>
+<article class="card"><div class="card-icon">❖</div><span class="tag">Бесплатно</span><h3>Матрица покупательских запросов</h3><p>Подберём вопросы покупателей и найдём темы, в которых бренд или сайт конкурента пока появляется чаще.</p><button type="button" data-service="prompt-matrix">Заказать матрицу →</button></article>
+<article class="card"><div class="card-icon">⇄</div><span class="tag">Бесплатно</span><h3>Конкуренты в ответах ИИ</h3><p>Покажем, какие сайты и бренды встречаются в ответах, откуда нейросети берут информацию.</p><button type="button" data-service="competitors-ai">Заказать анализ →</button></article>
+<article class="card"><div class="card-icon">↗</div><span class="tag">Бесплатно</span><h3>Поисковая видимость и ниши</h3><p>Сравним доступные SEO-показатели, поисковые запросы и перспективные направления роста.</p><button type="button" data-service="seo-competition">Заказать SEO-анализ →</button></article>
+<article class="card"><div class="card-icon">◷</div><span class="tag">По запросу</span><h3>Мониторинг ИИ-видимости</h3><p>Повторные проверки тех же запросов для сопоставления показателей и выявления изменений.</p><button type="button" data-service="geo-monitoring">Обсудить мониторинг →</button></article>
+<article class="card"><div class="card-icon">▤</div><span class="tag">Бесплатно</span><h3>Рекомендации и GEO-контент</h3><p>Подготовим список улучшений страниц, FAQ и тем на основе обнаруженных пробелов.</p><button type="button" data-service="geo-content">Запросить рекомендации →</button></article>
+<article class="card"><div class="card-icon">▥</div><span class="tag">По запросу</span><h3>Мониторинг цен и ассортимента</h3><p>Уточним товары и сайты для отслеживания, проверим доступность данных и предложим формат отчёта.</p><button type="button" data-service="price-monitoring">Оставить заявку →</button></article>
+</div>
+<div class="simple-links"><a href="/check/">Проверить сайт по 22 критериям самостоятельно — бесплатно ↗</a><a href="/cabinet/">Войти в кабинет MIRVIX AI ↗</a></div>
 </section>
-<section id="catalog" class="catalog"><div class="shell">
-  <div class="section-top"><div><div class="overline">02 / GEO &amp; AI TOOLS</div><h2>Другие инструменты MIRVIX</h2><p>Базовые проверки уже доступны. Ознакомление — 1 раз на инструмент, полный результат — после покупки. Платные операции включаем только после реальной проверки API, оплаты и выдачи чека.</p></div></div>
-  <div class="tool-grid">
-    <article class="tool-card"><div class="tool-icon">⌘</div><span class="state state-live">Базовая версия бесплатно</span><h3>Технический GEO-аудит</h3><p>22 критерия: индексация, robots.txt, разметка, доступность для ИИ-ботов и рекомендации.</p><a href="/check/">Проверить сайт <span>↗</span></a></article>
-    <article class="tool-card muted"><div class="tool-icon">◎</div><span class="state state-planned">Публичный доступ готовится</span><h3>Видимость в нейросетях</h3><p>Реальные ответы подключённых API, упоминания бренда, источники и матрица вопросов.</p><a href="/check/#geo-check">Открыть GEO Check <span>↗</span></a></article>
-    <article class="tool-card muted"><div class="tool-icon">✦</div><span class="state state-planned">Публичный доступ готовится</span><h3>Генератор покупательских вопросов</h3><p>Небрендовые запросы для анализа ниши: от 5 до 100 вопросов, с проверкой релевантности.</p><a href="/check/#geo-check">Создать вопросы <span>↗</span></a></article>
-    <article class="tool-card muted"><div class="tool-icon">↗</div><span class="state state-planned">Публичный доступ готовится</span><h3>Конкуренты в ответах ИИ</h3><p>Домены, на которые ссылаются нейросети, когда не называют вашу компанию. Каталоги отделяются от конкурентов.</p><a href="/check/#geo-check">Открыть анализ <span>↗</span></a></article>
-    <article class="tool-card muted"><div class="tool-icon">◇</div><span class="state state-planned">В разработке</span><h3>История видимости и GEO Rank</h3><p>Повторяемые замеры, история ответов и собственный рейтинг на подтверждённых данных.</p><span class="coming">Не продаётся до запуска</span></article>
-    <article class="tool-card muted"><div class="tool-icon">▤</div><span class="state state-planned">В разработке</span><h3>Генератор GEO-материалов</h3><p>FAQ, сравнения, статьи и рекомендации по найденным пробелам в информации о компании.</p><span class="coming">Не продаётся до запуска</span></article>
-    <article class="tool-card muted"><div class="tool-icon">▥</div><span class="state state-planned">В разработке</span><h3>Мониторинг цен и ассортимента</h3><p>Периодическая проверка выбранных товаров, изменение цен и уведомления.</p><span class="coming">Не продаётся до запуска</span></article>
-    <article class="tool-card muted"><div class="tool-icon">◈</div><span class="state state-planned">В разработке</span><h3>Отдельные платные проверки</h3><p>Самообслуживание, безопасные платежи, квоты и сохранение клиентских отчётов.</p><span class="coming">Не продаётся до запуска</span></article>
-  </div>
-</div></section>
-<section class="cta"><div class="shell"><div class="cta-inner"><div><div class="overline">MIRVIX AI</div><h2>Не просто цифры —<br>понятный следующий шаг</h2><p>После диагностики поможем исправить карточки, структуру сайта и представление бизнеса в ИИ.</p></div><a href="/#contacts">Обсудить продвижение <span aria-hidden="true">↗</span></a></div></div></section>
+<section class="form-section" id="request"><div class="shell"><div class="form-card"><div class="eyebrow">БЕСПЛАТНАЯ ЗАЯВКА</div><h2>Закажите проверку — пришлём отчёт</h2><p class="lead">Заполните данные компании и при желании конкурента. Выбирайте удобный способ связи: электронная почта, Telegram или WhatsApp. Отправка заявки и разовая предварительная проверка бесплатны.</p>
+<form id="tools-request-form">
+<div class="form-grid">
+<label class="wide">Какой анализ нужен <span aria-hidden="true">*</span><select id="tools-service" name="service" required>
+<option value="product-comparison">Сравнение товаров, цен и ассортимента</option>
+<option value="ai-visibility">Проверка упоминаний компании в нейросетях</option>
+<option value="technical-audit">Технический аудит сайта</option>
+<option value="prompt-matrix">Матрица покупательских запросов</option>
+<option value="competitors-ai">Конкуренты в ответах ИИ</option>
+<option value="seo-competition">Поисковые запросы и конкуренты</option>
+<option value="geo-monitoring">Мониторинг видимости в нейросетях</option>
+<option value="geo-content">GEO-рекомендации и контент</option>
+<option value="price-monitoring">Мониторинг цен и ассортимента</option>
+</select></label>
+<label>Название вашей компании <span aria-hidden="true">*</span><input name="company" maxlength="120" required placeholder="Например, Шурик Маркет"></label>
+<label>Домен / ссылка на сайт компании <span aria-hidden="true">*</span><input name="site" maxlength="240" required placeholder="https://company.ru/" inputmode="url"></label>
+<label class="wide">Чем занимается компания <span aria-hidden="true">*</span><input name="category" required maxlength="180" placeholder="Например, продажа строительных материалов в Санкт-Петербурге"></label>
+<label>Название конкурента <small>По желанию</small><input name="competitor" maxlength="120" placeholder="Компания-конкурент"></label>
+<label>Домен / ссылка на сайт конкурента <small>По желанию</small><input name="competitorSite" maxlength="240" placeholder="https://competitor.ru/" inputmode="url"></label>
+<label class="wide">Что проверить / по каким запросам <small>По желанию</small><textarea name="questions" maxlength="1000" rows="3" placeholder="Например: «Где выгоднее купить ОСП в СПб?», «Кого рекомендует ChatGPT?»"></textarea></label>
+<label class="wide" id="product-field">Ссылки на товары для сравнения <small>По желанию, по одной на строку</small><textarea name="productLinks" maxlength="1000" rows="3" placeholder="https://company.ru/product/...&#10;https://competitor.ru/product/..."></textarea></label>
+<label>Ваше имя <span aria-hidden="true">*</span><input name="name" maxlength="100" required autocomplete="name" placeholder="Как к вам обращаться"></label>
+<label>Куда отправить отчёт <span aria-hidden="true">*</span><select name="channel" id="tools-channel"><option value="email">Электронная почта</option><option value="telegram">Telegram</option><option value="whatsapp">WhatsApp</option></select></label>
+<label class="wide">Адрес или номер для получения отчёта <span aria-hidden="true">*</span><input id="tools-contact" name="contact" required maxlength="180" type="email" inputmode="email" autocomplete="email" placeholder="you@company.ru"></label>
+<label class="wide check"><input type="checkbox" name="consent" required><span>Согласен(на) с обработкой данных заявки, включая имя и контакт, для подготовки и отправки отчёта согласно <a href="/legal/privacy/" target="_blank" rel="noopener" style="color:#1669d5;text-decoration:underline">политике конфиденциальности</a>.</span></label>
+</div>
+<div class="bot-trap" aria-hidden="true"><label>Не заполнять<input name="extra_url" tabindex="-1" autocomplete="off"></label></div>
+<div class="form-actions"><button id="tools-submit" type="submit">Отправить на бесплатную проверку ↗</button><span class="form-status" role="status" aria-live="polite" id="tools-message">Заполните форму, чтобы отправить заявку специалистам MIRVIX AI.</span></div>
+</form>
+<div class="note">Заявка не запускает автоматический платный анализ и не списывает деньги. Мы проверим доступные источники и отправим подтверждённые результаты; если часть данных недоступна, прямо укажем это в отчёте.</div>
+</div></div></section>
 </main>
-<footer class="footer"><div class="shell"><span>© 2026 MIRVIX AI · GEO Tools</span><div><a href="/">Главная</a><a href="/legal/privacy/">Конфиденциальность</a><a href="/tariffs/">Тарифы</a></div></div></footer>
+<footer><div class="shell footer"><span>© 2026 MIRVIX AI · Инструменты</span><div><a href="/">Главная</a> · <a href="/legal/privacy/">Конфиденциальность</a> · <a href="/legal/contacts/">Контакты</a></div></div></footer>
 </body></html>
