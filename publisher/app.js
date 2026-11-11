@@ -66,7 +66,7 @@ $('pilotMirvix').addEventListener('click',()=>{
     'продвижение компании в нейросетях',
     'GEO продвижение бизнеса',
     'как повысить видимость бренда в ChatGPT'
-  ].join('\\n');
+  ].join('\n');
   $('audience').value='Владельцы и руководители малого и среднего бизнеса';
   $('competitors').value='';
   $('exclusions').value='';
