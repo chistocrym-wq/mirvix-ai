@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f5f8ff">
-<meta name="description" content="Тарифы MIRVIX AI: 4 варианта GEO-продвижения от 50 000 до 259 000 ₽ и 4 варианта сопровождения, включая самостоятельное ведение.">
+<meta name="description" content="GEO-продвижение MIRVIX AI: аудит и техническая подготовка сайта, работа с 2, 10, 20 или 30 целевыми запросами. Пакеты 50 000, 89 000, 129 000 и 259 000 ₽. Сопровождение — по желанию.">
 <link rel="canonical" href="https://mirvixai.com/tariffs/">
 <link rel="icon" type="image/png" href="/assets/favicon-32.png">
 <title>Тарифы GEO-продвижения и сопровождения — MIRVIX AI</title>
@@ -28,25 +28,208 @@ h1{font-size:clamp(38px,5.3vw,66px);letter-spacing:-.056em;line-height:1.06;marg
 footer{padding:22px 0;border-top:1px solid var(--line);color:#637692;font-size:12px}footer .container{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
 @media(max-width:1050px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.head nav{gap:12px}.brand img{width:125px}.brand span{font-size:11px}}
 @media(max-width:690px){.container{width:calc(100% - 32px)}.head{min-height:68px;flex-wrap:wrap;padding:10px 0;gap:10px}.brand{width:100%;justify-content:space-between}.brand img{width:130px}.head nav{width:100%;justify-content:space-between;font-size:12px;gap:8px}.top{padding:48px 0 33px}.top p{font-size:15px}.section{padding:49px 0}.section+.section{padding-top:12px}.cards{grid-template-columns:1fr}.plan{padding:22px}.plan .price{font-size:30px}.cta{padding:12px 0 60px}.cta-inner{padding:24px;display:grid}.cta-inner .action{width:100%}.tabs{gap:7px}.tabs a{font-size:12px;padding:10px 12px}}
+
+/* MIRVIX pricing clarity upgrade: core deliverables, query counts, readable lists. */
+.top{padding:78px 0 56px;position:relative;overflow:hidden}
+.top::after{content:"";position:absolute;right:-90px;top:10px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,#b9d9ff80,transparent 70%);pointer-events:none}
+.top .container{position:relative;z-index:1}
+.top h1{max-width:1000px}
+.top .lead{max-width:840px;line-height:1.7}
+.intro-points{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0}
+.intro-points span{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:720;color:#2c5b97;padding:9px 13px;border:1px solid #d3e3fc;background:#fff;border-radius:100px}
+.intro-points span::before{content:"✓";display:inline-grid;place-items:center;color:#138c68;font-weight:900;width:15px}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:18px;flex-wrap:wrap;margin-bottom:27px}
+.section-head .section-intro{margin:6px 0 0}
+.subnote{display:block;font-size:12px;line-height:1.5;color:#647a99}
+.section .cards{align-items:stretch}
+.plan{padding:24px 21px 22px;gap:12px;position:relative;overflow:hidden;border:1px solid #d8e5f8;border-radius:22px;box-shadow:0 14px 33px #203b7812;background:#fff}
+.plan::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#2c8be9,#75bbec)}
+.plan .plan-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.plan .marker{font-size:22px;width:42px;height:42px}
+.plan .plan-tag{font-size:10px;font-weight:900;color:#4f6d98;letter-spacing:.08em;line-height:1.3;text-align:right}
+.plan .plan-title{font-size:20px;font-weight:850;letter-spacing:-.02em;line-height:1.1}
+.plan .plan-subtitle{font-size:12px;color:#687d99;margin:0;line-height:1.5;min-height:36px}
+.plan .price{font-size:clamp(24px,2.25vw,31px);padding:10px 0 14px;border-bottom:1px solid #e4ebf6}
+.plan .query-amount{background:linear-gradient(115deg,#ecf4ff,#f5f1ff);border:1px solid #e1ebfb;border-radius:15px;padding:16px 13px;display:flex;align-items:center;gap:10px;margin:1px 0 2px}
+.plan .query-amount b{font-size:40px;font-weight:950;line-height:1;letter-spacing:-.055em;background:linear-gradient(125deg,#156ee8,#7a3ada);-webkit-background-clip:text;background-clip:text;color:transparent}
+.plan .query-amount span{font-size:13px;color:#425c86;font-weight:750;line-height:1.45}
+.plan .query-amount small{font-size:11px;color:#6882a3;font-weight:550;display:block}
+.plan .included-head{font-size:10px;letter-spacing:.12em;color:#6c7d97;font-weight:900;margin:7px 0 0}
+.plan .features{list-style:none;margin:0 0 8px;padding:0;display:grid;gap:12px;flex:1}
+.plan .features li{position:relative;padding-left:21px;font-size:12.5px;line-height:1.45;color:#435979}
+.plan .features li::before{content:"✓";position:absolute;left:0;top:0;color:#238a83;font-weight:900}
+.plan .action{font-size:12.5px;padding:12px 13px;align-self:stretch;min-height:47px;margin-top:auto}
+.plan.featured{background:linear-gradient(145deg,#123a91,#284ec3 52%,#6944c9);border-color:#4d6bc5;box-shadow:0 19px 43px #2844a933}
+.plan.featured::before{height:5px;background:linear-gradient(90deg,#5de3fa,#bca0ff)}
+.plan.featured .plan-tag,.plan.featured .plan-subtitle,.plan.featured .included-head,.plan.featured .features li,.plan.featured .query-amount span,.plan.featured .query-amount small{color:#ebf1ff}
+.plan.featured .price{border-bottom-color:#ffffff50}
+.plan.featured .features li::before{color:#80f5dc}
+.plan.featured .query-amount{background:#ffffff1a;border:1px solid #ffffff39}
+.plan.featured .query-amount b{color:#fff;background:none}
+.plan.featured .query-amount small{color:#d3e4ff}
+.plan.featured .action{border:1px solid #fff;background:white;color:#184eae}
+.plan.featured .plan-tag{background:#ffffff20;border-radius:9px;padding:7px 9px;color:#fff}
+.plan.featured .marker{background:#ffffff26}
+.work-steps{padding:18px 0 52px}
+.step-boxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.step{background:#f5f9ff;border:1px solid #dce9fa;padding:21px;border-radius:17px}
+.step .num{font-size:11px;color:#2672da;font-weight:850;letter-spacing:.1em}
+.step h3{font-size:17px;margin:11px 0 7px}
+.step p{font-size:13px;color:#5f7291;margin:0}
+.scope-note{padding:18px 19px;border:1px solid #dce7f7;background:#f7faff;border-radius:14px;margin-top:27px;font-size:13px;color:#596c89;line-height:1.66}
+.scope-note strong{color:#1a4780}
+.support-grid .plan .price{padding-bottom:16px}
+.support-grid .plan .features{margin-top:8px}
+.support-grid .plan .plan-subtitle{min-height:55px}
+.faq-band{padding:34px 0 57px;background:linear-gradient(135deg,#f2f6ff,#fff)}
+.faq-band h2{font-size:28px;letter-spacing:-.035em}
+.faq-band details{border-bottom:1px solid #d6e4f5;padding:17px 0;max-width:940px}
+.faq-band summary{cursor:pointer;font-weight:800;color:#173761}
+.faq-band details p{font-size:13.5px;color:#516886;max-width:850px;line-height:1.72;margin-bottom:0}
+@media(max-width:1050px){.plan .query-amount b{font-size:42px}}
+@media(max-width:690px){.intro-points{gap:7px}.intro-points span{font-size:11px}.plan .plan-subtitle,.support-grid .plan .plan-subtitle{min-height:0}.plan .price{font-size:30px}.plan .features li{font-size:13px}.step-boxes{grid-template-columns:1fr}.work-steps{padding:0 0 38px}.faq-band{padding:30px 0 50px}}
+
 </style>
 <script defer src="/assets/mirvix-metrika.js"></script>
 </head>
 <body>
 <header><div class="container head"><a class="brand" href="/" aria-label="MIRVIX — на главную"><img src="/assets/brand-wordmark.png" alt="MIRVIX"><span>Тарифы и сопровождение</span></a><nav aria-label="Разделы сайта"><a href="/">Главная</a><a href="/#services">Услуги</a><a href="/#platform">О платформе</a><a href="/#lead-form">Связаться</a></nav></div></header>
 <main>
-<section class="top"><div class="container"><span class="eyebrow">MIRVIX AI · УСЛУГИ И СТОИМОСТЬ</span><h1>Тарифы <span class="grad">GEO-продвижения</span></h1><p>Подготовим присутствие компании для поисковых и ИИ-сервисов и поможем развивать его дальше. Выберите подходящий объём первоначальных работ и отдельный вариант сопровождения.</p><div class="tabs"><a href="#geo">GEO-продвижение</a><a href="#support">Сопровождение</a><a href="/#platform">О платформе MIRVIX</a></div></div></section>
-<section class="section" id="geo"><div class="container"><span class="eyebrow">ПЕРВОНАЧАЛЬНЫЕ РАБОТЫ</span><h2>4 варианта GEO-продвижения</h2><p class="section-intro">От базовой подготовки присутствия до комплексной работы с контентом, представлением компании и её доступностью для нейросетей. Точный состав, число проверок и сроки фиксируются в предложении до начала работ.</p><div class="cards">
-<article class="plan"><span class="marker" aria-hidden="true">✦</span><strong>GEO Старт</strong><div class="price">50 000 ₽</div><p>Базовая диагностика, приоритетные рекомендации и стартовая подготовка сайта и информации о компании для поиска и ИИ.</p><a class="action secondary" href="/#lead-form">Обсудить «Старт»</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">◈</span><strong>GEO Оптимум</strong><div class="price">89 000 ₽</div><p>Расширенная оценка представления компании, проработка основных направлений и рекомендации по усилению присутствия.</p><a class="action secondary" href="/#lead-form">Обсудить «Оптимум»</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">▥</span><strong>GEO Бизнес</strong><div class="price">129 000 ₽</div><p>Более глубокая работа со структурой сайта, карточками услуг и товаров, релевантным контентом и измерением видимости.</p><a class="action secondary" href="/#lead-form">Обсудить «Бизнес»</a></article>
-<article class="plan featured"><span class="marker" aria-hidden="true">♛</span><strong>GEO Максимум</strong><div class="price">259 000 ₽</div><p>Максимально широкий формат: комплексная проработка направлений, технических и контентных факторов, аналитики и дальнейших приоритетов.</p><a class="action" href="/#lead-form">Обсудить «Максимум»</a></article>
-</div><p class="hint separator">GEO — подготовка информации к обнаружению и использованию поисковыми системами и ИИ. Позиции, упоминания, рекомендации и продажи не гарантируются: итог зависит также от внешних платформ и конкуренции.</p></div></section>
-<section class="section" id="support"><div class="container"><span class="eyebrow">ПОСЛЕ ЗАПУСКА</span><h2>4 вида сопровождения</h2><p class="section-intro">Сопровождение необязательно: после первоначальной настройки вы можете поддерживать материалы самостоятельно. Если хотите передать работу специалистам MIRVIX, предусмотрены три платных варианта.</p><div class="cards">
-<article class="plan"><span class="marker" aria-hidden="true">⌘</span><strong>Самостоятельно</strong><div class="price">0 ₽ <small>за сопровождение</small></div><p>Вы самостоятельно обновляете страницы, карточки и сведения о компании после выполнения согласованных первоначальных работ.</p><a class="action secondary" href="/#lead-form">Выбрать самостоятельно</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">◇</span><strong>Базовое сопровождение</strong><div class="price">45 000 ₽ <small>/мес.</small></div><p>Плановые корректировки, обновление ключевой информации и контроль состояния согласованных материалов.</p><a class="action secondary" href="/#lead-form">Обсудить базовое</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">↗</span><strong>Активное сопровождение</strong><div class="price">65 000 ₽ <small>/мес.</small></div><p>Регулярная работа с содержанием, расширение полезных материалов и мониторинг изменений в видимости.</p><a class="action secondary" href="/#lead-form">Обсудить активное</a></article>
-<article class="plan featured"><span class="marker" aria-hidden="true">✧</span><strong>Профессиональное сопровождение</strong><div class="price">85 000 ₽ <small>/мес.</small></div><p>Приоритетное ведение, расширенная аналитика, плановые улучшения и постоянная корректировка согласованной стратегии.</p><a class="action" href="/#lead-form">Обсудить профессиональное</a></article>
-</div><p class="hint separator">Указана стоимость сопровождения в месяц. Самостоятельный вариант означает отсутствие платы именно за сопровождение, а не бесплатное GEO-продвижение. Объём работ, период и отчётность согласуются отдельно.</p></div></section>
+<section class="top"><div class="container">
+  <span class="eyebrow">MIRVIX AI · ПАКЕТЫ GEO-ПРОДВИЖЕНИЯ</span>
+  <h1>Сделаем ваш бизнес <span class="grad">заметнее в нейросетях</span></h1>
+  <p class="lead">Сначала проверяем сайт и готовность к обращениям. Исправляем согласованные технические препятствия, готовим информацию для поисковых и ИИ-систем и работаем по конкретным запросам, по которым вас могут искать покупатели.</p>
+  <div class="intro-points"><span>Техническая проверка и исправления</span><span>Подготовка сайта для ИИ</span><span>2 / 10 / 20 / 30 целевых запросов</span><span>Контрольный отчёт</span></div>
+  <div class="tabs"><a href="#geo">Выбрать тариф</a><a href="#process">Как работаем</a><a href="#support">Сопровождение</a></div>
+</div></section>
+<section class="section" id="geo"><div class="container">
+  <span class="eyebrow">РАЗОВАЯ ПОДГОТОВКА И ПРОДВИЖЕНИЕ</span>
+  <div class="section-head"><div><h2>Выберите масштаб присутствия в ИИ</h2><p class="section-intro">Основа одна: проверяем и подготавливаем сайт. Разница — сколько целевых покупательских запросов и направлений вашего бизнеса мы прорабатываем.</p></div><span class="subnote">Стоимость первоначального проекта · разово</span></div>
+  <div class="cards">
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">✦</span><span class="plan-tag">НАЧАЛО РАБОТЫ</span></div>
+      <strong class="plan-title">GEO Старт</strong>
+      <p class="plan-subtitle">Для компании, которая хочет начать с самых важных запросов.</p>
+      <div class="price">50 000 ₽</div>
+      <div class="query-amount"><b>2</b><span>целевых запроса<small>Выбираем вместе с вами</small></span></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features">
+        <li>Технический анализ сайта и выявление препятствий для поиска и ИИ.</li>
+        <li>Согласованные технические исправления на сайте, если они требуются и доступны.</li>
+        <li>Проверка индексации, robots.txt, sitemap и доступности материалов для ИИ-ботов.</li>
+        <li>Проработка 2 запросов: что увидит клиент и какие сведения нужно улучшить.</li>
+        <li>Повторная проверка и отчёт о выполненной работе.</li>
+      </ul>
+      <a class="action secondary" href="/#lead-form">Обсудить «Старт» ↗</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">◈</span><span class="plan-tag">РАСШИРЕННЫЙ</span></div>
+      <strong class="plan-title">GEO Оптимум</strong>
+      <p class="plan-subtitle">Для роста по основным товарам и услугам.</p>
+      <div class="price">89 000 ₽</div>
+      <div class="query-amount"><b>10</b><span>целевых запросов<small>По вашим приоритетам</small></span></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features">
+        <li>Всё из «Старта»: диагностика, технические исправления и подготовка для ИИ.</li>
+        <li>Матрица из 10 согласованных покупательских запросов.</li>
+        <li>Изучение конкурентов и источников, которые встречаются в ответах ИИ.</li>
+        <li>Улучшение информации о ключевых услугах, товарах и ответов на вопросы клиентов.</li>
+        <li>Повторные проверки и рекомендации для дальнейшего роста.</li>
+      </ul>
+      <a class="action secondary" href="/#lead-form">Обсудить «Оптимум» ↗</a>
+    </article>
+    <article class="plan featured">
+      <div class="plan-top"><span class="marker" aria-hidden="true">▥</span><span class="plan-tag">НЕСКОЛЬКО НАПРАВЛЕНИЙ</span></div>
+      <strong class="plan-title">GEO Бизнес</strong>
+      <p class="plan-subtitle">Для компании с широким перечнем услуг или товаров.</p>
+      <div class="price">129 000 ₽</div>
+      <div class="query-amount"><b>20</b><span>целевых запросов<small>По группам ваших услуг</small></span></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features">
+        <li>Всё из «Оптимума»: техническая подготовка сайта и конкурентный анализ.</li>
+        <li>Проработка 20 запросов по тематическим группам и покупательским задачам.</li>
+        <li>Расширение и улучшение согласованных страниц, FAQ и карточек предложений.</li>
+        <li>Уточнение структуры, фактов о компании и источников, которые могут использовать ИИ.</li>
+        <li>Отчёт по каждой группе запросов и план приоритетных улучшений.</li>
+      </ul>
+      <a class="action" href="/#lead-form">Обсудить «Бизнес» ↗</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">✧</span><span class="plan-tag">МАКСИМАЛЬНЫЙ ОХВАТ</span></div>
+      <strong class="plan-title">GEO Максимум</strong>
+      <p class="plan-subtitle">Для системного присутствия по большому числу запросов.</p>
+      <div class="price">259 000 ₽</div>
+      <div class="query-amount"><b>30</b><span>целевых запросов<small>По ключевым направлениям</small></span></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features">
+        <li>Всё из «Бизнеса»: комплексная техническая и контентная подготовка сайта.</li>
+        <li>Матрица из 30 запросов с группировкой по товарам, услугам и намерениям клиентов.</li>
+        <li>Расширенное сравнение конкурентов и информационных пробелов.</li>
+        <li>Глубокая проработка согласованных страниц, карточек, FAQ и подтверждающих сведений.</li>
+        <li>Контрольные замеры, сводный отчёт и план дальнейшего сопровождения.</li>
+      </ul>
+      <a class="action secondary" href="/#lead-form">Обсудить «Максимум» ↗</a>
+    </article>
+  </div>
+  <div class="scope-note"><strong>Во всех тарифах:</strong> до начала работ мы вместе выбираем целевые запросы, проверяем состояние сайта и согласовываем перечень изменений. В стоимость включены технические исправления в пределах согласованного объёма. Крупная переработка сайта, новый функционал и сторонние платные размещения согласуются отдельно. Мы повышаем техническую готовность и качество представления бизнеса, но позиции, рекомендации и продажи в нейросетях <strong>не гарантируются</strong>.</div>
+</div></section>
+<section class="work-steps" id="process"><div class="container">
+  <span class="eyebrow">КАК БУДЕТ ПРОХОДИТЬ РАБОТА</span><h2 style="font-size:clamp(28px,3.1vw,39px);letter-spacing:-.045em;margin:10px 0 23px">Сначала исправляем путь клиента. Затем усиливаем видимость.</h2>
+  <div class="step-boxes">
+    <div class="step"><span class="num">ШАГ 01</span><h3>Проверяем сайт</h3><p>Скорость, мобильные страницы, формы заявок, доступность материалов и технические настройки. Обсуждаем, что необходимо исправить в первую очередь.</p></div>
+    <div class="step"><span class="num">ШАГ 02</span><h3>Прорабатываем запросы</h3><p>Определяем, как покупатели ищут ваши товары и услуги, изучаем ответы ИИ и конкурентов, улучшаем информацию на согласованных страницах.</p></div>
+    <div class="step"><span class="num">ШАГ 03</span><h3>Проверяем результат</h3><p>Повторяем контрольные вопросы, фиксируем упоминания и источники, передаём отчёт и список следующих шагов. Разделяем изменения на сайте и динамику ответов ИИ.</p></div>
+  </div>
+</div></section>
+<section class="section" id="support"><div class="container">
+  <span class="eyebrow">ПОСЛЕ ПЕРВОНАЧАЛЬНЫХ РАБОТ</span>
+  <div class="section-head"><div><h2>Сопровождение — по вашему выбору</h2><p class="section-intro">Сопровождение необязательно. Вы можете поддерживать страницы самостоятельно или передать регулярные улучшения MIRVIX AI. Все текущие цены сохранены.</p></div><span class="subnote">Стоимость сопровождения · в месяц</span></div>
+  <div class="cards support-grid">
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">⌘</span><span class="plan-tag">ПОСЛЕ ЗАПУСКА</span></div>
+      <strong class="plan-title">Самостоятельно</strong>
+      <p class="plan-subtitle">Для команды, которая будет развивать сайт собственными силами.</p>
+      <div class="price">0 ₽ <small>за сопровождение</small></div>
+      <div class="included-head">КАК ЭТО РАБОТАЕТ</div>
+      <ul class="features"><li>Получаете результаты разового проекта и перечень рекомендаций.</li><li>Самостоятельно обновляете страницы, карточки и сведения.</li><li>Нет обязательной ежемесячной оплаты.</li></ul>
+      <a class="action secondary" href="/#lead-form">Выбрать самостоятельно</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">◇</span><span class="plan-tag">ПЛАНОВОЕ</span></div>
+      <strong class="plan-title">Базовое сопровождение</strong>
+      <p class="plan-subtitle">Для сохранения актуальности основных материалов.</p>
+      <div class="price">45 000 ₽ <small>/мес.</small></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features"><li>Контроль доступности и актуальности согласованных страниц.</li><li>Плановые технические и текстовые корректировки.</li><li>Обновление ключевой информации и краткий отчёт.</li></ul>
+      <a class="action secondary" href="/#lead-form">Обсудить базовое</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">↗</span><span class="plan-tag">РЕГУЛЯРНОЕ</span></div>
+      <strong class="plan-title">Активное сопровождение</strong>
+      <p class="plan-subtitle">Для бизнеса, который постоянно обновляет предложения.</p>
+      <div class="price">65 000 ₽ <small>/мес.</small></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features"><li>Всё из базового сопровождения.</li><li>Регулярная работа с полезными страницами и FAQ.</li><li>Повторные проверки видимости по согласованным запросам.</li></ul>
+      <a class="action secondary" href="/#lead-form">Обсудить активное</a>
+    </article>
+    <article class="plan featured">
+      <div class="plan-top"><span class="marker" aria-hidden="true">✧</span><span class="plan-tag">РАСШИРЕННОЕ</span></div>
+      <strong class="plan-title">Профессиональное сопровождение</strong>
+      <p class="plan-subtitle">Для системного развития нескольких направлений.</p>
+      <div class="price">85 000 ₽ <small>/мес.</small></div>
+      <div class="included-head">ЧТО ВХОДИТ</div>
+      <ul class="features"><li>Всё из активного сопровождения.</li><li>Расширенный мониторинг запросов и конкурентов.</li><li>План развития контента, приоритетные правки и подробная отчётность.</li></ul>
+      <a class="action" href="/#lead-form">Обсудить профессиональное</a>
+    </article>
+  </div>
+  <p class="hint separator">Самостоятельный вариант означает отсутствие платы только за сопровождение, а не бесплатное первоначальное GEO-продвижение. Точный месячный объём работ, периодичность проверок и формат отчётности закрепляем в соглашении.</p>
+</div></section>
+<section class="faq-band"><div class="container">
+  <span class="eyebrow">ВОПРОСЫ ПЕРЕД СТАРТОМ</span><h2>Что именно мы называем целевым запросом?</h2>
+  <details><summary>Что значит «проработка 2, 10, 20 или 30 запросов»?</summary><p>Это согласованные с вами формулировки вопросов покупателей, например: «Где заказать изготовление кухни в Санкт-Петербурге?» или «Какую компанию выбрать для обслуживания коммерческой недвижимости?». Мы анализируем, что нейросети отвечают на эти вопросы, и улучшаем доступные им сведения о вашей компании. Количество запросов — объём работы над темами, а не гарантия попадания в ответы.</p></details>
+  <details><summary>Входит ли исправление сайта в тариф?</summary><p>Да, технический аудит и необходимые исправления входят в каждый пакет в пределах согласованного до начала проекта перечня. Если выяснится, что сайт требует полной переработки, сложной разработки или дополнительной закупки сервисов, сначала отдельно обсуждаем объём и стоимость.</p></details>
+  <details><summary>Когда можно ожидать рекомендаций в нейросетях?</summary><p>Сроки и состав ответов зависят от платформ, обновления их источников и конкуренции. Нельзя обещать конкретную позицию или число упоминаний. Мы фиксируем первоначальные проверки, выполненные изменения и контрольные результаты, чтобы оценивать реальную динамику.</p></details>
+</div></section>
 <section class="cta"><div class="container"><div class="cta-inner"><div><strong>Не знаете, какой тариф выбрать?</strong><p>Расскажите о бизнесе и задачах — предложим подходящий объём работ и формат сопровождения.</p></div><a class="action" href="/#lead-form">Обсудить задачу ↗</a></div></div></section>
 </main><footer><div class="container"><span>© MIRVIX AI · Тарифы GEO-продвижения</span><a href="/legal/privacy/">Конфиденциальность</a><a href="/">На главную</a></div></footer>
 </body></html>
