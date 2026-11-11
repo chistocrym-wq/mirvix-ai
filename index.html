@@ -194,8 +194,8 @@ svg{display:block}
 .contact-buttons .button{font-size:12.5px;padding-inline:18px}
 .pricing-note{display:block;color:#9dbadb;font-size:11.5px;line-height:1.6;margin-top:26px}
 .contact-card{align-self:center;background:#fdfefe;border-radius:21px;padding:30px;box-shadow:0 28px 55px #05163840}
-.contact-card-caption{color:#7288ab;letter-spacing:.14em;font-size:11px;font-weight:800}
-.contact-lead{display:flex;align-items:center;gap:13px;margin-top:18px}
+
+.contact-lead{display:flex;align-items:center;gap:13px;margin-top:0}
 .contact-avatar{display:grid;place-items:center;flex-shrink:0;width:46px;height:46px;border-radius:13px;color:#fff;font-size:14px;font-weight:850;background:linear-gradient(130deg,#147cf2,#6333dc)}
 .contact-lead>div{display:flex;flex-direction:column;gap:3px}
 .contact-lead>div>span{font-size:11px;color:#7585a1;font-weight:710}
@@ -500,7 +500,7 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 .lead-explain{color:#c6d9f0;font-size:11.5px;line-height:1.62;margin:14px 0 0}
 @media(max-width:1130px){.contact-shell{gap:28px;padding:54px 35px}}
 @media(max-width:690px){.contact-shell{padding:35px 23px;gap:27px}.lead-panel{padding:20px 16px}.lead-fields{grid-template-columns:1fr}.lead-fields .lead-full{grid-column:auto}.lead-panel-head h3{font-size:22px}}
-.partner-cabinet-link{display:inline-flex!important;align-items:center;gap:7px;padding:10px 13px!important;border:1px solid #bed4f5;border-radius:10px;background:#e9f2ff;color:#135cae!important;font-size:12.3px!important;font-weight:800!important;line-height:1.4!important;transition:background .2s}.partner-cabinet-link:hover{background:#d7e7ff}
+
 
 /* MIRVIX 2026 — business-card blue, aqua and violet identity */
 :root{--navy:#183A8B;--ink:#182A65;--blue:#2868D4;--cyan:#2CB8E4;--violet:#7933A4;--soft-blue:#f1f6ff}
@@ -994,8 +994,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 </div>
     </div>
     <aside class="contact-card">
-      <span class="contact-card-caption">ВАШ КОНТАКТ</span>
-      <div class="contact-lead"><span class="contact-avatar" aria-hidden="true">ЮК</span><div><span>Директор направления</span><strong>Катаускайте Юлия Альгисовна</strong></div></div>
+      <div class="contact-lead"><span class="contact-avatar" aria-hidden="true">ЮА</span><div><span>Директор направления</span><strong>Юлия Альгисовна</strong></div></div>
       <div class="contact-divider"></div>
       <div class="contact-row"><span class="contact-icon" aria-hidden="true">☎</span><button type="button" data-phone-open aria-label="Выбрать звонок или копирование номера 8 960 253 79 79">8 960 253 79 79 <span aria-hidden="true">↗</span></button></div>
       <div class="contact-row"><span class="contact-icon" aria-hidden="true">✉</span><a href="mailto:mirvixai@mail.ru">mirvixai@mail.ru <span aria-hidden="true">↗</span></a></div>
@@ -1037,7 +1036,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       <a href="/ai-search/">ИИ-поиск для бизнеса</a>
       <a href="#approach">Как мы работаем</a>
       <a href="#about">О нас</a>
-      <a class="partner-cabinet-link" href="/cabinet/" aria-label="Вход в кабинет для партнёров">🔐 Кабинет для партнёров <span aria-hidden="true">↗</span></a>
+      <a href="/cabinet/">Кабинет сотрудника</a>
       <a href="/check/">Проверить сайт в ИИ</a>
     </nav>
     <nav class="footer-column" aria-label="Правовая информация">
