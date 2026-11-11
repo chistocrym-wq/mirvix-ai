@@ -208,5 +208,5 @@ export default async function handler(request){
       }});
     }
     return respond(await action(request,store,body));
-  }catch(e)return respond({error:err(e)},422);
+  }catch(e){return respond({error:err(e)},422);}
 }
