@@ -49,7 +49,7 @@ test('AI audit uses dedicated website and company fields and one staff entry poi
   assert.match(html,/id="geo-url"/);
   assert.match(html,/id="geo-brand"/);
   assert.equal((html.match(/class="employee-login"/g)||[]).length,1);
-  const section=html.slice(html.indexOf('<section class="panel noprint" id="geo-check">'),html.indexOf('<main id="report"'));
+  const section=html.slice(html.indexOf('<section class="panel noprint" id="geo-check"'),html.indexOf('<main id="report"'));
   assert.ok(section.indexOf('id="geo-connect"')<section.indexOf('class="employee-login"'));
   assert.ok(section.indexOf('class="employee-login"')<section.indexOf('id="geo-work"'));
   assert.match(html,/get\('staff'\)==='1'/);
