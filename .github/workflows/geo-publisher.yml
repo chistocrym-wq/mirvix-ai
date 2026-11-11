@@ -1,0 +1,35 @@
+name: MIRVIX GEO Publisher MVP
+on:
+  pull_request:
+    paths:
+      - 'publisher/**'
+      - 'netlify/functions/geo-publisher.mjs'
+      - 'netlify/lib/geo-publisher-core.mjs'
+      - 'tests/geo-publisher.test.mjs'
+      - '.github/workflows/geo-publisher.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'publisher/**'
+      - 'netlify/functions/geo-publisher.mjs'
+      - 'netlify/lib/geo-publisher-core.mjs'
+      - 'tests/geo-publisher.test.mjs'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Syntax
+        run: |
+          node --check netlify/lib/geo-publisher-core.mjs
+          node --check netlify/functions/geo-publisher.mjs
+          node --check publisher/app.js
+          node --check tests/geo-publisher.test.mjs
+      - name: Unit tests
+        run: node --test tests/geo-publisher.test.mjs
