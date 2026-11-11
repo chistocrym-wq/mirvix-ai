@@ -12,6 +12,17 @@ const respond = (body, status = 200) => Response.json(body, {
 
 const trim = (input, max) => typeof input === 'string' ? input.trim().slice(0, max + 1) : '';
 const fits = (input, min, max) => input.length >= min && input.length <= max;
+const SERVICES = Object.freeze({
+  'ai-visibility': 'Проверка упоминаний компании в нейросетях',
+  'product-comparison': 'Сравнение карточек товаров, цен и ассортимента',
+  'technical-audit': 'Технический аудит сайта по 22 критериям',
+  'prompt-matrix': 'Матрица покупательских запросов',
+  'competitors-ai': 'Конкуренты в ответах ИИ',
+  'geo-monitoring': 'Мониторинг упоминаний и GEO-рейтинг',
+  'geo-content': 'Рекомендации и контент для GEO',
+  'price-monitoring': 'Отслеживание цен и ассортимента',
+  'seo-competition': 'Сравнение поисковой видимости и конкурентов'
+});
 
 function normalizeDomain(raw, optional = false) {
   if (!raw && optional) return '';
@@ -49,6 +60,10 @@ function prepare(body) {
   const category = trim(body.category, 180);
   const competitor = trim(body.competitor, 120);
   const questions = trim(body.questions, 1000);
+  const productLinks = trim(body.productLinks, 1000);
+  const service = typeof body.service === 'string' && body.service
+    ? body.service.trim() : 'ai-visibility';
+  if (!Object.hasOwn(SERVICES, service)) throw Error('Неизвестный вид проверки.');
   const name = trim(body.name, 100);
   const contact = trim(body.contact, 180);
   const channel = trim(body.channel, 30);
@@ -69,7 +84,7 @@ function prepare(body) {
       !/^(?:@[A-Za-z0-9_]{5,32}|https:\/\/t\.me\/[A-Za-z0-9_+]{5,70}|[+]?[0-9\s()-]{10,25})$/i.test(contact)) {
     throw Error('Для Telegram укажите @имя, ссылку t.me или номер телефона.');
   }
-  if (competitor.length > 120 || questions.length > 1000) {
+  if (competitor.length > 120 || questions.length > 1000 || productLinks.length > 1000) {
     throw Error('Укоротите название конкурента или список вопросов.');
   }
   const site = normalizeDomain(body.site);
@@ -77,20 +92,19 @@ function prepare(body) {
   if (competitorSite && site === competitorSite) {
     throw Error('Сайт конкурента должен отличаться от сайта вашей компании.');
   }
-  if (competitor || competitorSite) {
-    if (!wantsCompetitor) throw Error('Отметьте сравнение с конкурентом или уберите его сведения.');
-  }
   return {
     company, site, category, competitor, competitorSite,
-    wantsCompetitor, questions, name, channel, contact
+    wantsCompetitor: wantsCompetitor || !!competitor || !!competitorSite,
+    questions, productLinks, service, name, channel, contact
   };
 }
 
 function formatMessage(d) {
   const channel = {email:'Электронная почта',telegram:'Telegram',whatsapp:'WhatsApp'}[d.channel];
   return [
-    '🔎 MIRVIX AI · Бесплатная проверка упоминаний в ИИ',
-    '🌐 Заявка с публичной страницы /check/',
+    '🔎 MIRVIX AI · Новая заявка на бесплатный отчёт',
+    '📋 Вид анализа: ' + SERVICES[d.service],
+    '🌐 Заявка с публичной страницы ' + (d.service === 'ai-visibility' ? '/check/' : '/tools/'),
     '',
     '🏢 Компания: ' + d.company,
     '🌐 Сайт: ' + d.site,
@@ -102,6 +116,9 @@ function formatMessage(d) {
     '',
     '❓ Пожелания к запросам:',
     d.questions || 'Не указаны — подобрать по деятельности',
+    '',
+    '🛒 Ссылки на товары / дополнительные сведения:',
+    d.productLinks || 'Не указаны',
     '',
     '👤 Контактное лицо: ' + d.name,
     '📨 Получить отчёт: ' + channel,
