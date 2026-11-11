@@ -807,43 +807,14 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 
 @media(max-width:960px){.mobile-nav a.mobile-check-link{margin:11px 0 5px;padding:15px 17px;background:linear-gradient(110deg,#076cf1,#5936db);border:0;border-radius:12px;color:#fff;font-weight:850;box-shadow:0 10px 24px rgba(18,61,154,.19)}}
 
-/* MIRVIX code-light preview: separate horizontal binary fragments appear,
-   fade, then freeze in place when the ocean intro finishes. */
-.mirvix-ocean-hero .mirvix-ocean-numbers{
-  position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;
-  -webkit-mask-image:radial-gradient(ellipse 54% 62% at 50% 54%,rgba(0,0,0,.16) 8%,rgba(0,0,0,.55) 54%,#000 100%);
-  mask-image:radial-gradient(ellipse 54% 62% at 50% 54%,rgba(0,0,0,.16) 8%,rgba(0,0,0,.55) 54%,#000 100%);
-}
-.mirvix-ocean-hero .mirvix-code-fragment{
-  position:absolute;left:var(--fx);top:var(--fy);
-  display:inline-block;white-space:pre;max-width:none;pointer-events:none;user-select:none;
-  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
-  font-size:var(--fs,26px);font-weight:550;line-height:1;letter-spacing:.11em;
-  color:#e5faff;text-shadow:0 0 13px rgba(191,242,255,.45);
-  opacity:0;transform:translate3d(calc(-1 * var(--fr,12px)),0,0);
-  animation:mirvix-code-appear var(--ft,5s) ease-in-out var(--fd,0s) infinite;
-  will-change:opacity,transform;
-}
-@keyframes mirvix-code-appear{
-  0%,11%{opacity:0;transform:translate3d(calc(-1 * var(--fr,12px)),0,0)}
-  31%,57%{opacity:var(--fo,.24);transform:translate3d(0,0,0)}
-  79%,100%{opacity:0;transform:translate3d(var(--fr,12px),0,0)}
-}
-/* Same class freezes both sea and code; no extra timer or extra network work. */
-.mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment{
-  animation-play-state:paused!important;
-}
-@media(max-width:690px){
-  .mirvix-ocean-hero .mirvix-code-fragment{font-size:clamp(18px,4.5vw,24px);letter-spacing:.075em}
-  .mirvix-ocean-hero .mirvix-code-fragment:nth-child(2n){display:none}
-  .mirvix-ocean-hero .mirvix-ocean-numbers{opacity:.83}
-}
-@media(prefers-reduced-motion:reduce){
-  .mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}
-}
-@media print{
-  .mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}
-}
+/* Preview: denser horizontal binary fragments with staggered crossfades. */
+.mirvix-ocean-hero .mirvix-ocean-numbers{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 55% 64% at 50% 53%,rgba(0,0,0,.13) 9%,rgba(0,0,0,.52) 51%,#000 100%);mask-image:radial-gradient(ellipse 55% 64% at 50% 53%,rgba(0,0,0,.13) 9%,rgba(0,0,0,.52) 51%,#000 100%)}
+.mirvix-ocean-hero .mirvix-code-fragment{position:absolute;left:var(--fx);top:var(--fy);display:inline-block;white-space:pre;pointer-events:none;user-select:none;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:var(--fs,28px);font-weight:580;line-height:1;letter-spacing:.055em;color:#e3f9ff;text-shadow:0 0 12px rgba(190,240,255,.4);opacity:0;transform:translate3d(calc(-1 * var(--fr,8px)),0,0);animation:mirvix-code-crossfade 6.6s ease-in-out var(--fd,0s) infinite;will-change:opacity,transform}
+@keyframes mirvix-code-crossfade{0%,8%{opacity:0;transform:translate3d(calc(-1 * var(--fr,8px)),0,0)}26%,45%{opacity:var(--fo,.26);transform:translate3d(0,0,0)}63%,100%{opacity:0;transform:translate3d(var(--fr,8px),0,0)}}
+.mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment{animation-play-state:paused!important}
+@media(max-width:690px){.mirvix-ocean-hero .mirvix-code-fragment{font-size:clamp(18px,4.4vw,24px);letter-spacing:.035em}.mirvix-ocean-hero .mirvix-code-fragment:nth-child(3n){display:none}.mirvix-ocean-hero .mirvix-ocean-numbers{opacity:.83}}
+@media(prefers-reduced-motion:reduce){.mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}}
+@media print{.mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}}
 
 </style>
 
@@ -896,36 +867,60 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     </video>
     <div class="mirvix-ocean-shade"></div>
     <div class="mirvix-ocean-numbers" aria-hidden="true">
-      <span class="mirvix-code-fragment" style="--fx:4%;--fy:11%;--fs:23px;--ft:3.8s;--fd:-1.3s;--fo:0.22;--fr:11px">10011 1110</span>
-      <span class="mirvix-code-fragment" style="--fx:30%;--fy:9%;--fs:28px;--ft:4.4s;--fd:-5.6s;--fo:0.18;--fr:18px">1010 01000 01</span>
-      <span class="mirvix-code-fragment" style="--fx:61%;--fy:13%;--fs:22px;--ft:6.3s;--fd:-2.2s;--fo:0.17;--fr:24px">11 1111 0000</span>
-      <span class="mirvix-code-fragment" style="--fx:77%;--fy:6%;--fs:24px;--ft:4.7s;--fd:-6.7s;--fo:0.28;--fr:13px">10001 00 01101</span>
-      <span class="mirvix-code-fragment" style="--fx:13%;--fy:24%;--fs:32px;--ft:3.9s;--fd:-2.4s;--fo:0.24;--fr:20px">1001 1001 11</span>
-      <span class="mirvix-code-fragment" style="--fx:51%;--fy:27%;--fs:23px;--ft:6.8s;--fd:-1.8s;--fo:0.22;--fr:11px">111 00 10</span>
-      <span class="mirvix-code-fragment" style="--fx:75%;--fy:30%;--fs:27px;--ft:3.9s;--fd:-7.7s;--fo:0.24;--fr:21px">10100 0010 01000</span>
-      <span class="mirvix-code-fragment" style="--fx:3%;--fy:42%;--fs:28px;--ft:4.2s;--fd:-6.3s;--fo:0.24;--fr:13px">0001 001</span>
-      <span class="mirvix-code-fragment" style="--fx:28%;--fy:39%;--fs:25px;--ft:4.6s;--fd:-1.5s;--fo:0.25;--fr:22px">010 010</span>
-      <span class="mirvix-code-fragment" style="--fx:60%;--fy:41%;--fs:32px;--ft:4.0s;--fd:-5.6s;--fo:0.18;--fr:12px">00 10001</span>
-      <span class="mirvix-code-fragment" style="--fx:82%;--fy:48%;--fs:24px;--ft:5.9s;--fd:-1.1s;--fo:0.24;--fr:13px">0010 10</span>
-      <span class="mirvix-code-fragment" style="--fx:9%;--fy:63%;--fs:25px;--ft:3.8s;--fd:-5.0s;--fo:0.23;--fr:11px">010 1001</span>
-      <span class="mirvix-code-fragment" style="--fx:30%;--fy:59%;--fs:28px;--ft:6.4s;--fd:-5.4s;--fo:0.20;--fr:14px">00 01 1010</span>
-      <span class="mirvix-code-fragment" style="--fx:54%;--fy:62%;--fs:25px;--ft:6.2s;--fd:-7.0s;--fo:0.27;--fr:13px">0011 01111 1000</span>
-      <span class="mirvix-code-fragment" style="--fx:76%;--fy:65%;--fs:28px;--ft:5.8s;--fd:-4.8s;--fo:0.23;--fr:24px">011 11100 00110</span>
-      <span class="mirvix-code-fragment" style="--fx:1%;--fy:81%;--fs:26px;--ft:4.0s;--fd:-5.8s;--fo:0.21;--fr:22px">00 010 0010</span>
-      <span class="mirvix-code-fragment" style="--fx:25%;--fy:77%;--fs:26px;--ft:4.3s;--fd:-3.4s;--fo:0.28;--fr:18px">00011 1111 111</span>
-      <span class="mirvix-code-fragment" style="--fx:46%;--fy:84%;--fs:22px;--ft:3.8s;--fd:-3.8s;--fo:0.22;--fr:12px">011 00 00101</span>
-      <span class="mirvix-code-fragment" style="--fx:69%;--fy:78%;--fs:31px;--ft:4.0s;--fd:-6.8s;--fo:0.20;--fr:10px">00 1011</span>
-      <span class="mirvix-code-fragment" style="--fx:85%;--fy:90%;--fs:30px;--ft:6.7s;--fd:-2.3s;--fo:0.21;--fr:23px">00000 10</span>
-      <span class="mirvix-code-fragment" style="--fx:45%;--fy:4%;--fs:30px;--ft:5.3s;--fd:-6.5s;--fo:0.19;--fr:17px">1101 10</span>
-      <span class="mirvix-code-fragment" style="--fx:8%;--fy:91%;--fs:23px;--ft:6.5s;--fd:-1.6s;--fo:0.26;--fr:22px">10 10000</span>
-      <span class="mirvix-code-fragment" style="--fx:86%;--fy:22%;--fs:22px;--ft:3.9s;--fd:-3.1s;--fo:0.26;--fr:16px">10100 0111</span>
-      <span class="mirvix-code-fragment" style="--fx:36%;--fy:21%;--fs:32px;--ft:5.5s;--fd:-2.6s;--fo:0.23;--fr:21px">1101 00011 01</span>
-      <span class="mirvix-code-fragment" style="--fx:18%;--fy:51%;--fs:24px;--ft:4.1s;--fd:-4.5s;--fo:0.23;--fr:16px">100 110 0111</span>
-      <span class="mirvix-code-fragment" style="--fx:64%;--fy:54%;--fs:28px;--ft:6.7s;--fd:-3.2s;--fo:0.19;--fr:19px">10111 00 11110</span>
-      <span class="mirvix-code-fragment" style="--fx:40%;--fy:71%;--fs:28px;--ft:4.3s;--fd:-2.4s;--fo:0.27;--fr:12px">1110 1001 1100</span>
-      <span class="mirvix-code-fragment" style="--fx:68%;--fy:93%;--fs:29px;--ft:5.7s;--fd:-4.8s;--fo:0.22;--fr:10px">100 1001 110</span>
-      <span class="mirvix-code-fragment" style="--fx:20%;--fy:16%;--fs:30px;--ft:5.2s;--fd:-1.6s;--fo:0.25;--fr:18px">10 11 0011</span>
-      <span class="mirvix-code-fragment" style="--fx:86%;--fy:73%;--fs:28px;--ft:5.9s;--fd:-5.9s;--fo:0.24;--fr:18px">1110 011</span>
+      <span class="mirvix-code-fragment" style="--fx:1%;--fy:4%;--fs:27px;--fd:-0.00s;--fo:0.263;--fr:7px">10010011110011111110</span>
+      <span class="mirvix-code-fragment" style="--fx:18%;--fy:8%;--fs:25px;--fd:-0.55s;--fo:0.287;--fr:7px">010010 100110101</span>
+      <span class="mirvix-code-fragment" style="--fx:31%;--fy:5%;--fs:29px;--fd:-1.10s;--fo:0.260;--fr:8px">111101111101101111010</span>
+      <span class="mirvix-code-fragment" style="--fx:50%;--fy:9%;--fs:29px;--fd:-1.65s;--fo:0.314;--fr:8px">001111011010011</span>
+      <span class="mirvix-code-fragment" style="--fx:63%;--fy:6%;--fs:27px;--fd:-2.20s;--fo:0.281;--fr:14px">00101100011101010</span>
+      <span class="mirvix-code-fragment" style="--fx:79%;--fy:4%;--fs:32px;--fd:-2.75s;--fo:0.279;--fr:7px">01010 11011010</span>
+      <span class="mirvix-code-fragment" style="--fx:1%;--fy:17.7%;--fs:28px;--fd:-3.30s;--fo:0.257;--fr:6px">10101001011110100</span>
+      <span class="mirvix-code-fragment" style="--fx:19%;--fy:18.7%;--fs:26px;--fd:-3.85s;--fo:0.214;--fr:8px">1101010010100</span>
+      <span class="mirvix-code-fragment" style="--fx:29%;--fy:19.7%;--fs:30px;--fd:-4.40s;--fo:0.235;--fr:13px">1100011100110</span>
+      <span class="mirvix-code-fragment" style="--fx:45%;--fy:16.7%;--fs:28px;--fd:-4.95s;--fo:0.279;--fr:14px">100010110 10001011000</span>
+      <span class="mirvix-code-fragment" style="--fx:60%;--fy:17.7%;--fs:29px;--fd:-5.50s;--fo:0.313;--fr:8px">0010000000010</span>
+      <span class="mirvix-code-fragment" style="--fx:78%;--fy:16.7%;--fs:23px;--fd:-6.05s;--fo:0.263;--fr:10px">1011000001010100</span>
+      <span class="mirvix-code-fragment" style="--fx:3%;--fy:24.4%;--fs:31px;--fd:-0.19s;--fo:0.239;--fr:7px">01110000011000010</span>
+      <span class="mirvix-code-fragment" style="--fx:18%;--fy:30.4%;--fs:31px;--fd:-0.74s;--fo:0.232;--fr:7px">10001101 0111110</span>
+      <span class="mirvix-code-fragment" style="--fx:32%;--fy:25.4%;--fs:32px;--fd:-1.29s;--fo:0.283;--fr:10px">10101010110010000</span>
+      <span class="mirvix-code-fragment" style="--fx:45%;--fy:29.4%;--fs:30px;--fd:-1.84s;--fo:0.214;--fr:10px">11001010000011111011</span>
+      <span class="mirvix-code-fragment" style="--fx:59%;--fy:25.4%;--fs:24px;--fd:-2.39s;--fo:0.225;--fr:12px">1110101111111</span>
+      <span class="mirvix-code-fragment" style="--fx:74%;--fy:24.4%;--fs:31px;--fd:-2.94s;--fo:0.267;--fr:11px">0001010 101100110011</span>
+      <span class="mirvix-code-fragment" style="--fx:5%;--fy:39.099999999999994%;--fs:32px;--fd:-3.49s;--fo:0.246;--fr:6px">11011001100101111</span>
+      <span class="mirvix-code-fragment" style="--fx:19%;--fy:41.099999999999994%;--fs:24px;--fd:-4.04s;--fo:0.283;--fr:8px">101011110110100101</span>
+      <span class="mirvix-code-fragment" style="--fx:35%;--fy:38.099999999999994%;--fs:28px;--fd:-4.59s;--fo:0.238;--fr:13px">0010100011000011</span>
+      <span class="mirvix-code-fragment" style="--fx:44%;--fy:38.099999999999994%;--fs:24px;--fd:-5.14s;--fo:0.241;--fr:8px">010111 1000010000101</span>
+      <span class="mirvix-code-fragment" style="--fx:65%;--fy:40.099999999999994%;--fs:29px;--fd:-5.69s;--fo:0.215;--fr:6px">0101001000000000</span>
+      <span class="mirvix-code-fragment" style="--fx:80%;--fy:35.099999999999994%;--fs:30px;--fd:-6.24s;--fo:0.210;--fr:12px">101111100000010010</span>
+      <span class="mirvix-code-fragment" style="--fx:1%;--fy:48.8%;--fs:30px;--fd:-0.38s;--fo:0.224;--fr:12px">000001010111111</span>
+      <span class="mirvix-code-fragment" style="--fx:15%;--fy:46.8%;--fs:27px;--fd:-0.93s;--fo:0.223;--fr:11px">01100 11010100010001</span>
+      <span class="mirvix-code-fragment" style="--fx:34%;--fy:51.8%;--fs:29px;--fd:-1.48s;--fo:0.255;--fr:13px">0011011101101</span>
+      <span class="mirvix-code-fragment" style="--fx:50%;--fy:51.8%;--fs:30px;--fd:-2.03s;--fo:0.231;--fr:8px">001101110010111111</span>
+      <span class="mirvix-code-fragment" style="--fx:65%;--fy:51.8%;--fs:23px;--fd:-2.58s;--fo:0.238;--fr:7px">0111011100001101</span>
+      <span class="mirvix-code-fragment" style="--fx:76%;--fy:51.8%;--fs:27px;--fd:-3.13s;--fo:0.213;--fr:12px">010000101 1011100001</span>
+      <span class="mirvix-code-fragment" style="--fx:3%;--fy:62.5%;--fs:26px;--fd:-3.68s;--fo:0.252;--fr:7px">11101101111010001110</span>
+      <span class="mirvix-code-fragment" style="--fx:14%;--fy:62.5%;--fs:32px;--fd:-4.23s;--fo:0.216;--fr:11px">1000111001001</span>
+      <span class="mirvix-code-fragment" style="--fx:31%;--fy:60.5%;--fs:26px;--fd:-4.78s;--fo:0.310;--fr:7px">1110011111000100</span>
+      <span class="mirvix-code-fragment" style="--fx:44%;--fy:59.5%;--fs:23px;--fd:-5.33s;--fo:0.237;--fr:11px">11000101 0011000</span>
+      <span class="mirvix-code-fragment" style="--fx:61%;--fy:56.5%;--fs:24px;--fd:-5.88s;--fo:0.310;--fr:14px">110010100110001011100</span>
+      <span class="mirvix-code-fragment" style="--fx:76%;--fy:59.5%;--fs:31px;--fd:-6.43s;--fo:0.301;--fr:8px">101000110100000</span>
+      <span class="mirvix-code-fragment" style="--fx:5%;--fy:73.19999999999999%;--fs:28px;--fd:-0.00s;--fo:0.244;--fr:8px">00101011011100011001</span>
+      <span class="mirvix-code-fragment" style="--fx:20%;--fy:72.19999999999999%;--fs:28px;--fd:-0.55s;--fo:0.218;--fr:14px">0110111 1011010</span>
+      <span class="mirvix-code-fragment" style="--fx:34%;--fy:71.19999999999999%;--fs:27px;--fd:-1.10s;--fo:0.254;--fr:7px">110111111101001000</span>
+      <span class="mirvix-code-fragment" style="--fx:49%;--fy:71.19999999999999%;--fs:23px;--fd:-1.65s;--fo:0.213;--fr:12px">01000100011011</span>
+      <span class="mirvix-code-fragment" style="--fx:60%;--fy:71.19999999999999%;--fs:24px;--fd:-2.20s;--fo:0.261;--fr:5px">101010000101000</span>
+      <span class="mirvix-code-fragment" style="--fx:74%;--fy:71.19999999999999%;--fs:31px;--fd:-2.75s;--fo:0.282;--fr:13px">110111 1100000001111</span>
+      <span class="mirvix-code-fragment" style="--fx:3%;--fy:83.89999999999999%;--fs:26px;--fd:-3.30s;--fo:0.305;--fr:7px">101011000101010</span>
+      <span class="mirvix-code-fragment" style="--fx:20%;--fy:82.89999999999999%;--fs:30px;--fd:-3.85s;--fo:0.301;--fr:12px">010011010000111101</span>
+      <span class="mirvix-code-fragment" style="--fx:30%;--fy:80.89999999999999%;--fs:28px;--fd:-4.40s;--fo:0.311;--fr:12px">001000000011000111011</span>
+      <span class="mirvix-code-fragment" style="--fx:45%;--fy:81.89999999999999%;--fs:27px;--fd:-4.95s;--fo:0.252;--fr:6px">01011 101011000000</span>
+      <span class="mirvix-code-fragment" style="--fx:63%;--fy:77.89999999999999%;--fs:28px;--fd:-5.50s;--fo:0.242;--fr:12px">0101111111011001011</span>
+      <span class="mirvix-code-fragment" style="--fx:79%;--fy:80.89999999999999%;--fs:30px;--fd:-6.05s;--fo:0.261;--fr:14px">011101010010101</span>
+      <span class="mirvix-code-fragment" style="--fx:4%;--fy:93.6%;--fs:26px;--fd:-0.19s;--fo:0.293;--fr:6px">0001111101000</span>
+      <span class="mirvix-code-fragment" style="--fx:16%;--fy:91.6%;--fs:25px;--fd:-0.74s;--fo:0.218;--fr:7px">110001000 100101110011</span>
+      <span class="mirvix-code-fragment" style="--fx:34%;--fy:90.6%;--fs:27px;--fd:-1.29s;--fo:0.258;--fr:11px">00110001010110101000</span>
+      <span class="mirvix-code-fragment" style="--fx:47%;--fy:88.6%;--fs:32px;--fd:-1.84s;--fo:0.308;--fr:7px">010111100100010000</span>
+      <span class="mirvix-code-fragment" style="--fx:63%;--fy:91.6%;--fs:32px;--fd:-2.39s;--fo:0.230;--fr:7px">00010011001010101000</span>
+      <span class="mirvix-code-fragment" style="--fx:75%;--fy:88.6%;--fs:27px;--fd:-2.94s;--fo:0.214;--fr:5px">11101100 1100010110111</span>
     </div>
   </div>
   <div class="container hero-layout">
