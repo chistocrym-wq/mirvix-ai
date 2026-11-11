@@ -163,12 +163,12 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <form class="ai-request-form" id="free-ai-form" autocomplete="on">
 <div class="ai-request-grid">
 <label>Название компании <span aria-hidden="true">*</span><input required name="company" maxlength="120" placeholder="Например, Шурик Маркет"></label>
-<label>Ссылка на сайт компании <span aria-hidden="true">*</span><input required name="site" maxlength="240" inputmode="url" placeholder="https://company.ru/"></label>
+<label>Домен / ссылка на сайт компании <span aria-hidden="true">*</span><input required name="site" maxlength="240" inputmode="url" placeholder="https://company.ru/"></label>
 <label class="full">Чем занимается компания <span aria-hidden="true">*</span><input required name="category" maxlength="180" placeholder="Например, продажа стройматериалов в Санкт-Петербурге"></label>
-<label class="full check-row"><input type="checkbox" id="free-ai-compare" name="wantsCompetitor"> <span>Добавить конкурента для сравнения <span class="optional">(по желанию, тоже бесплатно)</span></span></label>
-<div class="competitor-fields full ai-request-grid" id="free-ai-competitor" hidden>
+<label class="full check-row"><input type="checkbox" id="free-ai-compare" name="wantsCompetitor" checked> <span>Добавить конкурента для сравнения <span class="optional">(по желанию, тоже бесплатно)</span></span></label>
+<div class="competitor-fields full ai-request-grid" id="free-ai-competitor">
 <label>Название конкурента <span class="optional">(по желанию)</span><input name="competitor" maxlength="120" placeholder="Название фирмы-конкурента"></label>
-<label>Сайт конкурента <span class="optional">(по желанию)</span><input name="competitorSite" maxlength="240" inputmode="url" placeholder="https://competitor.ru/"></label>
+<label>Домен / ссылка на сайт конкурента <span class="optional">(по желанию)</span><input name="competitorSite" maxlength="240" inputmode="url" placeholder="https://competitor.ru/"></label>
 </div>
 <label class="full">По каким запросам вас проверить <span class="optional">(по желанию)</span><textarea name="questions" maxlength="1000" rows="3" placeholder="Например: «Где купить ОСП с доставкой в СПб?»&#10;Если не знаете — мы сами подберём вопросы по вашей деятельности."></textarea></label>
 <label>Как к вам обращаться <span aria-hidden="true">*</span><input required name="name" maxlength="100" autocomplete="name" placeholder="Ваше имя"></label>
