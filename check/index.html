@@ -131,7 +131,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 .ai-request-form .hidden-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 .free-ai-bottom{margin-top:16px;border-top:1px solid #dbe6f5;padding-top:15px;font-size:13px;color:#61748e}
 .free-ai-bottom a{font-weight:750}
-#geo-check[hidden]{display:none!important}
+#geo-check[hidden],#free-ai-disclosure[hidden]{display:none!important}
 @media(max-width:620px){.ai-request-grid,.ai-request-form .contact-row{grid-template-columns:1fr}.ai-request-form .full{grid-column:auto}.ai-platforms span{padding:7px 10px}}
 @media print{.free-ai-panel{display:none!important}}
 </style><script defer src="/assets/mirvix-metrika.js"></script>
@@ -145,8 +145,10 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 </form>
 <p id="message" role="status" class="small">Для некоторых сайтов результаты могут быть частичными: защита от роботов или JavaScript препятствуют получению HTML.</p></div></section>
 <section class="free-ai-panel noprint" id="free-ai-request" aria-labelledby="free-ai-title">
+<button type="button" id="free-ai-toggle" class="request-submit" aria-controls="free-ai-disclosure" aria-expanded="false" style="font-size:clamp(16px,2.5vw,21px);width:100%;text-align:center;border-radius:13px;padding:17px 20px;margin-bottom:10px">Проверить упоминания компании в нейросетях ↓</button>
+<div id="free-ai-disclosure" hidden>
 <div class="free-label">MIRVIX AI · БЕСПЛАТНО ДЛЯ КОМПАНИЙ</div>
-<h2 id="free-ai-title">Хотите узнать, упоминают ли вашу компанию нейросети?</h2>
+<h2 id="free-ai-title">Бесплатная проверка упоминаний компании в нейросетях</h2>
 <p class="free-lead">Оставьте заявку — мы проверим вашу компанию по подходящим покупательским вопросам, сравним с конкурентом, если вы его укажете, и пришлём отчёт удобным способом. Это бесплатно: без оплаты и подписки.</p>
 <div class="ai-platforms" aria-label="Нейросети для проверки">
 <span><span class="platform-glyph" aria-hidden="true">✳</span> ChatGPT</span>
@@ -179,6 +181,7 @@ button:disabled{opacity:.5;cursor:wait}.employee-login{display:inline-flex;align
 <p class="request-status" id="free-ai-status" role="status" aria-live="polite">Заполните заявку — после отправки подтвердим её получение.</p>
 </form>
 <p class="free-ai-bottom">Вы хотите выполнить ИИ-проверку самостоятельно как сотрудник MIRVIX? <a href="/cabinet/?role=staff&amp;next=geo-check">Войти через кабинет →</a></p>
+</div>
 </section>
 <section class="panel noprint" id="geo-check" hidden aria-label="Закрытая проверка ИИ для сотрудников">
 <h2>Проверить упоминания компании в нейросетях</h2>
