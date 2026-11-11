@@ -31,13 +31,17 @@ async function serpapi(query,engine,input){
   const url = new URL('https://serpapi.com/search.json');
   url.searchParams.set('api_key',token);
   url.searchParams.set('engine',engine);
-  url.searchParams.set('q',query);
-  url.searchParams.set('num','20');
   if(engine==='google'){
+    url.searchParams.set('q',query);
+    url.searchParams.set('num','20');
     url.searchParams.set('gl',input.gl);
     url.searchParams.set('hl','ru');
     url.searchParams.set('location',input.region);
   } else {
+    // SerpApi Yandex engine requires text instead of Google q.
+    url.searchParams.set('text',query);
+    url.searchParams.set('groups_on_page','20');
+    url.searchParams.set('yandex_domain','yandex.ru');
     url.searchParams.set('lr',input.lr);
     url.searchParams.set('lang','ru');
   }
