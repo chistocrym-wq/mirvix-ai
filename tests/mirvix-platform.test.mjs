@@ -125,3 +125,17 @@ test('assigned specialist can see only their explicitly assigned client project'
  assert.match(server,/requireProject\(user,org,cid\(id\)\)/);
  assert.match(server,/action==='assign-specialist'/);
 });
+
+test('job-retry recovery uses persisted result instead of repeating an API charge',()=>{
+ const code=read('netlify/lib/mirvix-jobs.mjs');
+ const sql=read('supabase/migrations/202611120004_idempotent_report_writes.sql');
+ assert.match(code,/async function recoverStep\(job,step\)/);
+ assert.match(code,/await recoverStep\(job,next\)/);
+ assert.match(code,/on_conflict:'job_id'/);
+ assert.match(code,/on_conflict:'job_id,step_ordinal,engine,found_url'/);
+ assert.match(code,/on_conflict:'job_id,step_ordinal'/);
+ assert.match(sql,/technical_audits_job_once/);
+ assert.match(sql,/search_observations_source_once/);
+ assert.match(sql,/ai_results_step_once/);
+ assert.match(sql,/ai_citations_url_once/);
+});
