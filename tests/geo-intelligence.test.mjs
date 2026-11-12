@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {siteKind,seoAnalysis,aiAnalysis,priorityActions,trafficSummary} from '../netlify/lib/geo-intelligence-core.mjs';
 
 const input={url:'https://ourclinic.ru/',search:'both',queries:['мрт спб','узи спб'],competitors:['clinic-competitor.ru']};
@@ -53,4 +54,25 @@ test('verified uploaded traffic keeps explicit source',()=>{
  assert.equal(r.visits,107);
  assert.equal(r.leads,6);
  assert.match(r.note,/не подтверждены/);
+});
+
+test('Intelligence uses complete dated SERP observations, not Publisher filtered platforms',()=>{
+ const hits=[
+  {engine:'google',query:'мрт спб',position:2,url:'https://clinic-competitor.ru/mrt',checkedAt:'2026-11-12T09:00:00Z'},
+  {engine:'google',query:'мрт спб',position:14,url:'https://ourclinic.ru/mrt',checkedAt:'2026-11-12T09:00:00Z'},
+  {engine:'google',query:'мрт спб',position:1,url:'https://prodoctorov.ru/mrt',checkedAt:'2026-11-12T09:00:00Z'}
+ ];
+ const result=seoAnalysis({...input,queries:['мрт спб'],search:'google'},hits);
+ assert.equal(result.rows[0].ownPosition,14);
+ assert.equal(result.rows[0].confirmedCompetitorRank,2);
+ assert.equal(result.rows[0].checkedAt,'2026-11-12T09:00:00Z');
+ assert.equal(result.rows[0].opportunity,'Подтверждённый SEO-разрыв');
+ const api=readFileSync(new URL('../netlify/functions/geo-publisher.mjs',import.meta.url),'utf8');
+ const client=readFileSync(new URL('../intelligence/app.js',import.meta.url),'utf8');
+ const html=readFileSync(new URL('../intelligence/index.html',import.meta.url),'utf8');
+ assert.match(api,/searchHits:hits\.map\(hit=>/);
+ assert.match(client,/seoAnalysis\(\{\.\.\.run\.input,competitors:getConfirmedDomains\(\)\},run\.searchHits\)/);
+ assert.doesNotMatch(client,/seoAnalysis\([^;]+platforms\.flatMap/);
+ assert.match(html,/id="promptEvidence"/);
+ assert.match(client,/Добавлен вручную — гипотеза/);
 });
