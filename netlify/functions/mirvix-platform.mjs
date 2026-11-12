@@ -17,13 +17,14 @@ async function orgInfo(user){
  return allowed.map(o=>({...o,role:user.staffRole||user.memberships.find(m=>m.organization_id===o.id)?.role}));
 }
 async function invite(email,redirectTo){
- const url=process.env.SUPABASE_URL?.replace(/\/+$/,'')+'/auth/v1/invite';
+ const url=new URL(process.env.SUPABASE_URL.replace(/\/+$/,'')+'/auth/v1/invite');
+ url.searchParams.set('redirect_to',redirectTo);
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),12000);
  try{
   const response=await fetch(url,{method:'POST',signal:ctl.signal,redirect:'error',
    headers:{apikey:key,authorization:'Bearer '+key,'content-type':'application/json'},
-   body:JSON.stringify({email,data:{platform:'mirvix'},redirect_to:redirectTo})});
+   body:JSON.stringify({email,data:{platform:'mirvix'}})});
   const v=await response.json().catch(()=>({}));
   if(!response.ok||!uuid(v.id))throw new HttpError(response.status||502,
    'Не удалось отправить Supabase приглашение. Проверьте почтовые настройки и URL redirect.');
