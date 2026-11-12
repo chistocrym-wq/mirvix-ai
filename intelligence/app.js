@@ -59,12 +59,12 @@ function populateQuestions(){
  const evidence=ordered.filter(r=>{const key=r.query.toLowerCase().trim();if(!key||seen.has(key))return false;seen.add(key);return true;}).slice(0,20);
  S.promptEvidence=evidence.map(r=>{
    const sourceQuery=r.query.trim();
-   const alreadyNatural=/^(как|где|кто|какой|какая|какие|посоветуй|порекомендуй|что|сколько)\\b/i.test(sourceQuery)&&sourceQuery.length>=12;
+   const alreadyNatural=/^(как|где|кто|какой|какая|какие|посоветуй|порекомендуй|что|сколько)\b/i.test(sourceQuery)&&sourceQuery.length>=12;
    const question=(alreadyNatural?sourceQuery:'Где можно найти '+sourceQuery+'?').slice(0,320);
    return {query:question,sourceQuery,origin:alreadyNatural?'Точная формулировка SERP':'Производная гипотеза из SERP',
      engine:r.engine,checkedAt:r.checkedAt||null,position:r.ownPosition,competitor:r.topPeers.find(p=>p.confirmed)?.domain||null};
  });
- $('aiPrompts').value=S.promptEvidence.map(r=>r.query).join('\\n');
+ $('aiPrompts').value=S.promptEvidence.map(r=>r.query).join('\n');
  renderPromptEvidence();
 }
 async function loadRun(){
