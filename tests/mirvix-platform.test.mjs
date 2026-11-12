@@ -117,7 +117,8 @@ test('assigned specialist can see only their explicitly assigned client project'
  assert.doesNotThrow(()=>requireProject(specialist,ORG_A,p1));
  const sql=read('supabase/migrations/202611120003_staff_project_scopes.sql');
  assert.match(sql,/project_assignments/);
- assert.match(sql,/can_read_project\(project_id,organization_id\)/);
+ assert.match(sql,/can_read_project\(%s,organization_id\)/);
+ assert.match(sql,/case when rel='projects' then 'id' else 'project_id' end/);
  assert.match(sql,/public\.can_read_ai_result/);
  assert.match(sql,/public\.can_read_job/);
  const server=read('netlify/functions/mirvix-platform.mjs');
