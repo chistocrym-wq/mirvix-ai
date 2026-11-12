@@ -75,7 +75,7 @@ async function stepAction(job,step,project){
    if(rows?.[0]&&response.sources?.length){
     await rest('ai_citations',{method:'POST',body:response.sources.slice(0,30).map(s=>({
       organization_id:job.organization_id,result_id:rows[0].id,
-      url:s.url,title:s.title||null,cited_domain:new URL(s.url).hostname,checked_at:response.checkedAt
+      url:s.url,title:s.title||null,cited_domain:(()=>{try{return new URL(s.url).hostname;}catch{return null;}})(),checked_at:response.checkedAt
     }))});
    }
    await patch('api_usage',usageId,{status:'completed',response_code:'success'});
