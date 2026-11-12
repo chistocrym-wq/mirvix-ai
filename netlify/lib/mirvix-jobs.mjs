@@ -21,8 +21,8 @@ async function stepAction(job,step,project){
  const data=step.payload||{};
  if(step.step_type==='site_audit'){
   const result=await siteAudit.audit('https://'+project.domain,project.name);
-  await rest('technical_audits',{method:'POST',body:{
-   organization_id:job.organization_id,project_id:job.project_id,
+  await rest('technical_audits',{method:'POST',query:{on_conflict:'job_id'},prefer:'resolution=merge-duplicates',body:{
+   organization_id:job.organization_id,project_id:job.project_id,job_id:job.id,
    checked_at:new Date().toISOString(),score:result.geoScore??null,
    coverage_percent:result.coveragePercent??null,
    summary:{geoScore:result.geoScore??null,coveragePercent:result.coveragePercent??null,
@@ -39,8 +39,8 @@ async function stepAction(job,step,project){
    const hits=await querySerpApi(data.query,data.engine,{region:data.region,gl:data.gl,lr:data.lr});
    const observedAt=new Date().toISOString();
    if(hits.length){
-    await rest('search_observations',{method:'POST',body:hits.map(hit=>({
-     organization_id:job.organization_id,project_id:job.project_id,
+    await rest('search_observations',{method:'POST',query:{on_conflict:'job_id,step_ordinal,engine,found_url'},prefer:'resolution=merge-duplicates',body:hits.map(hit=>({
+     organization_id:job.organization_id,project_id:job.project_id,job_id:job.id,step_ordinal:step.ordinal,
      engine:data.engine,query:data.query,region:data.region||'',
      position:hit.position??null,found_domain:hit.domain,
      found_url:hit.url,source:'SerpApi organic_results',checked_at:observedAt,
@@ -65,15 +65,15 @@ async function stepAction(job,step,project){
    const response=await executeProviderQuery({provider,prompt:data.prompt,brand:project.name,
      domain:project.domain,competitors:[]});
    const resultRow={
-     organization_id:job.organization_id,project_id:job.project_id,
+     organization_id:job.organization_id,project_id:job.project_id,job_id:job.id,step_ordinal:step.ordinal,
      provider,model:response.model||null,prompt:data.prompt,answer:response.answer,
      brand_mentioned:response.brandMention,brand_cited:response.sourceMention,
      search_evidence:response.searchEvidence,response_status:'answered',
      checked_at:response.checkedAt,sources:response.sources||[],competitors:response.competitorsMentioned||[]
    };
-   const rows=await rest('ai_results',{method:'POST',body:resultRow,prefer:'return=representation'});
+   const rows=await rest('ai_results',{method:'POST',query:{on_conflict:'job_id,step_ordinal'},body:resultRow,prefer:'resolution=merge-duplicates,return=representation'});
    if(rows?.[0]&&response.sources?.length){
-    await rest('ai_citations',{method:'POST',body:response.sources.slice(0,30).map(s=>({
+    await rest('ai_citations',{method:'POST',query:{on_conflict:'result_id,url'},prefer:'resolution=merge-duplicates',body:response.sources.slice(0,30).map(s=>({
       organization_id:job.organization_id,result_id:rows[0].id,
       url:s.url,title:s.title||null,cited_domain:(()=>{try{return new URL(s.url).hostname;}catch{return null;}})(),checked_at:response.checkedAt
     }))});
