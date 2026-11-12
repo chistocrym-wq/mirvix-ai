@@ -233,6 +233,9 @@ export default async function handler(request){
     return respond({error:'Требуется вход сотрудника в кабинете MIRVIX.'},403);
   let body;
   try{body=JSON.parse(await request.text());}catch{return respond({error:'Некорректный JSON.'},400);}
+  // Old Publisher's direct SERP calls bypass the new per-tenant USD limits.
+  // Existing read/export/edit actions are preserved; new paid searches use /platform/.
+  if(body.action==='step')return respond({error:'Прямой поиск отключён до перехода на оплачиваемую очередь с лимитами. Используйте /platform/ → «Подключения».'},423);
   try{
     const store=db();
     if(body.action==='export'){
