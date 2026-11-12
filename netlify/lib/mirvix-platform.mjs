@@ -70,13 +70,13 @@ export function providerStatus(){
     required:cfg.extra?cfg.env+' + '+cfg.extra:cfg.env}]));
 }
 export const paidSwitch=()=>process.env.MIRVIX_PAID_CHECKS_ENABLED==='true';
-export async function reserve(org,project,job,provider,kind){
+export async function reserve(org,project,job,ordinal,provider,kind){
  if(!paidSwitch())throw new HttpError(423,'Платные вызовы выключены. Администратор должен включить MIRVIX_PAID_CHECKS_ENABLED и задать лимиты.');
  if(!PROVIDERS[provider])throw new HttpError(422,'Неизвестный провайдер.');
  const status=providerStatus()[provider];
  if(!status.keyPresent)throw new HttpError(503,'Ключ '+provider+' не настроен.');
- const result=await rest('rpc/reserve_api_usage',{method:'POST',body:{
-  p_org:org,p_provider:provider,p_project:project||null,p_job:job||null,p_kind:kind
+ const result=await rest('rpc/reserve_step_api_usage',{method:'POST',body:{
+  p_org:org,p_provider:provider,p_project:project,p_job:job,p_step:ordinal,p_kind:kind
  }});
  if(!uuid(result))throw new HttpError(503,'Не удалось подтвердить резервирование бюджета.');
  return result;
