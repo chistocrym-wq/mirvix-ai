@@ -15,4 +15,5 @@ alter table public.technical_audits add constraint technical_audits_job_once uni
 alter table public.search_observations add constraint search_observations_source_once
  unique(job_id,step_ordinal,engine,found_url);
 alter table public.ai_results add constraint ai_results_step_once unique(job_id,step_ordinal);
+alter table public.ai_citations add constraint ai_citations_url_once unique(result_id,url);
 commit;
