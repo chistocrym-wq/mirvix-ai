@@ -76,3 +76,16 @@ test('Intelligence uses complete dated SERP observations, not Publisher filtered
  assert.match(html,/id="promptEvidence"/);
  assert.match(client,/Добавлен вручную — гипотеза/);
 });
+
+test('a model configured for web-search without evidence is not counted as a current search recommendation',()=>{
+ const r=aiAnalysis({prompts:['где заказать мрт спб'],providers:['openai','gemini']},[
+  {provider:'openai',prompt:'где заказать мрт спб',answer:'Наша клиника',brandMention:true,
+   mode:'web-grounded',searchEvidence:false},
+  {provider:'gemini',prompt:'где заказать мрт спб',answer:'Рекомендую клинику',brandMention:false,
+   mode:'web-grounded',searchEvidence:true}
+ ],'Наша клиника',[]);
+ assert.equal(r.successfulWebAnswers,1);
+ assert.equal(r.ungroundedAnswers,1);
+ assert.equal(r.brandMentions,0);
+ assert.equal(r.mentionRate,0);
+});
