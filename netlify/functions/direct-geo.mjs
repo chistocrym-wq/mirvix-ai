@@ -379,6 +379,31 @@ async function callAlice(prompt,key) {
 }
 
 const CALL = Object.freeze({ openai: callOpenai, gemini: callGemini, deepseek: callDeepSeek, grok: callGrok, gigachat: callGigaChat, alice: callAlice, perplexity: callPerplexity });
+/**
+ * Internal server-only adapter used by MIRVIX's quota-guarded job worker.
+ * No HTTP route is registered for this function, and it does NOT reserve budget.
+ * Caller must reserve a unique job step in PostgreSQL before calling.
+ */
+export async function executeProviderQuery(input){
+ const args=validate(input);
+ const key=process.env[PROVIDERS[args.provider].env];
+ if(!key)throw new Error('Ключ провайдера не настроен.');
+ const started=Date.now();
+ const data=await CALL[args.provider](args.prompt,key);
+ if(!data.answer||!data.answer.trim())throw new Error('Пустой ответ провайдера.');
+ const sources=(data.sources||[]).map(s=>({...s,companyDomain:domainInSource(s.url,args.domain)}));
+ return {
+  provider:args.provider,providerName:PROVIDERS[args.provider].title,model:data.model,
+  prompt:args.prompt,brand:args.brand,answer:data.answer.slice(0,12000),
+  searched:!!data.searched,mode:PROVIDERS[args.provider].mode,
+  searchEvidence:!!data.searched||sources.length>0,sources,
+  brandMention:mentionIn(data.answer,[args.brand,...args.aliases]),
+  sourceMention:sources.some(s=>s.companyDomain),
+  competitorsMentioned:args.competitors.filter(n=>mentionIn(data.answer,[n])),
+  checkedAt:new Date().toISOString(),latencyMs:Date.now()-started
+ };
+}
+
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') return respond(405, { error: 'Разрешён только POST.' });
@@ -402,6 +427,7 @@ export async function handler(event) {
       providerNote: 'Подключённость определяется наличием серверных ключей, работоспособность проверяется первым запросом. Это ответы API, не персонализированные ответы пользовательских приложений. GigaChat без встроенного веб-поиска не следует объединять с поисковыми результатами.'
     });
   }
+  if(request.action==='query') return respond(423, { error: 'Прямые платные проверки временно заблокированы. Запускайте их через MIRVIX Intelligence с отдельными лимитами и серверной очередью.' });
   if (request.action !== 'query') return respond(400, { error: 'Неизвестная команда.' });
   let args;
   try { args = validate(request); }
