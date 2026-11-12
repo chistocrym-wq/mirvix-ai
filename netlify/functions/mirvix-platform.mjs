@@ -1,5 +1,5 @@
 import {configured,rest,identity,requireMember,mustBeAdmin,mayWrite,validDomain,
- json,providerStatus,PROVIDERS,paidSwitch,HttpError,limitedError,sameOrigin,uuid} from '../lib/mirvix-platform.mjs';
+ json,providerStatus,PROVIDERS,paidSwitch,HttpError,limitedError,sameOrigin,uuid,requireProject} from '../lib/mirvix-platform.mjs';
 import {processOne} from '../lib/mirvix-jobs.mjs';
 
 const text=(x,max=200)=>String(x??'').trim().slice(0,max);
@@ -7,14 +7,20 @@ const authBearer=req=>req.headers.get('authorization')||'';
 const safeName=s=>typeof s==='string'&&s.trim().length>=2&&s.trim().length<=180;
 const cid=s=>{if(!uuid(s))throw new HttpError(422,'Недействительный идентификатор.');return s;};
 function checkProject(projects,org,project){const p=projects?.[0];if(!p||p.organization_id!==org)throw new HttpError(404,'Проект этой организации не найден.');return p;}
-const ownProject=async (org,id)=>checkProject(await rest('projects',{query:{organization_id:'eq.'+org,id:'eq.'+cid(id),select:'id,organization_id,name,domain,region',limit:1}}),org,id);
+const ownProject=async (user,org,id)=>{
+ requireProject(user,org,cid(id));
+ return checkProject(await rest('projects',{query:{organization_id:'eq.'+org,id:'eq.'+id,select:'id,organization_id,name,domain,region',limit:1}}),org,id);
+};
 function requireAdminOrManager(user,org){
  if(!mayWrite(user,org))throw new HttpError(403,'Нет права запускать проверки.');
 }
 async function orgInfo(user){
  const orgs=await rest('organizations',{query:{select:'id,name,created_at',order:'created_at.desc',limit:150}});
- const allowed=user.staffRole?orgs:orgs.filter(o=>user.memberships.some(m=>m.organization_id===o.id));
- return allowed.map(o=>({...o,role:user.staffRole||user.memberships.find(m=>m.organization_id===o.id)?.role}));
+ const allowed=user.staffRole==='admin'?orgs:orgs.filter(o=>
+  user.memberships.some(m=>m.organization_id===o.id)||
+  (user.staffRole==='specialist'&&user.assignments.some(a=>a.organization_id===o.id)));
+ return allowed.map(o=>({...o,role:user.staffRole==='admin'?'admin':user.memberships.find(m=>m.organization_id===o.id)?.role||
+  (user.staffRole==='specialist'?'specialist':null)}));
 }
 async function invite(email,redirectTo){
  const url=new URL(process.env.SUPABASE_URL.replace(/\/+$/,'')+'/auth/v1/invite');
@@ -32,7 +38,7 @@ async function invite(email,redirectTo){
  }finally{clearTimeout(timer);}
 }
 async function createJob(user,body,probe=false){
- const org=cid(body.organizationId),project=await ownProject(org,body.projectId);
+ const org=cid(body.organizationId),project=await ownProject(user,org,body.projectId);
  requireMember(user,org,true);
  const type=probe?(body.provider==='serpapi'?'serp_scan':'ai_matrix'):body.jobType;
  if(!['site_audit','serp_scan','ai_matrix'].includes(type))throw new HttpError(422,'Неизвестный тип проверки.');
@@ -88,7 +94,7 @@ async function createJob(user,body,probe=false){
 }
 async function action(user,data,request){
  const action=data.action;
- if(action==='session')return {id:user.id,email:user.email,staffRole:user.staffRole,memberships:user.memberships,
+ if(action==='session')return {id:user.id,email:user.email,staffRole:user.staffRole,memberships:user.memberships,assignments:user.assignments,
   organizations:await orgInfo(user)};
  if(action==='organizations')return {organizations:await orgInfo(user)};
  if(action==='create-organization'){
@@ -112,15 +118,30 @@ async function action(user,data,request){
     prefer:'resolution=merge-duplicates',body:{user_id:userRecord.id,role}});
   else await rest('org_memberships',{method:'POST',query:{on_conflict:'organization_id,user_id'},
     prefer:'resolution=merge-duplicates',body:{organization_id:org,user_id:userRecord.id,role}});
-  return {invited:true,email:userRecord.email,role,organizationId:org};
+  return {invited:true,userId:userRecord.id,email:userRecord.email,role,organizationId:org};
+ }
+ if(action==='assign-specialist'){
+  mustBeAdmin(user);
+  const org=cid(data.organizationId),projectId=cid(data.projectId),staffId=cid(data.staffUserId);
+  const [projects,staff]=await Promise.all([
+   rest('projects',{query:{id:'eq.'+projectId,organization_id:'eq.'+org,select:'id',limit:1}}),
+   rest('platform_staff',{query:{user_id:'eq.'+staffId,role:'eq.specialist',select:'user_id',limit:1}})
+  ]);
+  if(!projects?.length||!staff?.length)throw new HttpError(422,'Нужен существующий проект и приглашённый специалист MIRVIX.');
+  await rest('project_assignments',{method:'POST',query:{on_conflict:'project_id,user_id'},prefer:'resolution=merge-duplicates',
+   body:{organization_id:org,project_id:projectId,user_id:staffId}});
+  return {assigned:true,staffUserId:staffId,projectId};
  }
  if(action==='projects'){
   const org=cid(data.organizationId);requireMember(user,org);
   const rows=await rest('projects',{query:{organization_id:'eq.'+org,select:'id,name,domain,region,status,created_at',order:'created_at.desc',limit:150}});
-  return {projects:rows};
+  return {projects:user.staffRole==='specialist'&&!user.memberships.some(m=>m.organization_id===org)
+   ?rows.filter(p=>user.assignments.some(a=>a.project_id===p.id&&a.organization_id===org)):rows};
  }
  if(action==='create-project'){
   const org=cid(data.organizationId);requireMember(user,org,true);
+  if(user.staffRole==='specialist'&&!user.memberships.some(m=>m.organization_id===org))
+    throw new HttpError(403,'Специалист не может создавать проекты без назначения администратором.');
   const name=text(data.name,180),domain=text(data.domain,253).replace(/^https?:\/\//,'').replace(/\/.*$/,'').toLowerCase();
   if(!safeName(name)||!validDomain(domain))throw new HttpError(422,'Проверьте название и публичный домен.');
   const rows=await rest('projects',{method:'POST',prefer:'return=representation',
@@ -131,19 +152,22 @@ async function action(user,data,request){
   const org=cid(data.organizationId);requireMember(user,org);
   const query={organization_id:'eq.'+org,select:'id,project_id,job_type,status,progress,attempts,last_error,created_at,finished_at',
    order:'created_at.desc',limit:50};
-  if(data.projectId){await ownProject(org,data.projectId);query.project_id='eq.'+data.projectId;}
-  return {jobs:await rest('analysis_jobs',{query})};
+  if(data.projectId){await ownProject(user,org,data.projectId);query.project_id='eq.'+data.projectId;}
+  const jobs=await rest('analysis_jobs',{query});
+  return {jobs:user.staffRole==='specialist'&&!user.memberships.some(m=>m.organization_id===org)
+   ?jobs.filter(j=>user.assignments.some(a=>a.project_id===j.project_id&&a.organization_id===org)):jobs};
  }
  if(action==='job-detail'){
   const org=cid(data.organizationId);requireMember(user,org);
   const rows=await rest('analysis_jobs',{query:{id:'eq.'+cid(data.jobId),organization_id:'eq.'+org,select:'*',limit:1}});
   if(!rows?.length)throw new HttpError(404,'Задание не найдено.');
+  requireProject(user,org,rows[0].project_id);
   const steps=await rest('analysis_job_steps',{query:{organization_id:'eq.'+org,job_id:'eq.'+rows[0].id,select:'ordinal,step_type,status,result,error,completed_at',order:'ordinal.asc',limit:100}});
   return {job:rows[0],steps};
  }
  if(action==='results'){
   const org=cid(data.organizationId);requireMember(user,org);
-  const p=await ownProject(org,data.projectId);
+  const p=await ownProject(user,org,data.projectId);
   const names=['technical_audits','search_observations','ai_results','traffic_metrics','promotion_tasks','report_snapshots'];
   const dataRows=await Promise.all(names.map(table=>rest(table,{query:{organization_id:'eq.'+org,project_id:'eq.'+p.id,
    select:'*',limit:50}})));
