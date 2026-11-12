@@ -36,7 +36,8 @@ async function loadOrganizations(){
  $('identity').textContent='Аккаунт: '+result.email+' · Роль: '+(result.staffRole||orgs.find(o=>o.id===selected.org)?.role||'клиент');
  if($('adminPanel'))$('adminPanel').classList.toggle('hidden',result.staffRole!=='admin');
  if($('processOne'))$('processOne').classList.toggle('hidden',result.staffRole!=='admin');
- if($('addProjectPanel'))$('addProjectPanel').classList.toggle('hidden',!['admin','specialist','owner','manager','editor'].includes(result.staffRole||orgs.find(o=>o.id===selected.org)?.role));
+ if($('addProjectPanel'))$('addProjectPanel').classList.toggle('hidden',
+   !(result.staffRole==='admin'||['owner','manager','editor'].includes(orgs.find(o=>o.id===selected.org)?.role)));
  await loadProjects();
 }
 async function loadProjects(){
@@ -79,7 +80,13 @@ async function createProject(){
 async function invite(){
  const result=await api({action:'invite-user',organizationId:selected.org,
   email:v('inviteEmail'),role:v('inviteRole')});
- announce('Приглашение отправлено на '+result.email+'.','success');
+ announce('Приглашение отправлено на '+result.email+'. UUID пользователя для назначения на проект: '+result.userId,'success');
+ if($('assignedStaffId')&&result.role==='specialist')$('assignedStaffId').value=result.userId;
+}
+async function assignStaff(){
+ const x=await api({action:'assign-specialist',organizationId:withOrg(),projectId:withProject(),
+  staffUserId:v('assignedStaffId')});
+ announce('Специалист '+x.staffUserId+' назначен на проект.','success');
 }
 async function queueAudit(){
  const result=await api({action:'enqueue',organizationId:withOrg(),projectId:withProject(),jobType:'site_audit'});
@@ -167,7 +174,7 @@ async function boot(){
   $('projectSelect')?.addEventListener('change',()=>doAction(async()=>{selected.project=v('projectSelect');if(!isConnections)await loadJobs();}));
   $('refresh')?.addEventListener('click',()=>doAction(loadOrganizations));
   for(const [id,fun]of Object.entries({addOrg,addProject:createProject,inviteUser:invite,
-   queueAudit,refreshJobs:loadJobs,loadResults:showResults,processOne})){
+   assignStaff,queueAudit,refreshJobs:loadJobs,loadResults:showResults,processOne})){
    $(id)?.addEventListener('click',()=>doAction(fun));
   }
   supabase.auth.onAuthStateChange((event,session)=>{
