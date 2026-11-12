@@ -25,7 +25,7 @@ function stageList(input){
   return input.queries.flatMap(query => engines.map(engine => ({query,engine})));
 }
 
-async function serpapi(query,engine,input){
+export async function querySerpApi(query,engine,input){
   const token=process.env.MIRVIX_SERPAPI_KEY||process.env.SERPAPI_KEY;
   if(!token) throw Error('Для живого поиска установите MIRVIX_SERPAPI_KEY в переменных Netlify.');
   const url = new URL('https://serpapi.com/search.json');
@@ -123,7 +123,7 @@ async function action(request,store,body){
     if(previous?.status==='done')return {index:idx,cached:true,hits:previous.hits?.length||0};
     const stage=stages[idx];
     try{
-      const hits=await serpapi(stage.query,stage.engine,run.input);
+      const hits=await querySerpApi(stage.query,stage.engine,run.input);
       await persist(store,stageKey(id,idx),{status:'done',checkedAt:isoNow(),hits});
       return {index:idx,hits:hits.length,engine:stage.engine,query:stage.query};
     }catch(e){
