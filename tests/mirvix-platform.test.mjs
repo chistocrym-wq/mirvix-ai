@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {uuid,validDomain,providerStatus,memberRole,mayRead,mayWrite,requireMember,
+import {uuid,validDomain,providerStatus,memberRole,mayRead,mayWrite,mayReadProject,requireProject,requireMember,
  mustBeAdmin,paidSwitch,reserve,configured,HttpError} from '../netlify/lib/mirvix-platform.mjs';
 import platform from '../netlify/functions/mirvix-platform.mjs';
 
@@ -101,4 +101,26 @@ test('client UI is connected to authenticated server instead of mock results',()
  assert.match(page,/id="orgSelect"/);
  assert.match(c,/id="connectionsGrid"/);
  assert.doesNotMatch(js,/(?:sampleResponse|mockResults|fakeReport)\s*=/);
+});
+
+test('assigned specialist can see only their explicitly assigned client project',()=>{
+ const p1='cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+ const p2='dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+ const specialist={id:'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',staffRole:'specialist',memberships:[],
+  assignments:[{organization_id:ORG_A,project_id:p1}]};
+ assert.equal(mayRead(specialist,ORG_A),true);
+ assert.equal(mayRead(specialist,ORG_B),false);
+ assert.equal(mayReadProject(specialist,ORG_A,p1),true);
+ assert.equal(mayReadProject(specialist,ORG_A,p2),false);
+ assert.equal(mayReadProject(specialist,ORG_B,p1),false);
+ assert.throws(()=>requireProject(specialist,ORG_A,p2),e=>e.status===403);
+ assert.doesNotThrow(()=>requireProject(specialist,ORG_A,p1));
+ const sql=read('supabase/migrations/202611120003_staff_project_scopes.sql');
+ assert.match(sql,/project_assignments/);
+ assert.match(sql,/can_read_project\(project_id,organization_id\)/);
+ assert.match(sql,/public\.can_read_ai_result/);
+ assert.match(sql,/public\.can_read_job/);
+ const server=read('netlify/functions/mirvix-platform.mjs');
+ assert.match(server,/requireProject\(user,org,cid\(id\)\)/);
+ assert.match(server,/action==='assign-specialist'/);
 });
