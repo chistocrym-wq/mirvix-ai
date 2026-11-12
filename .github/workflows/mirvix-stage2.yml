@@ -1,0 +1,50 @@
+name: MIRVIX Stage 2 — SQL schema, auth, queue and integrations
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'platform/**'
+      - 'connections/**'
+      - 'setup/**'
+      - 'netlify/lib/mirvix-*'
+      - 'netlify/functions/mirvix-*'
+      - 'netlify/functions/geo-prompts.mjs'
+      - 'netlify/functions/direct-geo.mjs'
+      - 'netlify/functions/geo-publisher.mjs'
+      - 'tests/mirvix-platform.test.mjs'
+      - '.github/workflows/mirvix-stage2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - 'platform/**'
+      - 'connections/**'
+      - 'setup/**'
+      - 'netlify/lib/mirvix-*'
+      - 'netlify/functions/mirvix-*'
+      - 'tests/mirvix-platform.test.mjs'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Check syntax
+        run: |
+          node --check netlify/lib/mirvix-platform.mjs
+          node --check netlify/lib/mirvix-jobs.mjs
+          node --check netlify/functions/mirvix-platform.mjs
+          node --check netlify/functions/mirvix-scheduler.mjs
+          node --check netlify/functions/direct-geo.mjs
+          node --check netlify/functions/geo-publisher.mjs
+          node --check netlify/functions/geo-prompts.mjs
+          node --check platform/app.js
+          node --check tests/mirvix-platform.test.mjs
+      - name: Unit and regression tests
+        run: |
+          node --test tests/mirvix-platform.test.mjs tests/geo-publisher.test.mjs tests/geo-intelligence.test.mjs
