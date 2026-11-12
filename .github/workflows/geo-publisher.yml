@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'publisher/**'
+      - 'intelligence/**'
+      - 'netlify/lib/geo-intelligence-core.mjs'
+      - 'tests/geo-intelligence.test.mjs'
       - 'netlify/functions/geo-publisher.mjs'
       - 'netlify/lib/geo-publisher-core.mjs'
       - 'tests/geo-publisher.test.mjs'
@@ -11,6 +14,9 @@ on:
     branches: [main]
     paths:
       - 'publisher/**'
+      - 'intelligence/**'
+      - 'netlify/lib/geo-intelligence-core.mjs'
+      - 'tests/geo-intelligence.test.mjs'
       - 'netlify/functions/geo-publisher.mjs'
       - 'netlify/lib/geo-publisher-core.mjs'
       - 'tests/geo-publisher.test.mjs'
@@ -30,6 +36,9 @@ jobs:
           node --check netlify/lib/geo-publisher-core.mjs
           node --check netlify/functions/geo-publisher.mjs
           node --check publisher/app.js
+          node --check intelligence/app.js
+          node --check netlify/lib/geo-intelligence-core.mjs
+          node --check tests/geo-intelligence.test.mjs
           node --check tests/geo-publisher.test.mjs
       - name: Unit tests
-        run: node --test tests/geo-publisher.test.mjs
+        run: node --test tests/geo-publisher.test.mjs tests/geo-intelligence.test.mjs
