@@ -66,6 +66,7 @@ export function seoAnalysis(input,rawHits) {
     else if(competitorRank===null&&potentialRank!==null&&(ownPosition===null||ownPosition>=potentialRank+5))
       opportunity='Гипотеза: конкурентный разрыв';
     return {query,engine,ownPosition,ownUrl:ownHit?.url||null,
+      checkedAt:hs.find(h=>h.checkedAt)?.checkedAt||null,source:'SerpApi organic_results',
       tested:hs.length>0,returned:hs.length,topPeers:peers.slice(0,10),
       confirmedCompetitorRank:competitorRank,candidateRank:potentialRank,opportunity,
       remark:!hs.length?'Нет данных поискового API':ownPosition===null?'Не обнаружен среди полученных органических результатов':'Зафиксированная позиция выборки'};
