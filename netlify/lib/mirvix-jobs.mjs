@@ -91,6 +91,37 @@ async function stepAction(job,step,project){
  }
  throw new HttpError(422,'Неизвестный шаг очереди.');
 }
+// Recover already-persisted results without repeating a charged API request.
+async function recoverStep(job,step){
+ const q={organization_id:'eq.'+job.organization_id,job_id:'eq.'+job.id,
+   select:'*',limit:30};
+ let output=null;
+ if(step.step_type==='site_audit'){
+  const rows=await rest('technical_audits',{query:q});
+  if(rows?.[0])output={checkedAt:rows[0].checked_at,score:rows[0].score,
+    issues:rows[0].summary?.issuesCount??null,recovered:true};
+ }else if(step.step_type==='serp'){
+  const rows=await rest('search_observations',{query:{...q,step_ordinal:'eq.'+step.ordinal}});
+  if(rows?.length)output={engine:step.payload.engine,query:step.payload.query,
+    hits:rows.length,checkedAt:rows[0].checked_at,searchEvidence:true,recovered:true,
+    sources:rows.slice(0,5).map(x=>({url:x.found_url}))};
+ }else if(step.step_type==='ai'){
+  const rows=await rest('ai_results',{query:{...q,step_ordinal:'eq.'+step.ordinal}});
+  if(rows?.[0])output={provider:rows[0].provider,model:rows[0].model,
+    prompt:rows[0].prompt,checkedAt:rows[0].checked_at,
+    searchEvidence:rows[0].search_evidence,brandMention:rows[0].brand_mentioned,
+    sources:rows[0].sources||[],recovered:true};
+ }
+ if(output){
+  if(step.step_type!=='site_audit'){
+   await rest('api_usage',{method:'PATCH',
+    query:{job_id:'eq.'+job.id,step_ordinal:'eq.'+step.ordinal},
+    body:{status:'completed',response_code:'recovered'}}).catch(()=>{});
+   await persistCheck(job,step,'completed',output,null).catch(()=>{});
+  }
+ }
+ return output;
+}
 export async function processOne(){
  const claimed=await rest('rpc/claim_analysis_job',{method:'POST',body:{}});
  const job=Array.isArray(claimed)?claimed[0]:null;
@@ -111,7 +142,7 @@ export async function processOne(){
   return {processed:true,id:job.id,status:'completed'};
  }
  try{
-  const output=await stepAction(job,next,project);
+  const output=(await recoverStep(job,next))||await stepAction(job,next,project);
   await patch('analysis_job_steps',next.id,{status:'completed',result:output,error:null,completed_at:new Date().toISOString()});
   const completed=steps.filter(s=>s.status==='completed').length+1,total=steps.length;
   const finished=completed===total;
