@@ -100,21 +100,22 @@ export function aiAnalysis(plan,results,brand,confirmedNames=[]) {
         searchable:raw?.searchEvidence===true,sources:ok?(raw.sources||[]).slice(0,8):[],
         model:raw?.model||null,checkedAt:raw?.checkedAt||null,error:raw?.error||null};
     });
-    const validWeb=items.filter(v=>v.status==='Получен ответ'&&v.mode!=='model-only');
+    const validWeb=items.filter(v=>v.status==='Получен ответ'&&v.mode!=='model-only'&&v.searchable===true);
     const rivalWins=validWeb.filter(v=>!v.brand&&v.competitors.length>0);
     return {prompt,items,successfulWebAnswers:validWeb.length,rivalOnly:rivalWins.length,
       brandSeen:validWeb.filter(v=>v.brand).length};
   });
-  const web=matrix.flatMap(x=>x.items).filter(x=>x.status==='Получен ответ'&&x.mode!=='model-only');
+  const web=matrix.flatMap(x=>x.items).filter(x=>x.status==='Получен ответ'&&x.mode!=='model-only'&&x.searchable===true);
   const total=matrix.flatMap(x=>x.items);
   return {matrix,attempted:total.filter(x=>x.status!=='Не проверено').length,
     successfulWebAnswers:web.length,brandMentions:web.filter(x=>x.brand).length,
     ownCitations:web.filter(x=>x.cited).length,
     modelOnlyAnswers:total.filter(x=>x.status==='Получен ответ'&&x.mode==='model-only').length,
+    ungroundedAnswers:total.filter(x=>x.status==='Получен ответ'&&x.searchable!==true).length,
     errors:total.filter(x=>x.status==='Ошибка').length,
     mentionRate:web.length?Math.round(100*web.filter(x=>x.brand).length/web.length):null,
     rivalOnlyQuestions:matrix.filter(x=>x.rivalOnly>0).map(x=>({prompt:x.prompt,rivalOnly:x.rivalOnly,systems:x.items.filter(i=>!i.brand&&i.competitors.length).map(i=>i.provider)})),
-    note:'Результаты API по фиксированной матрице запросов. Не являются статистикой всех пользователей или приложений; GigaChat без веб-поиска не входит в доли поисковых упоминаний.'};
+    note:'В доли входят только ответы с подтверждённым веб-поиском (searchEvidence=true). API-ответы без поиска, неподтверждённый grounding и ошибки исключены. Это не статистика пользователей приложений.'};
 }
 export function priorityActions(seo,ai,audit,traffic) {
   const actions=[];
