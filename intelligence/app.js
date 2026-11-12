@@ -44,8 +44,8 @@ function renderPromptEvidence(){
  el.innerHTML=prompts.length?'<div class="tablewrap"><table><thead><tr><th>Запрос</th><th>Происхождение</th><th>Подтверждение</th></tr></thead><tbody>'+
  prompts.map(query=>{
    const e=byQuery.get(query);
-   const status=e?'Из поисковой выдачи':'Добавлен вручную — гипотеза';
-   const details=e?clean(e.engine)+(e.checkedAt?' · '+clean(new Date(e.checkedAt).toLocaleString('ru-RU')):' · дата не указана'):'До проверки в ИИ';
+   const status=e?(e.origin==='Точная формулировка SERP'?'Из поисковой выдачи':'Гипотеза на основе выдачи'):'Добавлен вручную — гипотеза';
+   const details=e?clean(e.engine)+' · '+clean(e.sourceQuery)+(e.checkedAt?' · '+clean(new Date(e.checkedAt).toLocaleString('ru-RU')):' · дата не указана'):'До проверки в ИИ';
    return '<tr><td>'+clean(query)+'</td><td>'+status+'</td><td>'+details+'</td></tr>';
  }).join('')+'</tbody></table></div>':'<div class="hint">Нет запросов. Загрузите поисковый запуск.</div>';
 }
@@ -57,9 +57,14 @@ function populateQuestions(){
  // Each input retains the exact SERP query; rewritten natural-language variants are hypotheses.
  const seen=new Set();
  const evidence=ordered.filter(r=>{const key=r.query.toLowerCase().trim();if(!key||seen.has(key))return false;seen.add(key);return true;}).slice(0,20);
- S.promptEvidence=evidence.map(r=>({query:r.query,origin:'Наблюдаемый запрос SERP',engine:r.engine,
-   checkedAt:r.checkedAt||null,position:r.ownPosition,competitor: r.topPeers.find(p=>p.confirmed)?.domain||null}));
- $('aiPrompts').value=evidence.map(r=>r.query).join('\n');
+ S.promptEvidence=evidence.map(r=>{
+   const sourceQuery=r.query.trim();
+   const alreadyNatural=/^(как|где|кто|какой|какая|какие|посоветуй|порекомендуй|что|сколько)\\b/i.test(sourceQuery)&&sourceQuery.length>=12;
+   const question=(alreadyNatural?sourceQuery:'Где можно найти '+sourceQuery+'?').slice(0,320);
+   return {query:question,sourceQuery,origin:alreadyNatural?'Точная формулировка SERP':'Производная гипотеза из SERP',
+     engine:r.engine,checkedAt:r.checkedAt||null,position:r.ownPosition,competitor:r.topPeers.find(p=>p.confirmed)?.domain||null};
+ });
+ $('aiPrompts').value=S.promptEvidence.map(r=>r.query).join('\\n');
  renderPromptEvidence();
 }
 async function loadRun(){
@@ -130,11 +135,12 @@ function renderAI(){
  if(!prov.length){$('aiTable').textContent='Нет выбранных ИИ-провайдеров.';return;}
  $('aiTable').innerHTML='<div class="chips"><span class="chip good">Отвечено с веб-поиском: '+S.ai.successfulWebAnswers+'</span>'+
  '<span class="chip">Упоминаний бренда: '+S.ai.brandMentions+'</span><span class="chip">Прямых ссылок: '+S.ai.ownCitations+'</span>'+
- '<span class="chip warn">Ошибок: '+S.ai.errors+'</span><span class="chip">Без веб-поиска: '+S.ai.modelOnlyAnswers+'</span></div>'+
+ '<span class="chip warn">Ошибок: '+S.ai.errors+'</span><span class="chip">Веб-поиск не подтверждён: '+S.ai.ungroundedAnswers+'</span></div>'+
  '<div class="tablewrap"><table><thead><tr><th>Вопрос клиента</th>'+prov.map(p=>'<th>'+clean(p)+'</th>').join('')+'</tr></thead><tbody>'+
  rows.map(row=>'<tr><td><strong>'+clean(row.prompt)+'</strong></td>'+row.items.map(x=>{
-  const style=x.status!=='Получен ответ'?'bad':x.brand?'ok':'';
-  const s=x.status==='Получен ответ'?(x.brand?'Бренд назван':x.competitors.length?'Конкурент без бренда':'Без упоминания бренда'):x.status;
+  const grounded=x.status==='Получен ответ'&&x.searchable===true&&x.mode!=='model-only';
+  const style=x.status!=='Получен ответ'?'bad':grounded&&x.brand?'ok':'';
+  const s=x.status==='Получен ответ'?(grounded?(x.brand?'Бренд назван':x.competitors.length?'Конкурент без бренда':'Без упоминания бренда'):'Ответ без подтверждённого веб-поиска'):x.status;
   const refs=x.sources?.length?'<div class="hint">'+x.sources.slice(0,2).map(z=>'<a target="_blank" rel="noopener noreferrer" href="'+clean(z.url)+'">Источник</a>').join(' · ')+'</div>':'';
   return '<td><span class="status '+style+'">'+clean(s)+'</span><div class="hint">'+clean(x.competitors.join(', '))+'</div>'+refs+'</td>';
  }).join('')+'</tr>').join('')+'</tbody></table></div>'+
