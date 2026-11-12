@@ -32,6 +32,8 @@ async function boot(){
   else if(!(runs.runs||[]).length)flash('Нет сохранённых поисковых запусков. Откройте GEO Publisher и проведите первичный поиск.');
  }catch(e){$('auth').textContent='Не удалось открыть панель: '+e.message;}
 }
+function getConfirmedDomains(){return $('competitorDomains').value.split(/[;,\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,25);}
+function recalcCompetitors(){if(!S.run)return;S.seo=seoAnalysis({...S.run.input,competitors:getConfirmedDomains()},S.run.platforms.flatMap(p=>p.matches||[]));renderSEO();renderRivals();renderAll();}
 function stripDomain(d){return String(d||'').replace(/^https?:\/\//,'').replace(/\/.*/,'').replace(/^www\./,'').toLowerCase();}
 function providerSelection(){return [...$('providers').querySelectorAll('input:checked')].map(x=>x.value);}
 function getPrompts(){return [...new Set($('aiPrompts').value.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>=12&&x.length<=320))].slice(0,20);}
@@ -52,9 +54,10 @@ async function loadRun(){
   S.run=run;
   $('brand').value=run.input.brand||run.input.domain||'';
   $('competitorNames').value='';
+  $('competitorDomains').value=(run.input.competitors||[]).join('; ');
   S.aiResults=[];S.audit=null;S.traffic=trafficSummary(null);
   const hits=run.platforms.flatMap(p=>p.matches||[]);
-  S.seo=seoAnalysis(run.input,hits);
+  S.seo=seoAnalysis({...run.input,competitors:getConfirmedDomains()},hits);
   populateQuestions();
   updateAI();
   $('report').classList.remove('hidden');
@@ -232,6 +235,7 @@ $('clearTraffic').addEventListener('click',()=>{$('trafficCsv').value='';S.traff
 $('print').addEventListener('click',()=>window.print());
 $('exportJson').addEventListener('click',downloadJSON);
 $('competitorNames').addEventListener('change',renderAll);
+$('competitorDomains').addEventListener('change',recalcCompetitors);
 $('aiPrompts').addEventListener('change',renderAll);
 $('providers').addEventListener('change',renderAll);
 boot();
