@@ -48,20 +48,36 @@ export async function trustedUser(bearer){
 }
 export async function identity(bearer){
  const user=await trustedUser(bearer);
- const [staff,members]=await Promise.all([
+ const [staff,members,assignments]=await Promise.all([
   rest('platform_staff',{query:{user_id:'eq.'+user.id,select:'user_id,role',limit:1}}),
-  rest('org_memberships',{query:{user_id:'eq.'+user.id,select:'organization_id,role'}})
+  rest('org_memberships',{query:{user_id:'eq.'+user.id,select:'organization_id,role'}}),
+  rest('project_assignments',{query:{user_id:'eq.'+user.id,select:'organization_id,project_id'}})
  ]);
- return {...user,staffRole:staff?.[0]?.role||null,memberships:members||[]};
+ return {...user,staffRole:staff?.[0]?.role||null,memberships:members||[],assignments:assignments||[]};
 }
 export function memberRole(user,org){
- if(user.staffRole)return user.staffRole;
- return user.memberships.find(x=>x.organization_id===org)?.role||null;
+ if(user.staffRole==='admin')return 'admin';
+ const m=user.memberships?.find(x=>x.organization_id===org);
+ if(m)return m.role;
+ if(user.staffRole==='specialist'&&user.assignments?.some(a=>a.organization_id===org))return 'specialist';
+ return null;
 }
 export function mayRead(user,org){return !!memberRole(user,org);}
 export function mayWrite(user,org){const r=memberRole(user,org);return ['admin','specialist','owner','manager','editor'].includes(r);}
+export function mayReadProject(user,org,project){
+ if(user.staffRole==='admin')return true;
+ if(user.memberships?.some(m=>m.organization_id===org))return true;
+ return user.staffRole==='specialist'&&user.assignments?.some(a=>a.organization_id===org&&a.project_id===project);
+}
+export function mayWriteProject(user,org,project){
+ return mayReadProject(user,org,project)&&mayWrite(user,org);
+}
 export function requireMember(user,org,write=false){
  if(!uuid(org)||!(write?mayWrite(user,org):mayRead(user,org)))throw new HttpError(403,'Нет прав на данные этой организации.');
+}
+export function requireProject(user,org,project,write=false){
+ if(!uuid(org)||!uuid(project)||!(write?mayWriteProject(user,org,project):mayReadProject(user,org,project)))
+  throw new HttpError(403,'Нет доступа к этому проекту.');
 }
 export function mustBeAdmin(user){if(user.staffRole!=='admin')throw new HttpError(403,'Нужны права администратора MIRVIX.');}
 export function providerStatus(){
