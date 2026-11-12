@@ -2,7 +2,7 @@ import {seoAnalysis,aiAnalysis,priorityActions,trafficSummary} from '/netlify/li
 
 const $=id=>document.getElementById(id);
 const clean=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const S={run:null,seo:null,ai:null,aiResults:[],audit:null,traffic:trafficSummary(null),providers:[],stopped:false,busy:false};
+const S={run:null,seo:null,ai:null,aiResults:[],audit:null,traffic:trafficSummary(null),providers:[],promptEvidence:[],stopped:false,busy:false};
 function flash(s,t=''){ $('flash').innerHTML=s?'<div class="notice '+clean(t)+'">'+clean(s)+'</div>':''; }
 async function post(endpoint,body){
  const response=await fetch('/.netlify/functions/'+endpoint,{method:'POST',credentials:'same-origin',
@@ -33,18 +33,34 @@ async function boot(){
  }catch(e){$('auth').textContent='Не удалось открыть панель: '+e.message;}
 }
 function getConfirmedDomains(){return $('competitorDomains').value.split(/[;,\n]+/).map(x=>x.trim()).filter(Boolean).slice(0,25);}
-function recalcCompetitors(){if(!S.run)return;S.seo=seoAnalysis({...S.run.input,competitors:getConfirmedDomains()},S.run.platforms.flatMap(p=>p.matches||[]));renderSEO();renderRivals();renderAll();}
+function recalcCompetitors(){if(!S.run)return;S.seo=seoAnalysis({...S.run.input,competitors:getConfirmedDomains()},S.run.searchHits||[]);renderSEO();renderRivals();renderAll();}
 function stripDomain(d){return String(d||'').replace(/^https?:\/\//,'').replace(/\/.*/,'').replace(/^www\./,'').toLowerCase();}
 function providerSelection(){return [...$('providers').querySelectorAll('input:checked')].map(x=>x.value);}
 function getPrompts(){return [...new Set($('aiPrompts').value.split(/\r?\n/).map(x=>x.trim()).filter(x=>x.length>=12&&x.length<=320))].slice(0,20);}
+function renderPromptEvidence(){
+ const el=$('promptEvidence');if(!el)return;
+ const byQuery=new Map((S.promptEvidence||[]).map(r=>[r.query,r]));
+ const prompts=getPrompts();
+ el.innerHTML=prompts.length?'<div class="tablewrap"><table><thead><tr><th>Запрос</th><th>Происхождение</th><th>Подтверждение</th></tr></thead><tbody>'+
+ prompts.map(query=>{
+   const e=byQuery.get(query);
+   const status=e?'Из поисковой выдачи':'Добавлен вручную — гипотеза';
+   const details=e?clean(e.engine)+(e.checkedAt?' · '+clean(new Date(e.checkedAt).toLocaleString('ru-RU')):' · дата не указана'):'До проверки в ИИ';
+   return '<tr><td>'+clean(query)+'</td><td>'+status+'</td><td>'+details+'</td></tr>';
+ }).join('')+'</tbody></table></div>':'<div class="hint">Нет запросов. Загрузите поисковый запуск.</div>';
+}
 function populateQuestions(){
  if(!S.seo)return;
- const gaps=S.seo.rows.filter(r=>r.tested&&r.topPeers.some(p=>p.kind==='Возможная компания-конкурент'||p.confirmed))
-   .sort((a,b)=>(a.ownPosition??99)-(b.ownPosition??99)).map(x=>x.query);
- const observed=[...new Set(gaps.length?gaps:S.seo.rows.filter(x=>x.tested).map(x=>x.query))].slice(0,20);
- const natural=observed.map(q=>/^(как|где|кто|какой|какая|какие|посоветуй|порекомендуй|что|сколько)\b/i.test(q)
-   ?q:'Где выбрать '+q+'?').map(q=>q.length>320?q.slice(0,320):q);
- $('aiPrompts').value=natural.join('\n');
+ const opportunities=S.seo.rows.filter(r=>r.tested&&r.topPeers.some(p=>p.kind==='Возможная компания-конкурент'||p.confirmed));
+ const ordered=[...opportunities,...S.seo.rows.filter(r=>r.tested&&!opportunities.includes(r))];
+ // Do not synthesize a new buyer question and pretend it came from search results.
+ // Each input retains the exact SERP query; rewritten natural-language variants are hypotheses.
+ const seen=new Set();
+ const evidence=ordered.filter(r=>{const key=r.query.toLowerCase().trim();if(!key||seen.has(key))return false;seen.add(key);return true;}).slice(0,20);
+ S.promptEvidence=evidence.map(r=>({query:r.query,origin:'Наблюдаемый запрос SERP',engine:r.engine,
+   checkedAt:r.checkedAt||null,position:r.ownPosition,competitor: r.topPeers.find(p=>p.confirmed)?.domain||null}));
+ $('aiPrompts').value=evidence.map(r=>r.query).join('\n');
+ renderPromptEvidence();
 }
 async function loadRun(){
  if(!$('run').value)return flash('Выберите поисковый запуск.','error');
@@ -55,9 +71,11 @@ async function loadRun(){
   $('brand').value=run.input.brand||run.input.domain||'';
   $('competitorNames').value='';
   $('competitorDomains').value=(run.input.competitors||[]).join('; ');
-  S.aiResults=[];S.audit=null;S.traffic=trafficSummary(null);
-  const hits=run.platforms.flatMap(p=>p.matches||[]);
-  S.seo=seoAnalysis({...run.input,competitors:getConfirmedDomains()},hits);
+  S.aiResults=[];S.audit=null;S.traffic=trafficSummary(null);S.promptEvidence=[];
+  // Server-side view returns the full dated organic SERP sample, including our site.
+  // A stale Publisher-only record cannot provide reliable comparative SEO positions.
+  if(!Array.isArray(run.searchHits))throw Error('Этот запуск сохранён в старом формате без полной поисковой выдачи. Обновите GEO Publisher и повторите сбор данных.');
+  S.seo=seoAnalysis({...run.input,competitors:getConfirmedDomains()},run.searchHits);
   populateQuestions();
   updateAI();
   $('report').classList.remove('hidden');
@@ -220,14 +238,14 @@ function importTraffic(){
 function downloadJSON(){
  const packet={meta:{createdAt:new Date().toISOString(),source:'MIRVIX Intelligence',notice:'Данные AI API не равны выдаче пользовательских приложений'},
  run:{id:S.run.id,input:S.run.input,createdAt:S.run.createdAt},
- seo:S.seo,technicalAudit:S.audit,ai:S.ai,aiResults:S.aiResults,
+ seo:S.seo,searchEvidence:S.run.searchHits,queryProvenance:S.promptEvidence,technicalAudit:S.audit,ai:S.ai,aiResults:S.aiResults,
  traffic:S.traffic,actions:priorityActions(S.seo,S.ai,S.audit,S.traffic)};
  const blob=new Blob([JSON.stringify(packet,null,2)],{type:'application/json;charset=utf-8'});
  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='mirvix-intelligence-'+S.run.id.slice(0,8)+'.json';a.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 $('loadRun').addEventListener('click',loadRun);
-$('discover').addEventListener('click',()=>{populateQuestions();renderAll();flash('Матрица заполнена на основе запросов поисковой выдачи; проверьте естественность формулировок.','success');});
+$('discover').addEventListener('click',()=>{populateQuestions();renderAll();flash('Матрица содержит исходные наблюдаемые SEO-запросы; новые варианты нужно проверять отдельно.','success');});
 $('runAI').addEventListener('click',runAI);
 $('stopAI').addEventListener('click',()=>{S.stopped=true;$('aiProgress').textContent='Останавливаем после текущего запроса…';});
 $('loadTraffic').addEventListener('click',importTraffic);
@@ -236,6 +254,6 @@ $('print').addEventListener('click',()=>window.print());
 $('exportJson').addEventListener('click',downloadJSON);
 $('competitorNames').addEventListener('change',renderAll);
 $('competitorDomains').addEventListener('change',recalcCompetitors);
-$('aiPrompts').addEventListener('change',renderAll);
+$('aiPrompts').addEventListener('change',()=>{renderPromptEvidence();renderAll();});
 $('providers').addEventListener('change',renderAll);
 boot();
