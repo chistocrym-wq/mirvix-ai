@@ -78,6 +78,14 @@ async function viewRun(store,id){
     ...st,status:stageData[i]?.status||'pending',error:stageData[i]?.error||null,
     hits:stageData[i]?.hits?.length||0
   })),completed,total:stages.length,platforms,
+    // Full organic evidence for Intelligence, including own site and known competitors.
+    // Do not derive SEO positions from Publisher's intentionally filtered platform list.
+    searchHits:hits.map(hit=>({
+      engine:hit.engine,query:hit.query,position:hit.position,
+      domain:hit.domain,url:hit.url,title:hit.title||'',snippet:hit.snippet||'',
+      checkedAt:stageData[stages.findIndex(st=>st.engine===hit.engine&&st.query===hit.query)]?.checkedAt||null,
+      source:'SerpApi organic_results'
+    })),
     summary:{domains:platforms.length,hits:hits.length,confirmed:platforms.filter(x=>x.publication.status==='confirmed').length,
       high:platforms.filter(x=>x.priority==='Высокий').length,briefs:platforms.length,
       published:platforms.filter(x=>x.workStatus==='Опубликовано').length}};
