@@ -16,12 +16,15 @@
   const deliveryConsent = by('delivery-consent');
   const deliveryPanel = by('delivery-panel');
   const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const Recorder = window.MediaRecorder;
+  const mediaDevices = window.navigator?.mediaDevices;
+  const canRecord = !!(Recorder && mediaDevices?.getUserMedia);
   const contactPattern = /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
   const yesPattern = /^(?:да|да\s+все\s+верно|да\s+все\s+правильно|все\s+верно|все\s+правильно|верно|правильно|все\s+так|именно|отлично|подтверждаю|согласен|согласна)$/i;
   const noPattern = /^(?:нет|не\s+совсем|неправильно|нужно\s+исправить|исправить|не\s+верно)$/i;
   const byePattern = /^(?:пока|до\s+свидания|до\s+связи|всего\s+доброго|всего\s+хорошего|спасибо[,! ]*пока|спасибо[,! ]*до\s+свидания)$/i;
   const helloPattern = /^(?:привет|здравствуй(?:те)?|добрый\s+(?:день|вечер|утро))[!. ]*$/i;
-  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, greeted: false, saidGoodbye: false, reformulations: 0, lastAccepted: '', lastAcceptedAt: 0 };
+  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, recorder: null, stream: null, voiceTimer: null, preferRecording: false, dialogue: [], greeted: false, saidGoodbye: false, reformulations: 0, lastAccepted: '', lastAcceptedAt: 0 };
 
   function bubble(text, own = false) {
     const node = document.createElement('div');
@@ -51,13 +54,12 @@
     else if (/\bcrm\b|црм|срм/i.test(task)) objective='Необходимо внедрить или настроить CRM'+subject;
     else if (/сайт|лендинг|интернет-магазин/i.test(task)) objective='Требуется создать или доработать сайт'+subject;
     else if (/заявк|заказ|обращени/i.test(task)) objective='Нужно автоматизировать обработку обращений и заявок'+subject;
-    else if (/продвижен|seo|гео|нейросет|видимост/i.test(task)) objective='Нужно повысить видимость компании в поиске и нейросетях';
+    else if (/продвижен|seo|гео|нейросет|видимост/i.test(task)) objective='Необходимо усилить видимость компании в нейросетях и ИИ-поиске';
     else if (/приложени/i.test(task)) objective='Требуется разработать приложение'+subject;
     const details=[];
     if (/запис[ьи]|записыва|бронирован/i.test(task)) details.push('запись клиентов');
     if (/отвеча|ответ[ыа]|консультац/i.test(task)) details.push('ответы на вопросы клиентов');
     if (/telegram|телеграм/i.test(task)) details.push('работа через Telegram');
-    if (/whatsapp|ватсап/i.test(task)) details.push('работа через WhatsApp');
     if (/оплат[ау]|платеж/i.test(task)) details.push('приём платежей');
     if (details.length) objective+=' с функциями: '+details.slice(0,3).join(', ');
     return objective.replace(/[.!?;,\s]+$/,'').slice(0,290)+'.';
@@ -67,12 +69,12 @@
     const isBusy = state.busy || !speechCheck.hidden;
     input.disabled = isBusy;
     send.disabled = isBusy;
-    mic.disabled = isBusy || !Speech;
+    mic.disabled = isBusy || (!Speech && !canRecord);
     const prompts = {
       task: 'Расскажите о своей задаче',
       review: 'Напишите «да» или что нужно изменить',
       amend: 'Что нужно добавить или исправить?',
-      contact: 'Напишите мессенджер или телефон и контакт',
+      contact: 'Напишите Telegram, MAX, телефон или электронную почту',
       ready: 'Нажмите ➤ для отправки',
       sent: 'Новая задача? Напишите её здесь',
     };
@@ -90,6 +92,7 @@
     state.greeted = false;
     state.saidGoodbye = false;
     state.reformulations = 0;
+    state.dialogue = [];
     state.lastAccepted = '';
     state.lastAcceptedAt = 0;
     input.value = '';
@@ -141,7 +144,7 @@
     const v = value.trim();
     if (v.length < 5 || v.length > 180) return false;
     if (contactPattern.test(v)) return true;
-    if (/\b(?:telegram|телеграм|макс|max|whatsapp|ватсап|телефон|позвонить|почта|email|e-mail)\b/i.test(v)) return false;
+    if (/\b(?:telegram|телеграм|макс|max|телефон|позвонить|почта|email|e-mail)\b/i.test(v)) return false;
     // Accept a meaningful other contact such as a public social profile URL.
     return /^https:\/\/\S{8,}$/i.test(v);
   }
@@ -179,6 +182,36 @@
     }
   }
 
+  function isBusinessTask(text) {
+    return /(?:мне\s+нуж(?:ен|на|но)|хочу\s+(?:заказать|создать|разработать|внедрить|подключить)|нужно\s+(?:создать|настроить|разработать|подключить|автоматизировать)|требуется\s+(?:бот|сайт|разработ|интеграц)|ищу\s+(?:разработчика|исполнителя))/i.test(text)
+      && !/^(?:как|почему|сколько|какие|что|когда|можно\s+ли|помогаете\s+ли)\b/i.test(text);
+  }
+  async function chatReply(message) {
+    if (contactPattern.test(message)) {
+      say('Для безопасности не присылайте здесь контакты. Если хотите оставить заявку, напишите «Оформить заявку».');
+      return;
+    }
+    if (!aiConsent.checked) {
+      say('Могу подробно ответить с помощью ИИ. Отметьте согласие под перепиской и повторите вопрос. Если хотите оставить заявку специалисту, напишите «Оформить заявку».');
+      return;
+    }
+    state.busy = true; updateControls();
+    const pending = say('Разбираюсь в вашем вопросе…');
+    const messages = [...state.dialogue.slice(-8), {role:'user',content:message}];
+    try {
+      const response = await fetch('/api/mira-chat', {
+        method:'POST',credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({messages,consent:true})
+      });
+      const data = await response.json().catch(()=>({}));
+      if (!response.ok || !data.reply) throw Error(data.error||'Не удалось получить ответ.');
+      pending.textContent = String(data.reply).slice(0,1200);
+      state.dialogue = [...messages,{role:'assistant',content:pending.textContent}].slice(-10);
+    } catch {
+      pending.textContent = 'Сейчас не могу получить ответ от ИИ. Можете задать вопрос повторно или описать задачу для специалиста MIRVIX AI. Для оформления напишите «Оформить заявку».';
+    } finally { state.busy=false;updateControls();history.scrollTop=history.scrollHeight; }
+  }
   async function accept(raw) {
     if (state.busy) return;
     const message = String(raw || '').trim();
@@ -210,14 +243,21 @@
     }
     switch (state.phase) {
       case 'task':
-        state.original = [message];
-        return reformulate();
+        if (/^(?:оформить заявку|оставить заявку|передать задачу|связаться со специалистом)$/i.test(normalize(message))) {
+          say('Опишите, пожалуйста, что нужно сделать для вашего бизнеса. Я сформулирую задачу для специалиста.');
+          return;
+        }
+        if (isBusinessTask(message)) {
+          state.original = [message];
+          return reformulate();
+        }
+        return chatReply(message);
       case 'review': {
         const decision = normalize(message);
         if (yesPattern.test(decision)) {
           state.phase = 'contact';
           deliveryPanel.hidden = false;
-          say('Спасибо, теперь всё ясно! Как с вами удобнее связаться — по телефону или в Telegram, MAX, WhatsApp либо по электронной почте? Напишите удобный способ и ваш контакт.');
+          say('Спасибо, теперь всё ясно! Как с вами удобнее связаться — по телефону, в Telegram, MAX или по электронной почте? Напишите удобный способ и ваш контакт.');
           updateControls();
           return;
         }
@@ -284,32 +324,104 @@
     launch.setAttribute('aria-expanded','false');
     document.body.classList.remove('mira-chat-open');
     if (state.recognition) state.recognition.abort();
+    if (state.recorder?.state==='recording') state.recorder.stop();
     launch.focus();
   }
   launch.addEventListener('click', () => (dialog.hidden ? open() : hide()));
   close.addEventListener('click', hide);
   send.addEventListener('click', () => accept(input.value));
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); accept(input.value); } });
-  if (Speech) {
-    mic.addEventListener('click', () => {
-      if (state.recognition) { state.recognition.stop(); return; }
-      const rec = new Speech(); state.recognition = rec; rec.lang = 'ru-RU'; rec.interimResults = false; rec.maxAlternatives = 1;
-      mic.classList.add('mira-listening'); mic.setAttribute('aria-label','Завершить диктовку');
-      rec.onresult = e => {
-        const text = e.results?.[0]?.[0]?.transcript || '';
-        if (text) { transcript.value = text; speechCheck.hidden = false; updateControls(); }
+  function voiceError(text) {
+    say(text||'Не удалось обработать голос. Проверьте доступ к микрофону или напишите сообщение текстом.');
+  }
+  function showTranscript(text){
+    const value=String(text||'').trim();
+    if(!value){voiceError('Речь не распознана. Попробуйте снова или напишите текстом.');return;}
+    transcript.value=value;
+    speechCheck.hidden=false;
+    updateControls();
+  }
+  function stopMedia(){
+    if(state.voiceTimer){clearTimeout(state.voiceTimer);state.voiceTimer=null;}
+    if(state.stream){for(const track of state.stream.getTracks())track.stop();state.stream=null;}
+    state.recorder=null;
+    mic.classList.remove('mira-listening');
+    mic.setAttribute('aria-label','Надиктовать сообщение');
+    updateControls();
+  }
+  async function startMediaRecorder(){
+    if(!canRecord){voiceError('Этот браузер не поддерживает запись голоса на сайте. Можно воспользоваться голосовым вводом клавиатуры или написать текстом.');return;}
+    if(!aiConsent.checked){voiceError('Для распознавания речи отметьте согласие на использование ИИ под перепиской.');return;}
+    try{
+      const stream=await mediaDevices.getUserMedia({audio:true,video:false});
+      state.stream=stream;
+      const formats=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg'];
+      const type=formats.find(t=>Recorder.isTypeSupported?.(t));
+      const rec=type?new Recorder(stream,{mimeType:type}):new Recorder(stream);
+      state.recorder=rec;
+      const chunks=[];
+      rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
+      rec.onerror=()=>{stopMedia();voiceError('Запись прервана. Проверьте разрешение микрофона или напишите текстом.');};
+      rec.onstop=async()=>{
+        const mime=rec.mimeType||'audio/webm';
+        stopMedia();
+        if(!chunks.length)return voiceError('Звук не записан. Попробуйте снова.');
+        state.busy=true;updateControls();
+        const progress=say('Распознаю голосовое сообщение…');
+        const body=new FormData();
+        body.append('consent','true');
+        body.append('audio',new Blob(chunks,{type:mime}),'mira-voice');
+        const ctl=new AbortController();
+        const timer=setTimeout(()=>ctl.abort(),25000);
+        try{
+          const response=await fetch('/api/mira-transcribe',{method:'POST',body,signal:ctl.signal,credentials:'same-origin'});
+          const data=await response.json().catch(()=>({}));
+          if(!response.ok||!data.text)throw Error(data.error||'Не удалось распознать голос.');
+          progress.textContent='Готово! Проверьте текст перед отправкой.';
+          showTranscript(data.text);
+        }catch(e){progress.textContent=e.name==='AbortError'?'Время распознавания истекло. Попробуйте ещё раз.':
+          (e.message||'Распознавание недоступно. Напишите текстом.');}
+        finally{clearTimeout(timer);state.busy=false;updateControls();}
       };
-      rec.onerror = () => say('Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.');
-      rec.onend = () => { state.recognition = null; mic.classList.remove('mira-listening'); mic.setAttribute('aria-label','Надиктовать сообщение'); updateControls(); };
-      try { rec.start(); } catch { state.recognition = null; updateControls(); }
-    });
-  } else { mic.title = 'Голосовой ввод в этом браузере недоступен'; mic.setAttribute('aria-label',mic.title); }
+      rec.start();
+      mic.classList.add('mira-listening');
+      mic.title='Нажмите ещё раз, чтобы завершить запись';
+      mic.setAttribute('aria-label','Завершить запись');
+      state.voiceTimer=setTimeout(()=>{if(state.recorder?.state==='recording')state.recorder.stop();},15000);
+    }catch(e){
+      stopMedia();
+      voiceError(e?.name==='NotAllowedError'?'Доступ к микрофону запрещён. Разрешите его для сайта в настройках браузера.':
+        'Не удалось включить микрофон. Проверьте разрешения браузера и устройство.');
+    }
+  }
+  function startSpeech(){
+    if(!aiConsent.checked){voiceError('Отметьте согласие на обработку речи под чатом, затем нажмите микрофон ещё раз.');return;}
+    const rec=new Speech();state.recognition=rec;rec.lang='ru-RU';rec.interimResults=false;rec.maxAlternatives=1;
+    mic.classList.add('mira-listening');mic.setAttribute('aria-label','Завершить диктовку');
+    rec.onresult=e=>showTranscript(e.results?.[0]?.[0]?.transcript||'');
+    rec.onerror=e=>{
+      state.preferRecording=canRecord;
+      if(e.error==='not-allowed'||e.error==='service-not-allowed')voiceError('Браузер запретил доступ к голосу. Разрешите микрофон и повторите попытку.');
+      else voiceError(canRecord?'Распознавание браузера недоступно. Нажмите микрофон ещё раз — используем защищённую запись через сервер.':
+        'Голосовое распознавание в этом браузере не работает. Напишите текстом.');
+    };
+    rec.onend=()=>{state.recognition=null;mic.classList.remove('mira-listening');mic.setAttribute('aria-label','Надиктовать сообщение');updateControls();};
+    try{rec.start();}catch{state.recognition=null;state.preferRecording=canRecord;updateControls();voiceError('Распознавание браузера не запустилось. Попробуйте микрофон ещё раз.');}
+  }
+  mic.addEventListener('click',()=>{
+    if(state.recognition){state.recognition.stop();return;}
+    if(state.recorder){if(state.recorder.state==='recording')state.recorder.stop();return;}
+    if(Speech&&!state.preferRecording)return startSpeech();
+    return startMediaRecorder();
+  });
+  if(!Speech&&!canRecord){mic.title='Голосовой ввод недоступен в этом браузере';mic.setAttribute('aria-label',mic.title);}
+
   by('confirm').addEventListener('click', () => {
     const text = transcript.value.trim(); if (!text) return;
     transcript.value = ''; speechCheck.hidden = true; updateControls(); accept(text); input.focus();
   });
   by('retry').addEventListener('click', () => {
-    transcript.value = ''; speechCheck.hidden = true; updateControls(); if (Speech) mic.click();
+    transcript.value = ''; speechCheck.hidden = true; updateControls(); mic.click();
   });
   by('cancel').addEventListener('click', () => {
     transcript.value = ''; speechCheck.hidden = true; updateControls(); input.focus();
