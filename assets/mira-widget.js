@@ -13,6 +13,8 @@ const ui={
 };
 if(Object.values(ui).some(x=>!x))return;
 const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+const Recorder=window.MediaRecorder;
+const RecordingAvailable=!!(Recorder&&navigator.mediaDevices?.getUserMedia);
 const SETTINGS_KEY='mirvix-mira-ai-choice-v1';
 const CONTACT=/(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
 const links=[
@@ -24,7 +26,7 @@ const links=[
  {pattern:/инструмент|конкурент|матриц|сравнен/i,label:'Инструменты MIRVIX AI',url:'/tools/'}
 ];
 const allowedRoutes=new Set(['/tariffs/','/tariffs/#support','/legal/contacts/','/#services','/check/','/tools/']);
-const state={consent:null,loading:false,rec:null,pending:'',messages:[],lastReply:'',requestId:null,voiceBusy:false};
+const state={consent:null,loading:false,rec:null,pending:'',messages:[],lastReply:'',requestId:null,voiceBusy:false,recorder:null,audioStream:null,audioTimer:null,preferRecording:false};
 function loadConsent(){
  try{const v=window.localStorage.getItem(SETTINGS_KEY);return v==='yes'||v==='no'?v:null;}catch{return null;}
 }
@@ -101,6 +103,13 @@ function open(){
 function hide(){
  ui.dialog.hidden=true;ui.launch.setAttribute('aria-expanded','false');document.body.classList.remove('mira-chat-open');
  if(state.rec){try{state.rec.abort();}catch{}}
+ if(state.recorder){
+  const recorder=state.recorder;recorder._miraCanceled=true;
+  try{if(recorder.state==='recording')recorder.stop();}catch{}
+ }
+ if(state.audioStream){state.audioStream.getTracks().forEach(t=>t.stop());state.audioStream=null;}
+ if(state.audioTimer){clearTimeout(state.audioTimer);state.audioTimer=null;}
+ state.recorder=null;state.voiceBusy=false;setBusy(false);
  ui.launch.focus();
 }
 function setDelivery(open){
@@ -127,27 +136,119 @@ async function sendLead(){
  }catch(err){ui.leadStatus.textContent='Не удалось подтвердить сохранение. '+(err?.message||'Повторите отправку.');}
  finally{setBusy(false);}
 }
+
 const SpeechAvailable=!!Speech;
+const VoiceAvailable=SpeechAvailable||RecordingAvailable;
+function resetVoice(){
+ if(state.audioTimer){clearTimeout(state.audioTimer);state.audioTimer=null;}
+ if(state.audioStream){state.audioStream.getTracks().forEach(t=>t.stop());state.audioStream=null;}
+ state.recorder=null;
+ state.voiceBusy=false;
+ ui.mic.classList.remove('mira-listening');
+ ui.mic.setAttribute('aria-label','Надиктовать сообщение');
+ setBusy(false);
+}
+function showTranscript(value){
+ const text=String(value||'').trim();
+ if(!text){status('Речь не распознана. Попробуйте ещё раз или напишите текстом.');return;}
+ ui.transcript.value=text;
+ ui.voicecheck.hidden=false;
+}
+async function startVoiceRecording(){
+ if(!RecordingAvailable){
+  status('Этот браузер не поддерживает запись с микрофона. Используйте голосовой ввод клавиатуры или напишите сообщение.');
+  return;
+ }
+ if(state.consent!=='yes'){
+  status('Для обработки голосового сообщения необходимо разрешение ИИ. Нажмите ⚙ в заголовке чата, разрешите ИИ и снова нажмите микрофон.');
+  ui.consentPanel.hidden=false;
+  return;
+ }
+ if(state.loading)return;
+ state.voiceBusy=true;
+ try{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  if(ui.dialog.hidden){stream.getTracks().forEach(t=>t.stop());state.voiceBusy=false;return;}
+  state.audioStream=stream;
+  const supported=['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg']
+   .find(v=>typeof Recorder.isTypeSupported==='function'&&Recorder.isTypeSupported(v));
+  const recorder=supported?new Recorder(stream,{mimeType:supported}):new Recorder(stream);
+  state.recorder=recorder;
+  const chunks=[];
+  recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  recorder.onerror=()=>{resetVoice();status('Не удалось записать звук. Проверьте разрешения микрофона.');};
+  recorder.onstop=async()=>{
+   const cancelled=recorder._miraCanceled||ui.dialog.hidden;
+   const mime=recorder.mimeType||'audio/webm';
+   resetVoice();
+   if(cancelled)return;
+   if(!chunks.length)return void status('Звук не записан. Попробуйте ещё раз.');
+   setBusy(true);
+   const notice=addBubble('Распознаю голосовое сообщение…');
+   const ctl=new AbortController();
+   const timer=setTimeout(()=>ctl.abort(),25000);
+   try{
+    const form=new FormData();
+    form.append('consent','true');
+    form.append('audio',new Blob(chunks,{type:mime}),'mira-voice');
+    const response=await fetch('/api/mira-transcribe',{method:'POST',body:form,credentials:'same-origin',signal:ctl.signal});
+    const body=await response.json().catch(()=>({}));
+    if(!response.ok||!body.text)throw Error(body.error||'Сервис распознавания временно недоступен.');
+    notice.firstElementChild.textContent='Готово. Проверьте распознанный текст перед отправкой.';
+    showTranscript(body.text);
+   }catch(e){
+    notice.firstElementChild.textContent=e.name==='AbortError'?'Время распознавания истекло. Попробуйте ещё раз.':
+     (e.message||'Не удалось распознать голос. Попробуйте текстовый ввод.');
+   }finally{clearTimeout(timer);setBusy(false);}
+  };
+  recorder.start();
+  ui.mic.classList.add('mira-listening');
+  ui.mic.setAttribute('aria-label','Остановить запись и распознать');
+  state.audioTimer=setTimeout(()=>{if(state.recorder?.state==='recording')state.recorder.stop();},15000);
+ }catch(e){
+  resetVoice();
+  status(e?.name==='NotAllowedError'?'Микрофон запрещён в браузере. Разрешите доступ для сайта и повторите попытку.':
+   'Не удалось включить микрофон. Проверьте настройки устройства или напишите текстом.');
+ }
+}
 function voiceStart(){
- if(!SpeechAvailable){status('В этом мобильном браузере распознавание речи недоступно. Можно написать сообщение с клавиатуры.');return;}
+ if(state.recorder){
+  try{if(state.recorder.state==='recording')state.recorder.stop();}catch{}
+  return;
+ }
  if(state.rec){try{state.rec.stop();}catch{}return;}
- let rec;try{rec=new Speech();}catch{status('Браузер не разрешает запуск распознавания.');return;}
+ if(state.loading)return;
+ if(!SpeechAvailable||state.preferRecording){void startVoiceRecording();return;}
+ let rec;try{rec=new Speech();}catch{
+  state.preferRecording=RecordingAvailable;
+  status('Распознавание браузера не запустилось. Нажмите микрофон ещё раз для резервной записи.');
+  return;
+ }
  state.rec=rec;state.voiceBusy=true;
  rec.lang='ru-RU';rec.interimResults=false;rec.continuous=false;rec.maxAlternatives=1;
- ui.mic.setAttribute('aria-label','Остановить запись');ui.mic.classList.add('mira-listening');
+ ui.mic.setAttribute('aria-label','Остановить диктовку');ui.mic.classList.add('mira-listening');
  rec.onresult=e=>{
-  const result=e.results?.[0]?.[0]?.transcript||'';
-  if(result.trim()){ui.transcript.value=result.trim();ui.voicecheck.hidden=false;setBusy(false);}
+  showTranscript(e.results?.[0]?.[0]?.transcript||'');
  };
  rec.onerror=e=>{
-  const reason={not_allowed:'Нет разрешения на микрофон', 'not-allowed':'Нет разрешения на микрофон',
-   'service-not-allowed':'Сервис распознавания недоступен',network:'Ошибка сети при распознавании',
-   'no-speech':'Речь не обнаружена','audio-capture':'Микрофон недоступен'}[e.error]||'Ошибка распознавания';
-  status(reason+'. Разрешите микрофон в настройках браузера или напишите сообщение.');
+  const denied=e.error==='not-allowed'||e.error==='service-not-allowed';
+  if(!denied&&RecordingAvailable)state.preferRecording=true;
+  const reason=denied?'Браузер запретил использование микрофона. Разрешите доступ для этого сайта.':
+   RecordingAvailable?'Распознавание браузера недоступно. Нажмите микрофон ещё раз для резервного распознавания.':
+   'Распознавание голоса недоступно. Можно написать текстом.';
+  status(reason);
  };
- rec.onend=()=>{state.rec=null;state.voiceBusy=false;ui.mic.setAttribute('aria-label','Надиктовать сообщение');
-  ui.mic.classList.remove('mira-listening');setBusy(false);};
- try{rec.start();}catch{state.rec=null;state.voiceBusy=false;status('Не удалось запустить микрофон. Проверьте разрешения браузера.');setBusy(false);}
+ rec.onend=()=>{
+  state.rec=null;state.voiceBusy=false;
+  ui.mic.setAttribute('aria-label','Надиктовать сообщение');
+  ui.mic.classList.remove('mira-listening');setBusy(false);
+ };
+ try{rec.start();}catch{
+  state.rec=null;state.voiceBusy=false;state.preferRecording=RecordingAvailable;
+  status(RecordingAvailable?'Распознавание браузера не запустилось. Нажмите микрофон ещё раз для записи через сервер.':
+   'Не удалось запустить микрофон. Проверьте разрешения браузера.');
+  setBusy(false);
+ }
 }
 const mobile=window.matchMedia?.('(max-width:960px)');
 const head=document.querySelector('.site-header .header-inner');
@@ -174,5 +275,5 @@ ui.confirm.addEventListener('click',()=>{const text=ui.transcript.value.trim();u
  ui.transcript.value='';if(text)void sendMessage(text);});
 ui.retry.addEventListener('click',()=>{ui.voicecheck.hidden=true;ui.transcript.value='';voiceStart();});
 ui.cancel.addEventListener('click',()=>{ui.voicecheck.hidden=true;ui.transcript.value='';});
-if(!SpeechAvailable){ui.mic.title='Голосовой ввод недоступен в этом браузере';ui.mic.setAttribute('aria-label',ui.mic.title);}
+if(!VoiceAvailable){ui.mic.title='Голосовой ввод недоступен в этом браузере';ui.mic.setAttribute('aria-label',ui.mic.title);}
 })();
