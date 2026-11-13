@@ -12,6 +12,9 @@ on:
       - 'tools/**'
       - 'leads/**'
       - 'tests/mirvix-public-refresh.test.mjs'
+      - 'tests/mira-privacy-links-tariffs.test.mjs'
+      - 'tariffs/**'
+      - 'assets/ocean-premium.css'
       - '.github/workflows/mirvix-public-refresh.yml'
   push:
     branches: [main]
@@ -43,5 +46,6 @@ jobs:
           node --check netlify/functions/mira-transcribe.mjs
           node --check netlify/functions/ai-visibility-request.mjs
           node --check tests/mirvix-public-refresh.test.mjs
+          node --check tests/mira-privacy-links-tariffs.test.mjs
       - name: Regression and client flows
-        run: node --test tests/mira-dialog.test.mjs tests/mirvix-public-refresh.test.mjs
+        run: node --test tests/mira-dialog.test.mjs tests/mirvix-public-refresh.test.mjs tests/mira-privacy-links-tariffs.test.mjs
