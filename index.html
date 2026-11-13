@@ -810,7 +810,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 .mirvix-ocean-hero .mirvix-ocean-numbers{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 55% 64% at 50% 53%,rgba(0,0,0,.13) 9%,rgba(0,0,0,.52) 51%,#000 100%);mask-image:radial-gradient(ellipse 55% 64% at 50% 53%,rgba(0,0,0,.13) 9%,rgba(0,0,0,.52) 51%,#000 100%)}
 .mirvix-ocean-hero .mirvix-code-fragment{position:absolute;left:var(--fx);top:var(--fy);display:inline-block;white-space:pre;pointer-events:none;user-select:none;font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:var(--fs,28px);font-weight:580;line-height:1;letter-spacing:.055em;color:#e3f9ff;text-shadow:0 0 12px rgba(190,240,255,.4);opacity:0;transform:translate3d(calc(-1 * var(--fr,8px)),0,0);animation:mirvix-code-crossfade 6.6s ease-in-out var(--fd,0s) infinite;will-change:opacity,transform}
 @keyframes mirvix-code-crossfade{0%,8%{opacity:0;transform:translate3d(calc(-1 * var(--fr,8px)),0,0)}26%,45%{opacity:var(--fo,.26);transform:translate3d(0,0,0)}63%,100%{opacity:0;transform:translate3d(var(--fr,8px),0,0)}}
-.mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment{animation-play-state:paused!important}
+.mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment{animation-play-state:running!important}
 @media(max-width:690px){.mirvix-ocean-hero .mirvix-code-fragment{font-size:clamp(18px,4.4vw,24px);letter-spacing:.035em}.mirvix-ocean-hero .mirvix-code-fragment:nth-child(3n){display:none}.mirvix-ocean-hero .mirvix-ocean-numbers{opacity:.83}}
 @media(prefers-reduced-motion:reduce){.mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}}
 @media print{.mirvix-ocean-hero .mirvix-ocean-numbers{display:none!important}}
@@ -828,6 +828,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 <link rel="stylesheet" href="/assets/mira-widget-extra.css">
 <link rel="stylesheet" href="/assets/mira-clean.css">
 <link rel="stylesheet" href="/assets/ocean-premium.css">
+<link rel="stylesheet" href="/assets/hero-legibility.css">
 <script defer src="/assets/mirvix-metrika.js"></script>
 <script defer src="/assets/mirvix-lead-form.js"></script>
 </head>
@@ -864,7 +865,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     <span class="ocean-brand-name">MIRVIX <span>AI</span></span>
   </div>
   <div class="mirvix-ocean-media" aria-hidden="true">
-    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted playsinline preload="metadata" poster="/assets/mirvix-ocean-premium-poster.jpg" aria-hidden="true">
+    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="metadata" poster="/assets/mirvix-ocean-premium-poster.jpg" aria-hidden="true">
       <source src="/assets/mirvix-ocean-premium.mp4" type="video/mp4">
     </video>
     <div class="mirvix-ocean-shade"></div>
@@ -944,7 +945,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   <div class="container hero-layout">
     <div class="hero-copy ocean-story-copy">
       <h1>Поможем Вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее.</span></h1>
-      <p>В океане информации важно не потеряться, помогаем компаниям усиливать присутствие в нейросетях и ИИ-поиске, чтобы клиенты чаще находили именно Вас.</p>
+      <p>В океане информации важно не потеряться. Помогаем компаниям усилить присутствие в нейросетях и ИИ-поиске, чтобы клиенты чаще находили именно вас.</p>
       <div class="hero-buttons">
         <a class="button button-primary" href="/check/" aria-label="Открыть MIRVIX GEO Check — проверка сайта и упоминаний в нейросетях">Проверить сайт в ИИ <span aria-hidden="true">↗</span></a>
         <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
@@ -1333,7 +1334,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(finished)return;
       finished=true;
       hero.classList.add('ocean-intro-done');
-      try{video.pause();}catch(e){}
+      // The brand intro finishes, but the real ocean and binary lights keep moving.
       if(timer){clearTimeout(timer);timer=null;}
     };
     var start=function(){
@@ -1342,7 +1343,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(reduced.matches){hero.classList.add('ocean-intro-done');video.pause();return;}
       hero.classList.add('ocean-intro-playing');
       video.muted=true;
-      video.playbackRate=.85;
+      video.playbackRate=1; // Source is already naturally slow; avoid dropped frames.
       var promise=video.play();
       if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
       timer=setTimeout(finish,8000);
