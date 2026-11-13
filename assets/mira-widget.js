@@ -156,7 +156,7 @@ function showTranscript(value){
 }
 async function startVoiceRecording(){
  if(!RecordingAvailable){
-  status('В этом браузере голосовой ввод недоступен: запись с микрофона не поддерживается. Используйте клавиатуру или напишите сообщение.');
+  status('Голосовое распознавание здесь недоступно: запись с микрофона не поддерживается. Используйте клавиатуру или напишите сообщение.');
   return;
  }
  if(state.consent!=='yes'){
@@ -232,8 +232,10 @@ function voiceStart(){
  };
  rec.onerror=e=>{
   const denied=e.error==='not-allowed'||e.error==='service-not-allowed';
+  const noAudio=e.error==='audio-capture';
   if(!denied&&RecordingAvailable)state.preferRecording=true;
   const reason=denied?'Браузер запретил использование микрофона. Разрешите доступ для этого сайта.':
+   noAudio?'Микрофон недоступен. Проверьте подключение устройства или разрешение браузера.':
    RecordingAvailable?'Распознавание браузера недоступно. Нажмите микрофон ещё раз для резервного распознавания.':
    'Распознавание голоса недоступно. Можно написать текстом.';
   status(reason);
