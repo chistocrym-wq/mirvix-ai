@@ -10,7 +10,7 @@ function contactType(){
   }else if(channel.value==='telegram'){
     contact.type='text';contact.inputMode='text';contact.autocomplete='off';contact.placeholder='@username или https://t.me/username';
   }else{
-    contact.type='tel';contact.inputMode='tel';contact.autocomplete='tel';contact.placeholder='+7 999 000-00-00';
+    contact.type='text';contact.inputMode='text';contact.autocomplete='off';contact.placeholder='@username или https://t.me/username';
   }
 }
 function chooseService(service,scroll=true){
