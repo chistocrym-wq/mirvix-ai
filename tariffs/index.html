@@ -22,12 +22,37 @@ nav{display:flex;align-items:center;gap:23px;font-weight:730;font-size:13px}nav 
 h1{font-size:clamp(38px,5.3vw,66px);letter-spacing:-.056em;line-height:1.06;margin:15px 0 20px}
 .grad{background:linear-gradient(110deg,#006de8,#11bde0,#7629ea);color:transparent;background-clip:text;-webkit-background-clip:text}
 .top p{max-width:780px;color:#425876;font-size:18px;margin:0 0 19px}.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}.tabs a{border-radius:40px;padding:11px 17px;background:#fff;border:1px solid #c8d8ef;color:#1a5298;font-weight:800;font-size:13px}
-.section{padding:66px 0}.section+.section{padding-top:12px}.section h2{font-size:clamp(29px,3.1vw,42px);letter-spacing:-.045em;line-height:1.12;margin:0 0 14px}.section-intro{max-width:740px;color:#526583;margin:0 0 30px;font-size:16px}
+.section{padding:66px 0}.section+.section{padding-top:12px}.section h2{font-size:clamp(29px,3.1vw,42px);letter-spacing:-.045em;line-height:1.12;margin:0 0 14px}.section-intro{max-width:990px;color:#526583;margin:0 0 30px;font-size:16px}
 .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.plan{min-width:0;border:1px solid #dce6f9;border-radius:20px;padding:24px 20px;background:linear-gradient(160deg,#fff,#f8faff);box-shadow:0 12px 30px #253f8210;display:flex;flex-direction:column;gap:13px}.plan strong{font-size:19px;line-height:1.23}.plan .marker{font-size:23px;width:48px;height:48px;background:#eaf3ff;border-radius:12px;display:grid;place-items:center}.plan .price{font-size:clamp(25px,2.4vw,33px);font-weight:900;letter-spacing:-.03em;white-space:nowrap}.plan .price small{font-size:12px;letter-spacing:0;color:#6780a3;font-weight:650}.plan p{font-size:14px;color:#455979;margin:0;flex:1}.plan .action{width:100%;margin-top:8px;white-space:normal;text-align:center}.plan.featured{background:linear-gradient(142deg,#134ee7,#6b2ce8);color:#fff;border-color:#4057fc}.plan.featured p,.plan.featured .price small{color:#e5e9ff}.plan.featured .marker{background:#ffffff24}.plan.featured .action{background:#fff;color:#1643ac}
 .separator{border-top:1px solid var(--line);margin-top:15px;padding-top:28px}.hint{font-size:13px;color:#657997;max-width:860px}.cta{padding:36px 0 80px}.cta-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:33px 36px;background:linear-gradient(110deg,#076ef2,#632bec);color:#fff;border-radius:24px}.cta-inner strong{font-size:clamp(23px,3vw,34px);line-height:1.2;display:block}.cta-inner p{margin:6px 0 0;font-size:14px;color:#e1edff}.cta-inner .action{background:#fff;color:#124ac1}
 footer{padding:22px 0;border-top:1px solid var(--line);color:#637692;font-size:12px}footer .container{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
 @media(max-width:1050px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.head nav{gap:12px}.brand img{width:125px}.brand span{font-size:11px}}
 @media(max-width:690px){.container{width:calc(100% - 32px)}.head{min-height:68px;flex-wrap:wrap;padding:10px 0;gap:10px}.brand{width:100%;justify-content:space-between}.brand img{width:130px}.head nav{width:100%;justify-content:space-between;font-size:12px;gap:8px}.top{padding:48px 0 33px}.top p{font-size:15px}.section{padding:49px 0}.section+.section{padding-top:12px}.cards{grid-template-columns:1fr}.plan{padding:22px}.plan .price{font-size:30px}.cta{padding:12px 0 60px}.cta-inner{padding:24px;display:grid}.cta-inner .action{width:100%}.tabs{gap:7px}.tabs a{font-size:12px;padding:10px 12px}}
+
+/* Explicit deliverables, easy-to-compare GEO and support plans. */
+.cards.detailed{grid-template-columns:repeat(2,minmax(0,1fr));gap:21px}
+.cards.detailed .plan{padding:26px;gap:13px}
+.plan-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.plan .tier{font-size:10.5px;letter-spacing:.09em;font-weight:900;color:#3768a6;text-align:right}
+.plan.featured .tier{color:#e0ecff}
+.plan .plan-intro{font-weight:570;flex:initial;margin:0;min-height:45px}
+.plan-metrics{display:flex;gap:7px;flex-wrap:wrap;margin:1px 0 6px}
+.plan-metrics span{display:inline-flex;gap:4px;align-items:center;padding:7px 10px;border-radius:9px;background:#e9f2ff;color:#214e83;font-size:12px;line-height:1.4}
+.plan.featured .plan-metrics span{background:#ffffff2d;color:#fff}
+.plan .plan-list{padding:0 0 0 20px;margin:4px 0 0;display:flex;flex-direction:column;gap:11px;color:#455979;font-size:13.5px;line-height:1.5;flex:1}
+.plan.featured .plan-list{color:#eef2ff}
+.plan .plan-list li{padding-left:3px}
+.plan .plan-list li::marker{color:#1478dd}
+.plan.featured .plan-list li::marker{color:#9aebff}
+.plan .tier-difference{border-top:1px solid #dbe5f3;padding-top:14px;margin-top:8px;font-weight:720;flex:initial;font-size:12.5px}
+.plan.featured .tier-difference{border-color:#ffffff42;color:#ecf2ff}
+.method-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 24px}
+.method-steps article{border:1px solid #dce6f8;border-radius:14px;padding:15px;background:#f7faff;display:grid;gap:7px}
+.method-steps article span{font-size:12px;letter-spacing:.08em;color:#096edb;font-weight:900}
+.method-steps article strong{font-size:14px}
+.method-steps article small{font-size:12px;color:#526a89;line-height:1.5}
+@media(max-width:850px){.method-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:690px){.cards.detailed,.method-steps{grid-template-columns:1fr}.cards.detailed .plan{padding:20px}.plan .plan-intro{min-height:0}.plan .plan-list{font-size:13px}}
 </style>
 <script defer src="/assets/mirvix-metrika.js"></script>
 </head>
@@ -35,18 +60,138 @@ footer{padding:22px 0;border-top:1px solid var(--line);color:#637692;font-size:1
 <header><div class="container head"><a class="brand" href="/" aria-label="MIRVIX — на главную"><img src="/assets/brand-wordmark.png" alt="MIRVIX"><span>Тарифы и сопровождение</span></a><nav aria-label="Разделы сайта"><a href="/">Главная</a><a href="/#services">Услуги</a><a href="/#platform">О платформе</a><a href="/#lead-form">Связаться</a></nav></div></header>
 <main>
 <section class="top"><div class="container"><span class="eyebrow">MIRVIX AI · УСЛУГИ И СТОИМОСТЬ</span><h1>Тарифы <span class="grad">GEO-продвижения</span></h1><p>Поможем усилить видимость компании в нейросетях и ИИ-поиске, используя проверяемые сведения о бизнесе и его услугах. Выберите подходящий объём первоначальных работ и отдельный вариант сопровождения.</p><div class="tabs"><a href="#geo">GEO-продвижение</a><a href="#support">Сопровождение</a><a href="/#platform">О платформе MIRVIX</a></div></div></section>
-<section class="section" id="geo"><div class="container"><span class="eyebrow">ПЕРВОНАЧАЛЬНЫЕ РАБОТЫ</span><h2>4 варианта GEO-продвижения</h2><p class="section-intro">От базовой подготовки присутствия до комплексной работы с контентом, представлением компании и её доступностью для нейросетей. Точный состав, число проверок и сроки фиксируются в предложении до начала работ.</p><div class="cards">
-<article class="plan"><span class="marker" aria-hidden="true">✦</span><strong>GEO Старт</strong><div class="price">50 000 ₽</div><p>Базовая диагностика и техническая подготовка информации о компании для нейросетей и ИИ-поиска.</p><a class="action secondary" href="/#lead-form">Обсудить «Старт»</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">◈</span><strong>GEO Оптимум</strong><div class="price">89 000 ₽</div><p>Расширенная оценка представления компании, проработка основных направлений и рекомендации по усилению присутствия.</p><a class="action secondary" href="/#lead-form">Обсудить «Оптимум»</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">▥</span><strong>GEO Бизнес</strong><div class="price">129 000 ₽</div><p>Более глубокая работа со структурой сайта, карточками услуг и товаров, релевантным контентом и измерением видимости.</p><a class="action secondary" href="/#lead-form">Обсудить «Бизнес»</a></article>
-<article class="plan featured"><span class="marker" aria-hidden="true">♛</span><strong>GEO Максимум</strong><div class="price">259 000 ₽</div><p>Максимально широкий формат: комплексная проработка направлений, технических и контентных факторов, аналитики и дальнейших приоритетов.</p><a class="action" href="/#lead-form">Обсудить «Максимум»</a></article>
-</div><p class="hint separator">GEO — работа над доступностью и понятностью информации о компании для нейросетей и ИИ-поиска. Позиции, упоминания, рекомендации и продажи не гарантируются: итог зависит также от внешних платформ и конкуренции.</p></div></section>
-<section class="section" id="support"><div class="container"><span class="eyebrow">ПОСЛЕ ЗАПУСКА</span><h2>4 вида сопровождения</h2><p class="section-intro">Сопровождение необязательно: после первоначальной настройки вы можете поддерживать материалы самостоятельно. Если хотите передать работу специалистам MIRVIX, предусмотрены три платных варианта.</p><div class="cards">
-<article class="plan"><span class="marker" aria-hidden="true">⌘</span><strong>Самостоятельно</strong><div class="price">0 ₽ <small>за сопровождение</small></div><p>Вы самостоятельно обновляете страницы, карточки и сведения о компании после выполнения согласованных первоначальных работ.</p><a class="action secondary" href="/#lead-form">Выбрать самостоятельно</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">◇</span><strong>Базовое сопровождение</strong><div class="price">45 000 ₽ <small>/мес.</small></div><p>Плановые корректировки, обновление ключевой информации и контроль состояния согласованных материалов.</p><a class="action secondary" href="/#lead-form">Обсудить базовое</a></article>
-<article class="plan"><span class="marker" aria-hidden="true">↗</span><strong>Активное сопровождение</strong><div class="price">65 000 ₽ <small>/мес.</small></div><p>Регулярная работа с содержанием, расширение полезных материалов и мониторинг изменений в видимости.</p><a class="action secondary" href="/#lead-form">Обсудить активное</a></article>
-<article class="plan featured"><span class="marker" aria-hidden="true">✧</span><strong>Профессиональное сопровождение</strong><div class="price">85 000 ₽ <small>/мес.</small></div><p>Приоритетное ведение, расширенная аналитика, плановые улучшения и постоянная корректировка согласованной стратегии.</p><a class="action" href="/#lead-form">Обсудить профессиональное</a></article>
-</div><p class="hint separator">Указана стоимость сопровождения в месяц. Самостоятельный вариант означает отсутствие платы именно за сопровождение, а не бесплатное GEO-продвижение. Объём работ, период и отчётность согласуются отдельно.</p></div></section>
+<section class="section" id="geo"><div class="container">
+  <span class="eyebrow">ПЕРВОНАЧАЛЬНОЕ GEO-ПРОДВИЖЕНИЕ</span>
+  <h2>Что входит в каждый тариф</h2>
+  <p class="section-intro">Сначала проводим <strong>базовый замер присутствия</strong> по согласованным вопросам, затем составляем GEO-паспорт компании, устраняем доступные технические препятствия, подготавливаем материалы и делаем <strong>контрольную сверку</strong> по той же методике. Больше тариф — больше направлений, конкурентов, проверяемых запросов и внедряемых материалов.</p>
+  <div class="method-steps">
+    <article><span>01</span><strong>Замер «до»</strong><small>Фиксируем, что говорят нейросети и кого рекомендуют вместо вас</small></article>
+    <article><span>02</span><strong>GEO-паспорт</strong><small>Собираем структурированные факты о бренде, услугах и источниках доверия</small></article>
+    <article><span>03</span><strong>Внедрение</strong><small>Исправления, ответы на вопросы, посадочные страницы и контентные задания</small></article>
+    <article><span>04</span><strong>Сверка «после»</strong><small>Повторная проверка с отчётом о выполненных работах и изменениях</small></article>
+  </div>
+  <div class="cards detailed">
+    <article class="plan" id="geo-start">
+      <div class="plan-top"><span class="marker" aria-hidden="true">✦</span><span class="tier">ДЛЯ ПЕРВОГО ЗАПУСКА</span></div>
+      <strong>GEO Старт</strong><div class="price">50 000 ₽</div>
+      <p class="plan-intro">Начальная техническая подготовка и видимость по двум важнейшим вопросам клиента.</p>
+      <div class="plan-metrics"><span><b>2</b> целевых запроса</span><span><b>1</b> направление</span><span>до <b>2</b> конкурентов</span></div>
+      <ul class="plan-list">
+        <li>Первичный GEO-аудит: индексируемость, доступность информации для ИИ-поиска, robots, метаданные, структура услуг и контактные данные.</li>
+        <li>Стартовый замер упоминаний и рекомендаций по 2 согласованным вопросам в доступных ИИ-системах.</li>
+        <li><b>Базовый GEO-паспорт</b>: бренд, специализация, регион, услуги, контакты, ссылки на подтверждения.</li>
+        <li>Приоритетный список технических исправлений; внесение доступных изменений при согласованном доступе к сайту.</li>
+        <li>Контрольный замер по той же матрице и краткая таблица «до/после» с перечнем выполненных работ.</li>
+      </ul>
+      <p class="tier-difference">Вы получаете точку отсчёта и базовую готовность для ИИ-поиска.</p>
+      <a class="action secondary" href="/#lead-form">Обсудить «Старт»</a>
+    </article>
+    <article class="plan" id="geo-optimum">
+      <div class="plan-top"><span class="marker" aria-hidden="true">◈</span><span class="tier">ДЛЯ НЕСКОЛЬКИХ УСЛУГ</span></div>
+      <strong>GEO Оптимум</strong><div class="price">89 000 ₽</div>
+      <p class="plan-intro">Углублённый конкурентный анализ и построение тематической матрицы рекомендаций.</p>
+      <div class="plan-metrics"><span><b>10</b> целевых запросов</span><span>до <b>3</b> направлений</span><span>до <b>3</b> конкурентов</span></div>
+      <ul class="plan-list">
+        <li>Все основные работы «Старта» в расширенном объёме.</li>
+        <li>Конкурентная матрица: по каким вопросам встречаются конкуренты, как они представлены и какие источники указывают ИИ.</li>
+        <li>Расширенный GEO-паспорт с картой услуг, экспертности, проверяемых фактов и информационных пробелов.</li>
+        <li>Проверка структурированных данных <em>Schema.org/JSON-LD</em>, рекомендации по FAQ и внутренним переходам.</li>
+        <li>Подготовка <b>2 подробных контентных ТЗ</b> для страниц или экспертных блоков, исходя из разрывов с конкурентами.</li>
+        <li>Контрольная сверка 10 запросов и понятный отчёт с рекомендациями на следующий этап.</li>
+      </ul>
+      <p class="tier-difference">В отличие от «Старта» — больше услуг, запросов, конкурентов и конкретных контентных задач.</p>
+      <a class="action secondary" href="/#lead-form">Обсудить «Оптимум»</a>
+    </article>
+    <article class="plan" id="geo-business">
+      <div class="plan-top"><span class="marker" aria-hidden="true">▥</span><span class="tier">ДЛЯ АКТИВНОГО РОСТА</span></div>
+      <strong>GEO Бизнес</strong><div class="price">129 000 ₽</div>
+      <p class="plan-intro">Глубокая работа с представленностью бизнеса и внедрение согласованного полезного контента.</p>
+      <div class="plan-metrics"><span><b>20</b> целевых запросов</span><span>до <b>5</b> направлений</span><span>до <b>5</b> конкурентов</span></div>
+      <ul class="plan-list">
+        <li>Все ключевые виды работ «Оптимума» с более широкой матрицей проверок.</li>
+        <li><em>Gap-анализ</em>: вопросы, услуги и факты, по которым конкуренты видны в ИИ, а компания — нет.</li>
+        <li>Техническая карта внедрения: метаданные, структурированная разметка, посадочные страницы, внутренние связи.</li>
+        <li>До <b>3 контентных ТЗ</b> и подготовка до <b>2 согласованных текстов/блоков</b> для сайта.</li>
+        <li>Предварительная подборка профильных площадок для экспертных GEO-публикаций; стоимость размещений отдельно.</li>
+        <li>Базовый и повторный замер, итоговая сверка по каждому кластеру, приоритетный план работ.</li>
+      </ul>
+      <p class="tier-difference">В отличие от «Оптимума» — не только стратегия, но и подготовленные материалы для внедрения.</p>
+      <a class="action secondary" href="/#lead-form">Обсудить «Бизнес»</a>
+    </article>
+    <article class="plan featured" id="geo-maximum">
+      <div class="plan-top"><span class="marker" aria-hidden="true">♛</span><span class="tier">КОМПЛЕКСНАЯ СТРАТЕГИЯ</span></div>
+      <strong>GEO Максимум</strong><div class="price">259 000 ₽</div>
+      <p class="plan-intro">Максимальный охват направлений, глубокая конкурентная разведка и управляемый пакет внедрений.</p>
+      <div class="plan-metrics"><span><b>30</b> целевых запросов</span><span>до <b>10</b> направлений</span><span>до <b>8</b> конкурентов</span></div>
+      <ul class="plan-list">
+        <li>Полный комплекс «Бизнеса» в увеличенном объёме, единый расширенный GEO-паспорт и карта цифрового присутствия.</li>
+        <li>Разбор ответов доступных нейросетей: доля упоминаний в выборке, конкурентные рекомендации, цитирующие источники.</li>
+        <li>До <b>6 экспертных ТЗ</b> и до <b>4 текстов/контентных блоков</b> для согласованного размещения на сайте.</li>
+        <li>Расширенная подборка внешних тематических площадок, условия публикаций, план усиления авторитетных упоминаний.</li>
+        <li>План действий на <b>30/60/90 дней</b> с ответственными, приоритетами и контрольными метриками.</li>
+        <li>Финальная сверка «до/после»: матрица ИИ, изменения на сайте, перечень публикаций и точки дальнейшего роста.</li>
+      </ul>
+      <p class="tier-difference">В отличие от «Бизнеса» — системная работа по множеству направлений и подробная дорожная карта.</p>
+      <a class="action" href="/#lead-form">Обсудить «Максимум»</a>
+    </article>
+  </div>
+  <p class="hint separator">Все тарифы: факты, условия и точное число материалов фиксируются в коммерческом предложении; доступы и правки сайта согласуются отдельно. Проверки выполняются только в доступных и работоспособных ИИ-сервисах. Платные размещения, сторонние сервисы и лицензии не включены, если прямо не указано иное. Мы не гарантируем рекомендации конкретной нейросети или продажи.</p>
+</div></section>
+<section class="section" id="support"><div class="container">
+  <span class="eyebrow">ПОСЛЕ ПЕРВОНАЧАЛЬНОГО ЗАПУСКА</span>
+  <h2>Сопровождение: кто следит за результатом</h2>
+  <p class="section-intro">После выполнения первоначального пакета GEO-паспорт, матрица запросов и отчёт остаются у клиента. Сопровождение — это регулярные замеры и доработка материалов, а не повторная оплата первоначального аудита.</p>
+  <div class="cards detailed">
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">⌘</span><span class="tier">БЕЗ ЕЖЕМЕСЯЧНОЙ ПЛАТЫ</span></div>
+      <strong>Самостоятельно</strong><div class="price">0 ₽ <small>за сопровождение</small></div>
+      <p class="plan-intro">Клиент управляет дальнейшей видимостью собственными силами.</p>
+      <ul class="plan-list">
+        <li>Передаём результаты первоначальных работ: GEO-паспорт, матрицу замеров и итоговый отчёт.</li>
+        <li>Список рекомендаций и приоритетов для штатного маркетолога или программиста.</li>
+        <li>Новые замеры, контент и доработки выполняет ваша команда или оформляются отдельным заказом.</li>
+      </ul><p class="tier-difference">Подходит, если у вас есть свой специалист и самостоятельный бюджет на инструменты.</p>
+      <a class="action secondary" href="/#lead-form">Выбрать самостоятельно</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">◇</span><span class="tier">СТАБИЛЬНЫЙ КОНТРОЛЬ</span></div>
+      <strong>Базовое сопровождение</strong><div class="price">45 000 ₽ <small>/мес.</small></div>
+      <p class="plan-intro">Контролируем актуальность GEO-паспорта и ключевых данных о компании.</p>
+      <ul class="plan-list">
+        <li>Ежемесячный мониторинг согласованной матрицы: до <b>10 запросов</b>, до <b>2 направлений</b>.</li>
+        <li>Контроль изменений по основным конкурентам, карточкам компании, ссылкам и доступности страниц.</li>
+        <li>До <b>2 точечных обновлений</b> информационных блоков или ТЗ на их обновление.</li>
+        <li><b>1 отчёт в месяц</b>: динамика ИИ-ответов, выявленные проблемы и очередность исправлений.</li>
+      </ul><p class="tier-difference">В отличие от самостоятельного — ежемесячные измерения и исправления под контролем MIRVIX.</p>
+      <a class="action secondary" href="/#lead-form">Обсудить базовое</a>
+    </article>
+    <article class="plan">
+      <div class="plan-top"><span class="marker" aria-hidden="true">↗</span><span class="tier">ПОСТОЯННОЕ УЛУЧШЕНИЕ</span></div>
+      <strong>Активное сопровождение</strong><div class="price">65 000 ₽ <small>/мес.</small></div>
+      <p class="plan-intro">Не просто наблюдаем, а регулярно устраняем обнаруженные контентные разрывы.</p>
+      <ul class="plan-list">
+        <li>Мониторинг до <b>20 запросов</b> и до <b>5 конкурентов</b> в согласованных направлениях.</li>
+        <li><b>2 аналитических среза в месяц</b> с проверкой изменений в рекомендациях и цитированиях.</li>
+        <li>До <b>4 обновлений</b> текстов/FAQ или контентных ТЗ по наиболее перспективным вопросам.</li>
+        <li>Проверка новых конкурентных возможностей и <b>1 ТЗ для внешней публикации</b> в месяц.</li>
+      </ul><p class="tier-difference">В отличие от базового — больше охват и больше регулярных контентных работ.</p>
+      <a class="action secondary" href="/#lead-form">Обсудить активное</a>
+    </article>
+    <article class="plan featured">
+      <div class="plan-top"><span class="marker" aria-hidden="true">✧</span><span class="tier">ПРИОРИТЕТНОЕ ВЕДЕНИЕ</span></div>
+      <strong>Профессиональное сопровождение</strong><div class="price">85 000 ₽ <small>/мес.</small></div>
+      <p class="plan-intro">Стратегическое ведение нескольких направлений с подробным конкурентным контролем.</p>
+      <ul class="plan-list">
+        <li>Мониторинг до <b>30 запросов</b>, до <b>8 конкурентов</b> и нескольких целевых направлений.</li>
+        <li>Расширенная матрица ИИ, <b>еженедельная короткая сводка</b> и месячный аналитический отчёт.</li>
+        <li>До <b>6 контентных обновлений</b> или заданий в месяц и <b>2 ТЗ для внешних экспертных публикаций</b>.</li>
+        <li>Актуализация GEO-паспорта, пересмотр приоритетов и корректировка дорожной карты по новым данным.</li>
+      </ul><p class="tier-difference">В отличие от активного — приоритетные задачи, регулярная сверка и расширенная конкурентная аналитика.</p>
+      <a class="action" href="/#lead-form">Обсудить профессиональное</a>
+    </article>
+  </div>
+  <p class="hint separator">Сопровождение оплачивается ежемесячно и не является обязательным. Указанные объёмы — типовое наполнение пакетов: сроки, доступы, конкретные страницы и процедуры согласуются в договоре. Покупка платного размещения в СМИ, рекламный бюджет и услуги сторонних сервисов оплачиваются отдельно.</p>
+</div></section>
 <section class="cta"><div class="container"><div class="cta-inner"><div><strong>Не знаете, какой тариф выбрать?</strong><p>Расскажите о бизнесе и задачах — предложим подходящий объём работ и формат сопровождения.</p></div><a class="action" href="/#lead-form">Обсудить задачу ↗</a></div></div></section>
 </main><footer><div class="container"><span>© MIRVIX AI · Тарифы GEO-продвижения</span><a href="/legal/privacy/">Конфиденциальность</a><a href="/">На главную</a></div></footer>
 </body></html>
