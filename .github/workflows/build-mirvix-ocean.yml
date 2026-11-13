@@ -1,0 +1,54 @@
+name: Build premium MIRVIX ocean video
+on:
+  push:
+    branches:
+      - main
+      - feature/intelligence-evidence-source-repair-20261112
+    paths:
+      - '.github/workflows/build-mirvix-ocean.yml'
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  render-ocean:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Prepare FFmpeg
+        run: |
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y ffmpeg)
+      - name: Get real sea-wave footage
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 --connect-timeout 20 --max-time 180 \
+            'https://assets.mixkit.co/videos/preview/mixkit-waves-crash-on-the-shore-1078-large.mp4' \
+            -o /tmp/mirvix-source.mp4
+          ffprobe -v error -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 /tmp/mirvix-source.mp4
+      - name: Render own website asset (real wave, turquoise, no sky)
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          ffmpeg -hide_banner -loglevel error -y -ss 8 -i /tmp/mirvix-source.mp4 -t 9 \
+            -vf 'fps=24,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,eq=saturation=1.22:contrast=1.07:brightness=0.025,format=yuv420p' \
+            -c:v libx264 -preset medium -crf 24 -movflags +faststart -an \
+            assets/mirvix-ocean-premium.mp4
+          ffmpeg -hide_banner -loglevel error -y -ss 0.8 -i assets/mirvix-ocean-premium.mp4 \
+            -frames:v 1 -q:v 3 assets/mirvix-ocean-premium-poster.jpg
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 assets/mirvix-ocean-premium.mp4
+          test -s assets/mirvix-ocean-premium.mp4
+          test -s assets/mirvix-ocean-premium-poster.jpg
+      - name: Commit real wave assets
+        run: |
+          set -euo pipefail
+          git config user.name 'mirvix-ocean-bot'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add assets/mirvix-ocean-premium.mp4 assets/mirvix-ocean-premium-poster.jpg
+          if git diff --cached --quiet; then
+            echo 'No new media changes'
+            exit 0
+          fi
+          git commit -m 'media(ocean): store real slow turquoise wave video and poster for MIRVIX homepage'
+          git push origin HEAD:${GITHUB_REF_NAME}
