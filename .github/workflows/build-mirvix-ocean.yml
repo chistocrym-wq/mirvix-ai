@@ -74,6 +74,17 @@ jobs:
             exit 0
           fi
           git commit -m 'media(ocean): store real slow turquoise wave video and poster for MIRVIX homepage'
-          git fetch origin "${GITHUB_REF_NAME}"
-          git rebase "origin/${GITHUB_REF_NAME}"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          # CI may be racing with source-file commits on this release branch.
+          # Rebase and retry the binary commit safely; never force-push.
+          for attempt in $(seq 1 15); do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "Verified Full HD video committed on attempt $attempt"
+              exit 0
+            fi
+            echo "Concurrent update, safely retrying ($attempt/15)"
+            sleep 3
+          done
+          echo "Could not attach verified Full HD file: stop deployment" >&2
+          exit 1
