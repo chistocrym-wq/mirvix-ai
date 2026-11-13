@@ -1310,13 +1310,23 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 <button type="button" class="mira-launch" data-mira="launch" aria-controls="mira-chat" aria-expanded="false" aria-label="Открыть помощника MIRA"><img src="/assets/mira-avatar.jpg" alt="" width="49" height="49" loading="lazy"><span>MIRA<small>Выслушаю и помогу</small></span></button>
 
 <section class="mira-chat" id="mira-chat" data-mira="dialog" role="dialog" aria-label="Помощница MIRA" aria-modal="false" hidden>
-<header class="mira-head"><img src="/assets/mira-avatar.jpg" alt="" width="50" height="50"><span><strong>MIRA</strong><small>Расскажите о своей задаче</small></span><button class="mira-close" type="button" data-mira="close" aria-label="Закрыть чат">×</button></header>
+<header class="mira-head"><img src="/assets/mira-avatar.jpg" alt="" width="50" height="50"><span><strong>MIRA</strong><small>Расскажите о своей задаче</small></span><button type="button" class="mira-ai-settings" data-mira="ai-settings" aria-label="Настроить использование ИИ" title="Настроить ИИ">⚙</button><button class="mira-close" type="button" data-mira="close" aria-label="Закрыть чат">×</button></header>
 <div class="mira-history" data-mira="history" role="log" aria-live="polite"></div>
 <div class="mira-voicecheck" data-mira="voicecheck" hidden><b>Я правильно записала? Проверьте текст:</b><textarea data-mira="transcript" aria-label="Распознанный текст"></textarea><div class="mira-actions"><button type="button" data-mira="confirm">Да, всё верно</button><button type="button" data-mira="retry">Надиктовать снова</button><button type="button" data-mira="cancel">Отмена</button></div></div>
-<label class="mira-consent"><input type="checkbox" data-mira="ai-consent"> <span>Разрешаю MIRA использовать ИИ для ответов, формулировки задачи и распознавания моего голоса по нажатию микрофона. Контакты в ИИ не передаются. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Подробнее</a></span></label>
+<input type="checkbox" data-mira="ai-consent" hidden aria-hidden="true">
+<div class="mira-welcome" data-mira="welcome" hidden>
+  <div class="mira-welcome-card" role="group" aria-label="Настройка общения с Мирой">
+    <span class="mira-welcome-icon" aria-hidden="true">✦</span>
+    <strong>Здравствуйте! Я Мира.</strong>
+    <p>Могу отвечать на вопросы о MIRVIX, тарифах и услугах. Для ответов и голосового распознавания с помощью ИИ нужен ваш выбор.</p>
+    <p class="mira-welcome-privacy">Текст переписки и голосовые сообщения при их использовании могут передаваться ИИ-провайдеру. Не сообщайте здесь личные контакты. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Политика конфиденциальности</a></p>
+    <button type="button" class="mira-welcome-yes" data-mira="allow-ai">Разрешить ИИ и начать</button>
+    <button type="button" class="mira-welcome-no" data-mira="deny-ai">Продолжить без ИИ</button>
+  </div>
+</div>
 <div class="mira-delivery-panel" data-mira="delivery-panel" hidden><label><input type="checkbox" data-mira="delivery-consent"><span>Согласен(на) отправить обращение и указанные мной контакты специалисту MIRVIX AI через Telegram для ответа. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Политика</a></span></label></div>
 <div class="mira-inputbar"><textarea data-mira="input" aria-label="Ваше сообщение MIRA" rows="1" placeholder="Напишите сообщение"></textarea><button type="button" data-mira="mic" aria-label="Надиктовать сообщение" title="Голосовой ввод">🎙</button><button type="button" data-mira="send" aria-label="Отправить сообщение">➤</button></div>
-<div class="mira-foot">Голосовое сообщение распознаётся после разрешения микрофона через сервис браузера или защищённый серверный ИИ. Текст можно проверить перед отправкой. Обращение передаётся специалисту только с вашего согласия. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
+
 </section></div>
 <script src="/assets/mira-widget.js" defer></script>
 <script>
