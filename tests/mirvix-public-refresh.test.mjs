@@ -25,7 +25,7 @@ test('free check uses unique request id and distinguishes stored vs notified',()
 test('contact links and forms omit WhatsApp; no SEO ranking promises on home',()=>{
   for(const file of ['index.html','check/index.html','tools/index.html','legal/contacts/index.html']){
     const s=read(file);
-    assert.doesNotMatch(s,/(?:wa\.me\/|value="whatsapp"|>WhatsApp\s*</i);
+    assert.doesNotMatch(s,/(?:wa\.me\/|value="whatsapp"|>WhatsApp\s*<)/i);
   }
   const home=read('index.html');
   assert.match(home,/усилить видимость в нейросетях и ИИ-поиске/);
