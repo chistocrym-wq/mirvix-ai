@@ -1,318 +1,178 @@
 (() => {
-  'use strict';
-  const root = document.getElementById('mira-widget');
-  if (!root) return;
-  const by = name => root.querySelector('[data-mira="' + name + '"]');
-  const launch = by('launch');
-  const dialog = by('dialog');
-  const close = by('close');
-  const history = by('history');
-  const input = by('input');
-  const send = by('send');
-  const mic = by('mic');
-  const speechCheck = by('voicecheck');
-  const transcript = by('transcript');
-  const aiConsent = by('ai-consent');
-  const deliveryConsent = by('delivery-consent');
-  const deliveryPanel = by('delivery-panel');
-  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const contactPattern = /(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
-  const yesPattern = /^(?:да|да\s+все\s+верно|да\s+все\s+правильно|все\s+верно|все\s+правильно|верно|правильно|все\s+так|именно|отлично|подтверждаю|согласен|согласна)$/i;
-  const noPattern = /^(?:нет|не\s+совсем|неправильно|нужно\s+исправить|исправить|не\s+верно)$/i;
-  const byePattern = /^(?:пока|до\s+свидания|до\s+связи|всего\s+доброго|всего\s+хорошего|спасибо[,! ]*пока|спасибо[,! ]*до\s+свидания)$/i;
-  const helloPattern = /^(?:привет|здравствуй(?:те)?|добрый\s+(?:день|вечер|утро))[!. ]*$/i;
-  const state = { phase: 'task', original: [], brief: '', contact: '', busy: false, recognition: null, greeted: false, saidGoodbye: false, reformulations: 0, lastAccepted: '', lastAcceptedAt: 0 };
-
-  function bubble(text, own = false) {
-    const node = document.createElement('div');
-    node.className = 'mira-bubble' + (own ? ' mine' : '');
-    node.textContent = String(text || '');
-    history.appendChild(node);
-    history.scrollTop = history.scrollHeight;
-    return node;
+'use strict';
+const root=document.getElementById('mira-widget');if(!root)return;
+const by=name=>root.querySelector('[data-mira="'+name+'"]');
+const ui={
+ launch:by('launch'),dialog:by('dialog'),close:by('close'),history:by('history'),
+ input:by('input'),send:by('send'),mic:by('mic'),voicecheck:by('voicecheck'),
+ transcript:by('transcript'),confirm:by('confirm'),retry:by('retry'),cancel:by('cancel'),
+ consentPanel:by('ai-consent-panel'),aiYes:by('ai-yes'),aiNo:by('ai-no'),settings:by('privacy-settings'),
+ delivery:by('delivery-panel'),deliveryOpen:by('delivery-open'),deliveryClose:by('close-lead'),
+ deliverySend:by('send-lead'),deliveryConsent:by('delivery-consent'),
+ leadName:by('lead-name'),leadContact:by('lead-contact'),leadStatus:by('lead-status')
+};
+if(Object.values(ui).some(x=>!x))return;
+const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+const SETTINGS_KEY='mirvix-mira-ai-choice-v1';
+const CONTACT=/(?:[\w.+-]+@[\w.-]+\.[a-z]{2,}|\+?\d[\d\s()\-]{8,}\d|(?:https?:\/\/)?t\.me\/[\w+\-]{4,}|@[a-z\d_]{5,})/i;
+const links=[
+ {pattern:/тариф|стоимост|цен[ауые]|рубл|сколько стоит|пакет/i,label:'Смотреть тарифы GEO-продвижения',url:'/tariffs/'},
+ {pattern:/сопровожд|поддержк|ведение|обновлени[яй] сайта/i,label:'Условия сопровождения',url:'/tariffs/#support'},
+ {pattern:/контакт|связат|телефон|почт|адрес|мессенджер|написать вам/i,label:'Контакты MIRVIX AI',url:'/legal/contacts/'},
+ {pattern:/услуг|разработк|внедр|ассистент|бот/i,label:'Услуги MIRVIX AI',url:'/#services'},
+ {pattern:/провер|аудит|готовност|сайт.*ии/i,label:'Бесплатная проверка сайта',url:'/check/'},
+ {pattern:/инструмент|конкурент|матриц|сравнен/i,label:'Инструменты MIRVIX AI',url:'/tools/'}
+];
+const allowedRoutes=new Set(['/tariffs/','/tariffs/#support','/legal/contacts/','/#services','/check/','/tools/']);
+const state={consent:null,loading:false,rec:null,pending:'',messages:[],lastReply:'',requestId:null,voiceBusy:false};
+function loadConsent(){
+ try{const v=window.localStorage.getItem(SETTINGS_KEY);return v==='yes'||v==='no'?v:null;}catch{return null;}
+}
+function saveConsent(value){state.consent=value;try{window.localStorage.setItem(SETTINGS_KEY,value);}catch{}updateConsent();}
+function updateConsent(){ui.consentPanel.hidden=state.consent!==null;ui.settings.setAttribute('aria-label','Изменить согласие на использование ИИ');}
+function addBubble(text,own=false,context=''){
+ const el=document.createElement('div');el.className='mira-bubble'+(own?' mine':'');
+ const p=document.createElement('div');p.textContent=String(text||'');el.appendChild(p);
+ if(!own){
+  const matches=links.filter(l=>l.pattern.test(context||'')).slice(0,2);
+  for(const item of matches){
+   if(!allowedRoutes.has(item.url))continue;
+   const a=document.createElement('a');a.href=item.url;a.textContent=item.label;
+   a.className='mira-site-link';a.rel='noopener';el.appendChild(a);
   }
-  const say = text => bubble(text);
-  const rawTask = () => state.original.join('\n\n').trim();
-  const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
-  // Transparent offline fallback: summarize intent rather than copy customer prose.
-  // Semantic one-sentence rewriting is provided by /api/mira-brief only after opt-in.
-  function localBrief() {
-    const task=rawTask();
-    const industry=/стоматолог/i.test(task)?'стоматологической клиники':
-      /парикмахерск/i.test(task)?'парикмахерской':
-      /салон(?:а|е)? красоты/i.test(task)?'салона красоты':
-      /медицинск|клиник/i.test(task)?'клиники':
-      /ресторан|кафе/i.test(task)?'ресторана или кафе':
-      /магазин|торгов/i.test(task)?'магазина':
-      /фитнес|спортзал/i.test(task)?'фитнес-центра':'';
-    const subject=industry?' для '+industry:'';
-    let objective='Требуется подобрать цифровое решение для бизнес-задачи';
-    if (/бот|чат-бот|ассистент|помощник/i.test(task)) objective='Нужно разработать ИИ-помощника'+subject;
-    else if (/\bcrm\b|црм|срм/i.test(task)) objective='Необходимо внедрить или настроить CRM'+subject;
-    else if (/сайт|лендинг|интернет-магазин/i.test(task)) objective='Требуется создать или доработать сайт'+subject;
-    else if (/заявк|заказ|обращени/i.test(task)) objective='Нужно автоматизировать обработку обращений и заявок'+subject;
-    else if (/продвижен|seo|гео|нейросет|видимост/i.test(task)) objective='Нужно повысить видимость компании в поиске и нейросетях';
-    else if (/приложени/i.test(task)) objective='Требуется разработать приложение'+subject;
-    const details=[];
-    if (/запис[ьи]|записыва|бронирован/i.test(task)) details.push('запись клиентов');
-    if (/отвеча|ответ[ыа]|консультац/i.test(task)) details.push('ответы на вопросы клиентов');
-    if (/telegram|телеграм/i.test(task)) details.push('работа через Telegram');
-    if (/whatsapp|ватсап/i.test(task)) details.push('работа через WhatsApp');
-    if (/оплат[ау]|платеж/i.test(task)) details.push('приём платежей');
-    if (details.length) objective+=' с функциями: '+details.slice(0,3).join(', ');
-    return objective.replace(/[.!?;,\s]+$/,'').slice(0,290)+'.';
-  }
-
-  function updateControls() {
-    const isBusy = state.busy || !speechCheck.hidden;
-    input.disabled = isBusy;
-    send.disabled = isBusy;
-    mic.disabled = isBusy || !Speech;
-    const prompts = {
-      task: 'Расскажите о своей задаче',
-      review: 'Напишите «да» или что нужно изменить',
-      amend: 'Что нужно добавить или исправить?',
-      contact: 'Напишите мессенджер или телефон и контакт',
-      ready: 'Нажмите ➤ для отправки',
-      sent: 'Новая задача? Напишите её здесь',
-    };
-    input.placeholder = prompts[state.phase] || 'Напишите сообщение';
-    send.title = state.phase === 'ready' ? 'Отправить согласованную задачу специалисту' : 'Отправить сообщение MIRA';
-    send.setAttribute('aria-label', send.title);
-  }
-
-  function reset() {
-    state.phase = 'task';
-    state.original = [];
-    state.brief = '';
-    state.contact = '';
-    state.busy = false;
-    state.greeted = false;
-    state.saidGoodbye = false;
-    state.reformulations = 0;
-    state.lastAccepted = '';
-    state.lastAcceptedAt = 0;
-    input.value = '';
-    aiConsent.checked = false;
-    deliveryConsent.checked = false;
-    deliveryPanel.hidden = true;
-    speechCheck.hidden = true;
-    history.replaceChildren();
-    // Never initiate a chat: wait for the visitor's first message.
-    updateControls();
-  }
-
-  async function reformulate() {
-    state.phase = 'formulating';
-    state.busy = true;
-    deliveryPanel.hidden = true;
-    updateControls();
-    const original = rawTask();
-    const progress = say('Сформулирую задачу одним предложением…');
-    let brief = localBrief();
-    // Use the local brief without distracting visitors with provider status messages.
-    if (aiConsent.checked && !contactPattern.test(original)) {
-      try {
-        const response = await fetch('/api/mira-brief', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: original, consent: true }),
-        });
-        const data = await response.json().catch(() => ({}));
-        if (!response.ok || typeof data.formulated !== 'string') throw new Error('unavailable');
-        const polished=data.formulated.trim().replace(/^Задача:\s*/i,'').replace(/\s+/g,' ');
-        const first=polished.match(/^(.+?[.!?])(?:\s|$)/)?.[1]||polished;
-        if (first.length < 16 || first.length > 450) throw new Error('incomplete');
-        brief=first.replace(/[.!?\s]+$/,'')+'.';
-      } catch {
-        // Keep the local brief; never imply model-generated text when unavailable.
-      }
-    }
-    state.brief = brief;
-    progress.textContent = (state.reformulations ? 'Уточнила задачу: ' : 'Сформулирую так: ') + brief + (state.reformulations ? '\n\nЕсли описание подходит, напишите «да»; иначе уточните детали.' : '\n\nВсё верно или нужно что-то уточнить?');
-    state.reformulations += 1;
-    state.phase = 'review';
-    state.busy = false;
-    updateControls();
-    history.scrollTop = history.scrollHeight;
-  }
-
-  function validContact(value) {
-    const v = value.trim();
-    if (v.length < 5 || v.length > 180) return false;
-    if (contactPattern.test(v)) return true;
-    if (/\b(?:telegram|телеграм|макс|max|whatsapp|ватсап|телефон|позвонить|почта|email|e-mail)\b/i.test(v)) return false;
-    // Accept a meaningful other contact such as a public social profile URL.
-    return /^https:\/\/\S{8,}$/i.test(v);
-  }
-  async function deliver() {
-    if (state.busy || !['ready', 'contact'].includes(state.phase) || !state.contact) return;
-    if (!deliveryConsent.checked) {
-      state.phase = 'ready';
-      say('Я подготовила обращение полностью. Для отправки специалисту отметьте согласие на передачу данных под чатом и нажмите стрелку ➤.');
-      updateControls();
-      deliveryConsent.focus();
-      return;
-    }
-    state.phase = 'sending';
-    state.busy = true;
-    updateControls();
-    const progress = say('Передаю согласованное обращение специалисту…');
-    try {
-      const response = await fetch('/api/mira-submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: state.brief, original: rawTask(), contact: state.contact, consent: true, website: '' }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.delivered !== true) throw new Error(data.error || 'Нет подтверждения отправки.');
-      progress.textContent = 'Спасибо! Ваше обращение успешно передано специалисту MIRVIX AI.\n\nСогласованная задача:\n' + state.brief + '\n\nСпособ связи: ' + state.contact + '\n\nСпециалист свяжется с вами в ближайшее время. Спасибо за обращение, всего доброго!';
-      state.phase = 'sent';
-      state.saidGoodbye = true;
-      deliveryPanel.hidden = true;
-    } catch {
-      state.phase = 'ready';
-      progress.textContent = 'Telegram не подтвердил доставку обращения. Повторите отправку стрелкой ➤. Пока подтверждения нет, заявка не считается отправленной.';
-    } finally {
-      state.busy = false;
-      updateControls();
-    }
-  }
-
-  async function accept(raw) {
-    if (state.busy) return;
-    const message = String(raw || '').trim();
-    if (!message && state.phase === 'ready') return deliver();
-    if (!message) return;
-    if (message.length > 1800) { say('Пожалуйста, сократите сообщение до 1800 символов, чтобы я могла сохранить его целиком.'); return; }
-    const now=Date.now();
-    // Ignore duplicate click / Enter / voice confirmation of the same input in a short window.
-    if (message === state.lastAccepted && now - state.lastAcceptedAt < 2500) return;
-    state.lastAccepted=message;state.lastAcceptedAt=now;
-    if (state.phase === 'sent') reset();
-    input.value = '';
-    bubble(message, true);
-    if (!state.greeted) {
-      state.greeted = true;
-      say('Здравствуйте! Я MIRA, рада помочь.');
-    }
-    if (byePattern.test(normalize(message))) {
-      if (!state.saidGoodbye) say('Спасибо за разговор! Всего доброго, до связи.');
-      state.saidGoodbye = true;
-      state.phase = 'sent';
-      deliveryPanel.hidden = true;
-      updateControls();
-      return;
-    }
-    if (state.phase === 'task' && helloPattern.test(normalize(message))) {
-      say('Расскажите, пожалуйста, какую задачу хотите решить.');
-      return;
-    }
-    switch (state.phase) {
-      case 'task':
-        state.original = [message];
-        return reformulate();
-      case 'review': {
-        const decision = normalize(message);
-        if (yesPattern.test(decision)) {
-          state.phase = 'contact';
-          deliveryPanel.hidden = false;
-          say('Спасибо, теперь всё ясно! Как с вами удобнее связаться — по телефону или в Telegram, MAX, WhatsApp либо по электронной почте? Напишите удобный способ и ваш контакт.');
-          updateControls();
-          return;
-        }
-        if (noPattern.test(decision)) {
-          state.phase = 'amend';
-          say('Спасибо, что уточнили. Напишите или надиктуйте, что нужно поправить или добавить в описание.');
-          updateControls();
-          return;
-        }
-        // Any substantive reply at review stage is a correction, not an order to send.
-        if (rawTask().length + message.length > 1900) { say('Описание уже подробное. Пожалуйста, напишите краткое уточнение.'); return; }
-        state.original.push('Уточнение клиента: ' + message);
-        return reformulate();
-      }
-      case 'amend':
-        if (rawTask().length + message.length > 1900) { say('Пожалуйста, сократите уточнение.'); return; }
-        state.original.push('Уточнение или исправление клиента: ' + message);
-        return reformulate();
-      case 'contact':
-        if (!validContact(message)) {
-          say('Напишите, пожалуйста, сам номер телефона, адрес электронной почты или @имя в мессенджере, чтобы специалист действительно смог вам ответить.');
-          return;
-        }
-        state.contact = message;
-        state.phase = 'ready';
-        updateControls();
-        return deliver();
-      case 'ready':
-        if (yesPattern.test(normalize(message)) || /^(?:отправить|готово|подтверждаю)$/i.test(normalize(message))) return deliver();
-        if (validContact(message)) { state.contact = message; say('Контакт обновила.'); return deliver(); }
-        say('Я готова отправить ваше обращение. Проверьте согласие под чатом и нажмите стрелку ➤.');
-        return;
-      default:
-        return;
-    }
-  }
-
-  const mobileMedia = window.matchMedia?.('(max-width: 960px)');
-  const widgetHome = root;
-  const header = document.querySelector('.site-header .header-inner');
-  function dockLauncher() {
-    // Desktop: viewport-fixed outside backdrop-filtered sticky header.
-    // Mobile: an ordinary flex item in the header, never floating over CTA buttons.
-    const toHeader=!!mobileMedia?.matches && !!header;
-    const destination=toHeader?header:widgetHome;
-    if (launch.parentElement !== destination) {
-      if (toHeader) {
-        const toggle=header.querySelector('.mobile-toggle');
-        if (toggle) header.insertBefore(launch,toggle);
-        else destination.appendChild(launch);
-      } else destination.insertBefore(launch,destination.firstChild);
-    }
-  }
-  dockLauncher();
-  mobileMedia?.addEventListener?.('change',dockLauncher);
-  function open() {
-    dialog.hidden = false;
-    launch.setAttribute('aria-expanded','true');
-    document.body.classList.add('mira-chat-open');
-    input.focus();
-  }
-  function hide() {
-    dialog.hidden = true;
-    launch.setAttribute('aria-expanded','false');
-    document.body.classList.remove('mira-chat-open');
-    if (state.recognition) state.recognition.abort();
-    launch.focus();
-  }
-  launch.addEventListener('click', () => (dialog.hidden ? open() : hide()));
-  close.addEventListener('click', hide);
-  send.addEventListener('click', () => accept(input.value));
-  input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); accept(input.value); } });
-  if (Speech) {
-    mic.addEventListener('click', () => {
-      if (state.recognition) { state.recognition.stop(); return; }
-      const rec = new Speech(); state.recognition = rec; rec.lang = 'ru-RU'; rec.interimResults = false; rec.maxAlternatives = 1;
-      mic.classList.add('mira-listening'); mic.setAttribute('aria-label','Завершить диктовку');
-      rec.onresult = e => {
-        const text = e.results?.[0]?.[0]?.transcript || '';
-        if (text) { transcript.value = text; speechCheck.hidden = false; updateControls(); }
-      };
-      rec.onerror = () => say('Не удалось распознать голос. Попробуйте ещё раз или напишите текстом.');
-      rec.onend = () => { state.recognition = null; mic.classList.remove('mira-listening'); mic.setAttribute('aria-label','Надиктовать сообщение'); updateControls(); };
-      try { rec.start(); } catch { state.recognition = null; updateControls(); }
-    });
-  } else { mic.title = 'Голосовой ввод в этом браузере недоступен'; mic.setAttribute('aria-label',mic.title); }
-  by('confirm').addEventListener('click', () => {
-    const text = transcript.value.trim(); if (!text) return;
-    transcript.value = ''; speechCheck.hidden = true; updateControls(); accept(text); input.focus();
-  });
-  by('retry').addEventListener('click', () => {
-    transcript.value = ''; speechCheck.hidden = true; updateControls(); if (Speech) mic.click();
-  });
-  by('cancel').addEventListener('click', () => {
-    transcript.value = ''; speechCheck.hidden = true; updateControls(); input.focus();
-  });
-  reset();
+ }
+ ui.history.appendChild(el);ui.history.scrollTop=ui.history.scrollHeight;return el;
+}
+function status(text){addBubble(text);}
+const uuid=()=>typeof crypto!=='undefined'&&typeof crypto.randomUUID==='function'?crypto.randomUUID():
+ 'm'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);
+function localAnswer(q){
+ if(/тариф|цена|сколько стоит|стоимост|пакет/i.test(q))
+  return 'GEO-продвижение в ИИ-поиске: Старт — 50 000 ₽ (2 запроса), Оптимум — 89 000 ₽ (10), Бизнес — 129 000 ₽ (20), Максимум — 259 000 ₽ (30). Условия и состав работ — на странице тарифов.';
+ if(/сопровожд|ведение/i.test(q))
+  return 'Сопровождение после первоначального GEO-проекта — по выбору: 45 000, 65 000 или 85 000 ₽ в месяц. Можно вести сайт и самостоятельно.';
+ if(/контакт|связат|телефон|почт|адрес/i.test(q))
+  return 'Актуальные контакты MIRVIX AI собраны на странице контактов. Для передачи задачи с контактами нажмите значок письма под перепиской.';
+ if(/услуг|разработк|внедр|ассистент|бот/i.test(q))
+  return 'MIRVIX AI занимается продвижением бизнеса в нейросетях и ИИ-поиске, подготовкой сайтов для ИИ и внедрением помощников для обработки обращений. Уточните, какой у вас бизнес и какую задачу хотите решить.';
+ if(/провер|аудит|готовност/i.test(q))
+  return 'Начать можно с бесплатной проверки технической готовности сайта, затем выбрать покупательские запросы и оценить присутствие в нейросетях. Ссылку на проверку прикрепила ниже.';
+ return 'Могу помочь разобраться в GEO-продвижении, тарифах, работе сайта и ИИ-помощниках. Подробности можно уточнить у специалиста через кнопку передачи обращения.';
+}
+function setBusy(x){
+ state.loading=x;ui.send.disabled=x;ui.input.disabled=x;ui.mic.disabled=x||!Speech||state.voiceBusy;
+ ui.deliverySend.disabled=x;
+}
+async function sendMessage(initial){
+ const text=String(initial||'').trim();if(!text||state.loading)return;
+ if(text.length>1600){status('Сократите сообщение до 1600 символов.');return;}
+ if(state.consent===null){state.pending=text;ui.consentPanel.hidden=false;return;}
+ ui.input.value='';addBubble(text,true);
+ if(CONTACT.test(text)){
+  status('Пожалуйста, не отправляйте личные контакты в ИИ-диалог. Для передачи их специалисту откройте форму по значку письма ✉.');return;
+ }
+ state.messages.push({role:'user',content:text});state.messages=state.messages.slice(-12);
+ if(state.consent==='no'){
+  const response=localAnswer(text);addBubble(response,false,text);state.lastReply=response;return;
+ }
+ setBusy(true);
+ try{
+  const response=await fetch('/api/mira-chat',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({consent:true,messages:state.messages}),credentials:'same-origin'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||typeof data.reply!=='string'||!data.reply.trim())throw Error('Сервис пока недоступен');
+  let answer=data.reply.trim();
+  if(answer===state.lastReply)answer='Уточните, какая часть ответа вам важнее: условия работы, стоимость или следующий шаг?';
+  state.lastReply=answer;state.messages.push({role:'assistant',content:answer});
+  state.messages=state.messages.slice(-12);addBubble(answer,false,text);
+ }catch{
+  const answer=localAnswer(text);
+  addBubble('Свободный ИИ-диалог сейчас недоступен. '+answer,false,text);
+ }finally{setBusy(false);}
+}
+function submitPending(){
+ const text=state.pending;state.pending='';
+ if(text)void sendMessage(text);
+}
+function open(){
+ ui.dialog.hidden=false;ui.launch.setAttribute('aria-expanded','true');document.body.classList.add('mira-chat-open');
+ updateConsent();ui.input.focus();
+}
+function hide(){
+ ui.dialog.hidden=true;ui.launch.setAttribute('aria-expanded','false');document.body.classList.remove('mira-chat-open');
+ if(state.rec){try{state.rec.abort();}catch{}}
+ ui.launch.focus();
+}
+function setDelivery(open){
+ ui.delivery.hidden=!open;
+ if(open){ui.leadStatus.textContent='';ui.deliveryConsent.checked=false;ui.leadContact.focus();}
+}
+async function sendLead(){
+ if(state.loading)return;
+ const name=ui.leadName.value.trim(),contact=ui.leadContact.value.trim();
+ if(name.length<2||contact.length<5){ui.leadStatus.textContent='Укажите имя и рабочий способ связи.';return;}
+ if(!ui.deliveryConsent.checked){ui.leadStatus.textContent='Для передачи контактов подтвердите отдельное согласие.';return;}
+ if(!state.messages.some(m=>m.role==='user')){ui.leadStatus.textContent='Сначала расскажите МИРЕ о задаче.';return;}
+ state.requestId=state.requestId||uuid();setBusy(true);ui.leadStatus.textContent='Сохраняем обращение…';
+ const task=state.messages.filter(m=>m.role==='user').map(m=>m.content).join('\n').slice(0,1900);
+ try{
+  const res=await fetch('/api/mira-submit',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({name,contact,original:task,task,consent:true,requestId:state.requestId}),credentials:'same-origin'});
+  const info=await res.json().catch(()=>({}));
+  if(!res.ok||info.saved!==true)throw Error(info.error||'Не получили подтверждение сохранения.');
+  ui.leadStatus.textContent=info.notification==='sent'?
+   'Заявка №'+info.id+' сохранена и передана специалистам.':
+   'Заявка №'+info.id+' сохранена. Уведомление ожидает доставки.';
+  status(ui.leadStatus.textContent);state.requestId=null;setDelivery(false);
+ }catch(err){ui.leadStatus.textContent='Не удалось подтвердить сохранение. '+(err?.message||'Повторите отправку.');}
+ finally{setBusy(false);}
+}
+const SpeechAvailable=!!Speech;
+function voiceStart(){
+ if(!SpeechAvailable){status('В этом мобильном браузере распознавание речи недоступно. Можно написать сообщение с клавиатуры.');return;}
+ if(state.rec){try{state.rec.stop();}catch{}return;}
+ let rec;try{rec=new Speech();}catch{status('Браузер не разрешает запуск распознавания.');return;}
+ state.rec=rec;state.voiceBusy=true;
+ rec.lang='ru-RU';rec.interimResults=false;rec.continuous=false;rec.maxAlternatives=1;
+ ui.mic.setAttribute('aria-label','Остановить запись');ui.mic.classList.add('mira-listening');
+ rec.onresult=e=>{
+  const result=e.results?.[0]?.[0]?.transcript||'';
+  if(result.trim()){ui.transcript.value=result.trim();ui.voicecheck.hidden=false;setBusy(false);}
+ };
+ rec.onerror=e=>{
+  const reason={not_allowed:'Нет разрешения на микрофон', 'not-allowed':'Нет разрешения на микрофон',
+   'service-not-allowed':'Сервис распознавания недоступен',network:'Ошибка сети при распознавании',
+   'no-speech':'Речь не обнаружена','audio-capture':'Микрофон недоступен'}[e.error]||'Ошибка распознавания';
+  status(reason+'. Разрешите микрофон в настройках браузера или напишите сообщение.');
+ };
+ rec.onend=()=>{state.rec=null;state.voiceBusy=false;ui.mic.setAttribute('aria-label','Надиктовать сообщение');
+  ui.mic.classList.remove('mira-listening');setBusy(false);};
+ try{rec.start();}catch{state.rec=null;state.voiceBusy=false;status('Не удалось запустить микрофон. Проверьте разрешения браузера.');setBusy(false);}
+}
+const mobile=window.matchMedia?.('(max-width:960px)');
+const head=document.querySelector('.site-header .header-inner');
+function dock(){
+ const toHeader=!!mobile?.matches&&!!head,dest=toHeader?head:root;
+ if(ui.launch.parentElement===dest)return;
+ if(toHeader){const toggle=head.querySelector('.mobile-toggle');if(toggle)head.insertBefore(ui.launch,toggle);else head.appendChild(ui.launch);}
+ else dest.insertBefore(ui.launch,dest.firstChild);
+}
+dock();mobile?.addEventListener?.('change',dock);
+state.consent=loadConsent();updateConsent();
+ui.launch.addEventListener('click',()=>ui.dialog.hidden?open():hide());
+ui.close.addEventListener('click',hide);
+ui.send.addEventListener('click',()=>void sendMessage(ui.input.value));
+ui.input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();void sendMessage(ui.input.value);}});
+ui.aiYes.addEventListener('click',()=>{saveConsent('yes');submitPending();});
+ui.aiNo.addEventListener('click',()=>{saveConsent('no');submitPending();});
+ui.settings.addEventListener('click',()=>{state.consent=null;ui.consentPanel.hidden=false;ui.input.focus();});
+ui.deliveryOpen.addEventListener('click',()=>setDelivery(!ui.delivery.hidden));
+ui.deliveryClose.addEventListener('click',()=>setDelivery(false));
+ui.deliverySend.addEventListener('click',()=>void sendLead());
+ui.mic.addEventListener('click',voiceStart);
+ui.confirm.addEventListener('click',()=>{const text=ui.transcript.value.trim();ui.voicecheck.hidden=true;
+ ui.transcript.value='';if(text)void sendMessage(text);});
+ui.retry.addEventListener('click',()=>{ui.voicecheck.hidden=true;ui.transcript.value='';voiceStart();});
+ui.cancel.addEventListener('click',()=>{ui.voicecheck.hidden=true;ui.transcript.value='';});
+if(!SpeechAvailable){ui.mic.title='Голосовой ввод недоступен в этом браузере';ui.mic.setAttribute('aria-label',ui.mic.title);}
 })();
