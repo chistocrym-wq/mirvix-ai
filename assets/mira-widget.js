@@ -156,7 +156,7 @@ function showTranscript(value){
 }
 async function startVoiceRecording(){
  if(!RecordingAvailable){
-  status('Этот браузер не поддерживает запись с микрофона. Используйте голосовой ввод клавиатуры или напишите сообщение.');
+  status('В этом браузере голосовой ввод недоступен: запись с микрофона не поддерживается. Используйте клавиатуру или напишите сообщение.');
   return;
  }
  if(state.consent!=='yes'){
