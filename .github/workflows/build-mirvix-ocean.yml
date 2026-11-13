@@ -48,7 +48,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p assets
-          ffmpeg -hide_banner -loglevel error -y -ss 0.1 -i /tmp/mirvix-source.mp4 -t 8 \
+          ffmpeg -hide_banner -loglevel error -y -ss 0.1 -i /tmp/mirvix-source.mp4 -t 22 \
             -vf 'crop=iw:ih*0.68:0:ih*0.32,scale=1600:900:force_original_aspect_ratio=increase,crop=1600:900,setpts=2.5*(PTS-STARTPTS),fps=24,eq=saturation=1.38:contrast=1.03:brightness=0.052:gamma=1.09,format=yuv420p' \
             -c:v libx264 -preset medium -b:v 4400k -maxrate 4900k -bufsize 9000k -movflags +faststart -an \
             assets/mirvix-ocean-premium.mp4
