@@ -1,0 +1,69 @@
+/* MIRVIX ocean: cinematic full-HD shore, subtle binary light across the entire image. */
+.hero.mirvix-ocean-hero { background:#086d82; }
+.mirvix-ocean-hero .mirvix-ocean-media {
+  background:#086f81;
+  background-image:linear-gradient(115deg, #083f62 0%, #087d88 40%, #16a8a6 75%, #06577a 100%);
+}
+.mirvix-ocean-hero .mirvix-ocean-film {
+  display:block; width:100%; height:100%; object-fit:cover;
+  object-position:center 46%;
+  filter:saturate(1.14) contrast(1.07) brightness(1.06);
+  image-rendering:auto;
+  opacity:1;
+}
+.mirvix-ocean-hero .mirvix-ocean-shade {
+  background:linear-gradient(180deg, rgba(1,28,46,.33) 0%, rgba(1,48,58,.20) 38%, rgba(1,48,58,.32) 76%, rgba(1,30,55,.45) 100%);
+}
+.mirvix-ocean-hero .mirvix-ocean-media::before {
+  background:none!important;
+  animation:none!important;
+}
+.mirvix-ocean-hero .mirvix-ocean-numbers {
+  display:block;
+  position:absolute;
+  inset:0;
+  z-index:3;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:.85;
+  -webkit-mask-image:none;
+  mask-image:none;
+}
+.mirvix-ocean-hero .mirvix-code-fragment {
+  position:absolute;
+  display:block;
+  left:var(--fx);
+  top:var(--fy);
+  white-space:nowrap;
+  user-select:none;
+  pointer-events:none;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+  font-size:var(--fs,20px);
+  font-weight:500;
+  line-height:1;
+  letter-spacing:.13em;
+  color:#c8fffa;
+  text-shadow:0 0 8px rgba(149,244,236,.20);
+  opacity:0;
+  transform:translate3d(-3px,0,0);
+  animation:mirvix-binary-pulse var(--ft,8s) ease-in-out var(--fd,0s) infinite;
+  will-change:opacity;
+}
+@keyframes mirvix-binary-pulse {
+  0%,12% { opacity:0; transform:translate3d(-3px,0,0); }
+  33%,46% { opacity:var(--fo,.12);transform:translate3d(0,0,0); }
+  72%,100% { opacity:0;transform:translate3d(3px,0,0); }
+}
+.mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment {
+  animation-play-state:running!important;
+}
+@media(max-width:760px) {
+  .mirvix-ocean-hero .mirvix-ocean-film {object-position:48% center;}
+  .mirvix-ocean-hero .mirvix-ocean-numbers {opacity:.72;}
+  .mirvix-ocean-hero .mirvix-code-fragment {font-size:clamp(13px,3vw,19px);}
+  .mirvix-ocean-hero .mirvix-code-fragment:nth-child(4n){display:none;}
+}
+@media(prefers-reduced-motion:reduce){
+  .mirvix-ocean-hero .mirvix-code-fragment {animation:none!important;opacity:0!important;}
+  .mirvix-ocean-hero .mirvix-ocean-numbers {display:none!important;}
+}
