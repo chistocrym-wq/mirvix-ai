@@ -3,6 +3,13 @@
   const root = document.getElementById('mira-widget');
   if (!root) return;
   const by = name => root.querySelector('[data-mira="' + name + '"]');
+  const consentKey = 'mirvix_mira_ai_choice_v1';
+  let consentChoice = null;
+  try { const stored = window.localStorage?.getItem(consentKey); if (stored === 'allowed' || stored === 'declined') consentChoice = stored; } catch {}
+  const rememberChoice = choice => {
+    consentChoice = choice;
+    try { window.localStorage?.setItem(consentKey, choice); } catch {}
+  };
   const launch = by('launch');
   const dialog = by('dialog');
   const close = by('close');
@@ -13,6 +20,10 @@
   const speechCheck = by('voicecheck');
   const transcript = by('transcript');
   const aiConsent = by('ai-consent');
+  const welcome = by('welcome');
+  const allowAI = by('allow-ai');
+  const denyAI = by('deny-ai');
+  const settingsAI = by('ai-settings');
   const deliveryConsent = by('delivery-consent');
   const deliveryPanel = by('delivery-panel');
   const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -35,6 +46,34 @@
     return node;
   }
   const say = text => bubble(text);
+  const destinationMap = Object.freeze({
+    '/legal/contacts/':'Контакты MIRVIX AI',
+    '/tariffs/#geo':'GEO-тарифы и состав работ',
+    '/tariffs/#support':'Пакеты сопровождения',
+    '/check/':'Проверка упоминаний в ИИ',
+    '/tools/':'Инструменты MIRVIX',
+    '/legal/privacy/':'Политика конфиденциальности'
+  });
+  const localLinkHints = message => {
+    const v = String(message||'').toLowerCase();
+    const links=[];
+    if(/контакт|связ|телефон|адрес|почт|реквизит/.test(v))links.push('/legal/contacts/');
+    if(/тариф|цен|стоимост|пакет|сколько стоит/.test(v))links.push('/tariffs/#geo');
+    if(/сопровождени|ежемесяч|поддержк/.test(v))links.push('/tariffs/#support');
+    if(/провер.*(?:ии|нейросет)|упоминан/.test(v))links.push('/check/');
+    return [...new Set(links)];
+  };
+  function attachSiteLinks(node, links) {
+    if (!node || !Array.isArray(links) || !links.length) return;
+    const allowed=links.map(x=>typeof x==='string'?x:x?.href).filter(x=>Object.prototype.hasOwnProperty.call(destinationMap,x)).slice(0,3);
+    if(!allowed.length)return;
+    const row=document.createElement('div');row.className='mira-linkrow';
+    for(const href of [...new Set(allowed)]){
+      const a=document.createElement('a');a.href=href;a.textContent=destinationMap[href];
+      a.className='mira-link';row.appendChild(a);
+    }
+    node.appendChild(row);
+  }
   const rawTask = () => state.original.join('\n\n').trim();
   const normalize = text => String(text || '').trim().toLocaleLowerCase('ru').replace(/ё/g, 'е').replace(/[.!?;:,]+/g, '').replace(/\s+/g, ' ');
   // Transparent offline fallback: summarize intent rather than copy customer prose.
@@ -96,7 +135,7 @@
     state.lastAccepted = '';
     state.lastAcceptedAt = 0;
     input.value = '';
-    aiConsent.checked = false;
+    aiConsent.checked = consentChoice === 'allowed';
     deliveryConsent.checked = false;
     deliveryPanel.hidden = true;
     speechCheck.hidden = true;
@@ -192,7 +231,8 @@
       return;
     }
     if (!aiConsent.checked) {
-      say('Могу подробно ответить с помощью ИИ. Отметьте согласие под перепиской и повторите вопрос. Если хотите оставить заявку специалисту, напишите «Оформить заявку».');
+      const m=say('В этом режиме ИИ выключен. Для свободного диалога нажмите ⚙ в заголовке и выберите «Разрешить ИИ».');
+      attachSiteLinks(m,localLinkHints(message));
       return;
     }
     state.busy = true; updateControls();
@@ -208,6 +248,7 @@
       if (!response.ok || !data.reply) throw Error(data.error||'Не удалось получить ответ.');
       pending.textContent = String(data.reply).slice(0,1200);
       state.dialogue = [...messages,{role:'assistant',content:pending.textContent}].slice(-10);
+      attachSiteLinks(pending,Array.isArray(data.links)&&data.links.length?data.links:localLinkHints(message));
     } catch {
       pending.textContent = 'Сейчас не могу получить ответ от ИИ. Можете задать вопрос повторно или описать задачу для специалиста MIRVIX AI. Для оформления напишите «Оформить заявку».';
     } finally { state.busy=false;updateControls();history.scrollTop=history.scrollHeight; }
@@ -315,9 +356,11 @@
   mobileMedia?.addEventListener?.('change',dockLauncher);
   function open() {
     dialog.hidden = false;
+    if (welcome) welcome.hidden = consentChoice !== null;
     launch.setAttribute('aria-expanded','true');
     document.body.classList.add('mira-chat-open');
-    input.focus();
+    if (welcome && !welcome.hidden) allowAI?.focus?.();
+    else input.focus();
   }
   function hide() {
     dialog.hidden = true;
@@ -328,6 +371,18 @@
     launch.focus();
   }
   launch.addEventListener('click', () => (dialog.hidden ? open() : hide()));
+  allowAI?.addEventListener('click', () => {
+    rememberChoice('allowed');aiConsent.checked=true;
+    if(welcome)welcome.hidden=true; input.focus();
+  });
+  denyAI?.addEventListener('click', () => {
+    rememberChoice('declined');aiConsent.checked=false;
+    state.dialogue=[];
+    if(welcome)welcome.hidden=true; input.focus();
+  });
+  settingsAI?.addEventListener('click', () => {
+    if(welcome){ welcome.hidden=false; allowAI?.focus?.(); }
+  });
   close.addEventListener('click', hide);
   send.addEventListener('click', () => accept(input.value));
   input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); accept(input.value); } });
@@ -351,7 +406,7 @@
   }
   async function startMediaRecorder(){
     if(!canRecord){voiceError('Этот браузер не поддерживает запись голоса на сайте. Можно воспользоваться голосовым вводом клавиатуры или написать текстом.');return;}
-    if(!aiConsent.checked){voiceError('Для распознавания речи отметьте согласие на использование ИИ под перепиской.');return;}
+    if(!aiConsent.checked){voiceError('Для распознавания через ИИ нажмите ⚙ в заголовке чата и разрешите ИИ.');return;}
     try{
       const stream=await mediaDevices.getUserMedia({audio:true,video:false});
       state.stream=stream;
@@ -395,7 +450,7 @@
     }
   }
   function startSpeech(){
-    if(!aiConsent.checked){voiceError('Отметьте согласие на обработку речи под чатом, затем нажмите микрофон ещё раз.');return;}
+    if(!aiConsent.checked){voiceError('Для распознавания речи нажмите ⚙ в заголовке чата и разрешите использование ИИ.');return;}
     const rec=new Speech();state.recognition=rec;rec.lang='ru-RU';rec.interimResults=false;rec.maxAlternatives=1;
     mic.classList.add('mira-listening');mic.setAttribute('aria-label','Завершить диктовку');
     rec.onresult=e=>showTranscript(e.results?.[0]?.[0]?.transcript||'');
