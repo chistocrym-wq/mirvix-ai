@@ -49,3 +49,56 @@ test('public pages offer no WhatsApp contacts',async({page})=>{
   expect(await page.locator('a[href*="wa.me"]').count()).toBe(0);
  }
 });
+
+test('Ocean never freezes after brand introduction; labels stay readable',async({page,isMobile})=>{
+ await page.goto('/');
+ const hero=page.locator('.mirvix-ocean-hero');
+ await expect(hero).toBeVisible();
+ await expect(hero).toHaveClass(/ocean-intro-done/,{timeout:16000});
+ const video=page.locator('#mirvix-ocean-film');
+ const current=await video.evaluate(v=>({paused:v.paused,loop:v.loop,time:v.currentTime}));
+ expect(current.paused).toBe(false);
+ expect(current.loop).toBe(true);
+ await page.waitForTimeout(600);
+ const moving=await video.evaluate(v=>v.currentTime);
+ expect(moving).toBeGreaterThan(current.time);
+ const binary=await page.locator('.mirvix-code-fragment').first().evaluate(e=>getComputedStyle(e).animationPlayState);
+ expect(binary).toBe('running');
+ const label=await page.locator('.hero-copy.ocean-story-copy>p').evaluate(e=>{
+   const s=getComputedStyle(e);return {font:parseFloat(s.fontSize),bg:s.backgroundColor,padding:parseFloat(s.paddingLeft)}
+ });
+ expect(label.font).toBeGreaterThanOrEqual(isMobile?15:18);
+ expect(label.padding).toBeGreaterThanOrEqual(10);
+ const categories=await page.locator('.mirvix-ocean-hero .capability-row').evaluate(e=>getComputedStyle(e).fontSize);
+ expect(parseFloat(categories)).toBeGreaterThanOrEqual(isMobile?12:14);
+});
+test('MIRA records voice using the server fallback when browser SpeechRecognition is absent',async({page})=>{
+ await page.addInitScript(()=>{
+   Object.defineProperty(window,'SpeechRecognition',{value:undefined,configurable:true});
+   Object.defineProperty(window,'webkitSpeechRecognition',{value:undefined,configurable:true});
+   const fakeStream={getTracks:()=>[{stop(){}}]};
+   if(!navigator.mediaDevices)Object.defineProperty(navigator,'mediaDevices',{value:{},configurable:true});
+   Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>fakeStream});
+   class FakeRecorder{
+      constructor(){this.mimeType='audio/webm';this.state='inactive';}
+      static isTypeSupported(){return true;}
+      start(){this.state='recording';}
+      stop(){this.state='inactive';
+       this.ondataavailable?.({data:new Blob([new Uint8Array(900)],{type:'audio/webm'})});
+       this.onstop?.();
+      }
+   }
+   Object.defineProperty(window,'MediaRecorder',{value:FakeRecorder,configurable:true});
+ });
+ await page.route('**/api/mira-transcribe',r=>r.fulfill({status:200,contentType:'application/json',body:JSON.stringify({text:'Хочу узнать о тарифах MIRVIX AI'})}));
+ await page.goto('/');
+ await page.locator('[data-mira="launch"]').click();
+ const choice=page.locator('[data-mira="ai-consent-panel"]');
+ if(await choice.isVisible())await page.locator('[data-mira="ai-yes"]').click();
+ const mic=page.locator('[data-mira="mic"]');
+ await mic.click();
+ await expect(mic).toHaveAttribute('aria-label','Остановить запись и распознать');
+ await mic.click();
+ await expect(page.locator('[data-mira="voicecheck"]')).toBeVisible({timeout:8000});
+ await expect(page.locator('[data-mira="transcript"]')).toHaveValue('Хочу узнать о тарифах MIRVIX AI');
+});
