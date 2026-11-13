@@ -23,9 +23,26 @@ jobs:
       - name: Get real sea-wave footage
         run: |
           set -euo pipefail
-          curl -fL --retry 3 --connect-timeout 20 --max-time 180 \
-            'https://assets.mixkit.co/videos/preview/mixkit-waves-crash-on-the-shore-1078-large.mp4' \
-            -o /tmp/mirvix-source.mp4
+          # Mixkit preview URLs reject automated downloads with HTTP 403.
+          # Download from the Pexels CDN under its free footage license.
+          sources=(
+            'https://videos.pexels.com/video-files/9806390/9806390-uhd_2560_1440_25fps.mp4'
+            'https://videos.pexels.com/video-files/19912847/19912847-hd_1920_1080_30fps.mp4'
+            'https://videos.pexels.com/video-files/34754995/14733332_640_360_24fps.mp4'
+          )
+          ok=0
+          for source in "${sources[@]}"; do
+            echo "Trying public ocean-footage provider: ${source%%/video-files/*}"
+            if curl -fL --retry 1 --connect-timeout 15 --max-time 100 \
+                --user-agent 'Mozilla/5.0' "$source" -o /tmp/mirvix-source.mp4 && \
+               ffprobe -v error /tmp/mirvix-source.mp4 >/dev/null 2>&1; then
+              ok=1; break
+            fi
+          done
+          if [ "$ok" -ne 1 ]; then
+            echo 'No licensed wave source could be downloaded; do not publish fake background video.' >&2
+            exit 1
+          fi
           ffprobe -v error -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 /tmp/mirvix-source.mp4
       - name: Render own website asset (real wave, turquoise, no sky)
         run: |
