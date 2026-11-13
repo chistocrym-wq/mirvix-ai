@@ -1,4 +1,4 @@
-name: MIRVIX GEO Tools Production Smoke
+name: MIRVIX tools production smoke — request-only catalogue
 on:
   push:
     branches: [main]
@@ -6,68 +6,42 @@ on:
       - '.github/workflows/production-tools-smoke.yml'
       - 'netlify/functions/competitor-products.mjs'
       - 'tools/index.html'
-      - 'assets/geo-tools.js'
-  workflow_dispatch:
+      - 'netlify/functions/mirvix-lead.mjs'
+  workflow_dispatch: {}
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify production page and public comparison API
+      - name: Verify request-only tools, paid preview restriction and real GEO tariffs
         run: |
           node --input-type=module <<'NODE'
-          const site = 'https://mirvixai.com';
-          const page = await fetch(site+'/tools/');
-          const html = await page.text();
-          if(!page.ok||!html.includes('compare-form')||!html.includes('geo-tools.js')){
-            throw new Error('GEO Tools page not deployed or missing comparison form');
+          const site='https://mirvixai.com';
+          const wait=async()=>{for(let i=0;i<25;i++){
+            try{
+              const r=await fetch(site+'/tools/',{cache:'no-store'});
+              const html=await r.text();
+              if(r.ok&&html.includes('tools-request-form')&&html.includes('data-service="product-comparison"'))return html;
+            }catch{}
+            await new Promise(resolve=>setTimeout(resolve,6000));
+          }throw Error('Request-only tools page not yet live on Production');};
+          const html=await wait();
+          if(html.includes('id="compare-form"')||html.includes('490 ₽'))throw Error('Old paid self-comparison UI is still public');
+          for(const price of ['50 000','89 000','129 000','259 000']){
+            const t=await fetch(site+'/tariffs/',{cache:'no-store'}).then(r=>r.text());
+            if(!t.includes(price))throw Error('Missing GEO tariff '+price);
           }
-          const result = await fetch(site+'/.netlify/functions/competitor-products',{
-            method:'POST',headers:{'Content-Type':'application/json','Origin':'https://external.example'},
-            body:JSON.stringify({action:'compare',mode:'full',urls:[
-              site+'/tools/',site+'/tariffs/'
-            ]})
-          });
-          const data = await result.json();
-          console.log('Protected comparison probe HTTP '+result.status+'; code '+String(data.error||data.status||'no error').slice(0,180));
-          if(result.status!==403||!data.error)
-            throw new Error('Full comparison must reject requests without authorized site origin');
-          const allowedOrigin='https://mirvixai.com';
-          const configTest=await fetch(site+'/.netlify/functions/tools-checkout',{
-            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
-            body:JSON.stringify({action:'config'})
-          });
-          console.log('Tools checkout configuration HTTP '+configTest.status+'; '+(await configTest.text()).slice(0,350));
-          const noCookieFull=await fetch(site+'/.netlify/functions/competitor-products',{
-            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
-            body:JSON.stringify({action:'compare',mode:'full',urls:[site+'/tools/',site+'/tariffs/']})
-          });
-          if(![403,503].includes(noCookieFull.status))
-            throw new Error('Full report without paid browser identity returned unexpected HTTP '+noCookieFull.status);
-          console.log('Full report without purchase rejected: HTTP '+noCookieFull.status);
-          const demo=await fetch(site+'/.netlify/functions/competitor-products',{
-            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin},
-            body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})
-          });
-          const rawDemo=await demo.text();
-          let demoData={};
-          try{demoData=JSON.parse(rawDemo)}catch{}
-          console.log('First anonymous preview HTTP '+demo.status+'; content type '+demo.headers.get('content-type')+'; '+String(demoData.error||demoData.notice||rawDemo).slice(0,350));
-          if(demo.status===503)throw new Error('Anonymous preview not configured; set MIRVIX_TOOLS_SESSION_SECRET or MIRVIX_CABINET_SESSION_SECRET in Netlify.');
-          if(!demo.ok||!demoData.preview||demoData.pages?.length!==2)
-            throw new Error('One-time preview did not return a limited two-card sample.');
-          const cookie=(demo.headers.get('set-cookie')||'').split(';')[0];
-          if(!cookie.includes('__Host-mirvix_tools_visitor='))throw new Error('Signed visitor cookie missing');
-          const repeat=await fetch(site+'/.netlify/functions/competitor-products',{
-            method:'POST',headers:{'Content-Type':'application/json','Origin':allowedOrigin,'Cookie':cookie},
-            body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})
-          });
-          console.log('Repeat preview HTTP '+repeat.status);
-          if(repeat.status!==402)throw new Error('Repeat free preview was not blocked by the server');
-          console.log('Production GEO Tools available; repeat-free-trial and unpaid-report access blocked.');
-
+          const r=await fetch(site+'/.netlify/functions/competitor-products',{
+            method:'POST',headers:{'content-type':'application/json',origin:'https://external.example'},
+            body:JSON.stringify({action:'compare',mode:'full',urls:[site+'/tools/',site+'/tariffs/']})});
+          if(r.status!==403)throw Error('Unauthenticated cross-origin paid comparison allowed HTTP '+r.status);
+          const blocked=await fetch(site+'/.netlify/functions/competitor-products',{
+            method:'POST',headers:{'content-type':'application/json',origin:site},
+            body:JSON.stringify({action:'compare',mode:'preview',urls:[site+'/tools/',site+'/tariffs/']})});
+          if(blocked.status!==410)throw Error('Old self-service preview not disabled HTTP '+blocked.status);
+          console.log('Production public tools OK. No self-service paid preview and no old price widget.');
           NODE
