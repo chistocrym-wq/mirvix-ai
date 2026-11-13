@@ -1,0 +1,58 @@
+name: MIRVIX release real Chrome QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/release-browser.spec.mjs'
+      - 'playwright.config.mjs'
+      - '.github/workflows/release-browser.yml'
+      - 'assets/mira-widget.js'
+      - 'assets/mira-clean.css'
+      - 'index.html'
+      - 'tariffs/index.html'
+      - 'netlify/functions/mira-chat.mjs'
+      - 'netlify/lib/mirvix-lead-outbox.mjs'
+      - 'assets/mirvix-ocean-premium.mp4'
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/mira-widget.js'
+      - 'assets/mirvix-ocean-premium.mp4'
+      - 'tests/release-browser.spec.mjs'
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser automation and Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test
+          npx playwright install chromium --with-deps
+      - name: Wait for published site
+        run: |
+          URL="$MIRVIX_TEST_BASE_URL"
+          for i in {1..20}; do
+            if curl -fsSL --max-time 7 "$URL" >/dev/null; then exit 0; fi
+            sleep 5
+          done
+          exit 1
+        env:
+          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || 'https://deploy-preview-39--resonant-cupcake-231bab.netlify.app' }}
+      - name: Test desktop and mobile
+        run: npx playwright test --config playwright.config.mjs
+        env:
+          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || 'https://deploy-preview-39--resonant-cupcake-231bab.netlify.app' }}
+      - name: Attach screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirvix-release-qa-${{ github.run_id }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 5
