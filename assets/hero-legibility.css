@@ -3,21 +3,22 @@
   max-width:min(1000px,calc(100% - 12px));
 }
 .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{
-  max-width:min(880px,100%);
+  max-width:min(860px,100%);
   margin:17px auto 22px;
-  padding:14px clamp(15px,2.5vw,30px);
-  font-size:clamp(18px,1.7vw,23px);
-  line-height:1.52;
-  font-weight:650;
-  letter-spacing:-.008em;
+  padding:0 6px;
+  font-size:clamp(19px,1.72vw,24px);
+  line-height:1.55;
+  font-weight:750;
+  letter-spacing:-.012em;
   color:#fff;
-  background:linear-gradient(105deg,rgba(5,44,63,.83),rgba(2,67,80,.72));
-  border:1px solid rgba(212,255,249,.23);
-  border-radius:17px;
-  box-shadow:0 10px 36px rgba(0,31,53,.23);
-  text-shadow:0 2px 5px rgba(0,12,24,.45);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
+  background:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  text-shadow:0 2px 3px rgba(0,38,55,.92), 0 4px 13px rgba(0,23,40,.85), 0 0 22px rgba(0,30,45,.45);
+  -webkit-text-stroke:.2px rgba(1,49,59,.65);
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
 }
 .mirvix-ocean-hero .capability-row{
   gap:clamp(9px,1.7vw,23px);
@@ -51,9 +52,10 @@
  .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{
    font-size:clamp(16px,3.7vw,19px);
    line-height:1.45;
-   padding:12px 15px;
+   padding:0 4px;
    margin:12px auto 16px;
-   background:rgba(4,48,66,.83);
+   background:none!important;
+   text-shadow:0 2px 3px rgba(0,38,54,.95),0 4px 10px rgba(0,21,38,.9);
  }
  .mirvix-ocean-hero .capability-row{
    display:grid!important;
@@ -68,11 +70,35 @@
 }
 @media(max-width:390px){
  .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{
-   font-size:15px;padding:10px 12px;
+   font-size:16px;padding:0 3px;
  }
  .mirvix-ocean-hero .capability-row{font-size:12px!important;gap:3px 7px}
 }
 @media(prefers-reduced-transparency:reduce){
- .mirvix-ocean-hero .hero-copy.ocean-story-copy>p,
+ .mirvix-ocean-hero .hero-copy.ocean-story-copy>p{backdrop-filter:none;-webkit-backdrop-filter:none;background:none!important}
  .mirvix-ocean-hero .capability-row{backdrop-filter:none;-webkit-backdrop-filter:none;background:#073a54!important}
+}
+
+/* Larger top navigation on the ocean homepage without crowding mobile. */
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav{
+  gap:clamp(11px,1.22vw,21px);
+}
+body:has(.mirvix-ocean-hero) .site-header .desktop-nav a{
+  font-size:clamp(15px,1.18vw,17.5px);
+  font-weight:800;
+  letter-spacing:-.012em;
+  line-height:1.35;
+  white-space:nowrap;
+  text-shadow:0 2px 9px rgba(0,30,49,.85),0 1px 3px rgba(0,20,35,.8);
+}
+body:has(.mirvix-ocean-hero) .site-header .header-contact{
+  font-size:clamp(13px,1.05vw,15px);
+  font-weight:800;
+}
+@media(min-width:961px) and (max-width:1160px){
+  body:has(.mirvix-ocean-hero) .site-header .desktop-nav{gap:11px}
+  body:has(.mirvix-ocean-hero) .site-header .desktop-nav a{font-size:15px}
+}
+@media(max-width:960px){
+  body:has(.mirvix-ocean-hero) .site-header .mobile-nav a{font-size:17.5px;font-weight:800}
 }

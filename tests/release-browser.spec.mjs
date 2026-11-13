@@ -65,10 +65,20 @@ test('Ocean never freezes after brand introduction; labels stay readable',async(
  const binary=await page.locator('.mirvix-code-fragment').first().evaluate(e=>getComputedStyle(e).animationPlayState);
  expect(binary).toBe('running');
  const label=await page.locator('.hero-copy.ocean-story-copy>p').evaluate(e=>{
-   const s=getComputedStyle(e);return {font:parseFloat(s.fontSize),bg:s.backgroundColor,padding:parseFloat(s.paddingLeft)}
+   const s=getComputedStyle(e);return {font:parseFloat(s.fontSize),bg:s.backgroundColor,padding:parseFloat(s.paddingLeft),shadow:s.textShadow,border:s.borderTopWidth}
  });
- expect(label.font).toBeGreaterThanOrEqual(isMobile?15:18);
- expect(label.padding).toBeGreaterThanOrEqual(10);
+ expect(label.font).toBeGreaterThanOrEqual(isMobile?16:19);
+ expect(label.bg).toBe('rgba(0, 0, 0, 0)');
+ expect(label.border).toBe('0px');
+ expect(label.shadow).not.toBe('none');
+ expect(label.padding).toBeLessThanOrEqual(6);
+ if(!isMobile){
+  const nav=await page.locator('.desktop-nav a').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize));
+  expect(nav).toBeGreaterThanOrEqual(15);
+ } else {
+  const nav=await page.locator('.mobile-nav a').first().evaluate(e=>parseFloat(getComputedStyle(e).fontSize));
+  expect(nav).toBeGreaterThanOrEqual(17);
+ }
  const categories=await page.locator('.mirvix-ocean-hero .capability-row').evaluate(e=>getComputedStyle(e).fontSize);
  expect(parseFloat(categories)).toBeGreaterThanOrEqual(isMobile?12:14);
 });
