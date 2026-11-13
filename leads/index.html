@@ -1,0 +1,37 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>MIRVIX AI — журнал заявок</title><style>
+:root{font-family:Arial,"Segoe UI",sans-serif;color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f8fe;color:#1a3359}.shell{max-width:1140px;margin:auto;padding:22px}header{background:#0e2757;color:#fff;padding:15px 0}.head{display:flex;justify-content:space-between;align-items:center;gap:20px}.head a{color:#fff}h1{font-size:30px}.sub{color:#607391}button{background:#2169d6;color:#fff;border:0;padding:11px 17px;border-radius:9px;cursor:pointer}button:disabled{opacity:.5}table{border-collapse:collapse;width:100%;min-width:870px}td,th{padding:12px;text-align:left;border-bottom:1px solid #dce5f4;vertical-align:top}th{background:#e9f1ff}section{background:#fff;border:1px solid #e0e8f4;border-radius:15px;padding:21px;margin:20px 0;overflow:auto}.status{font-weight:750}.pending{color:#9a520d}.sent{color:#086d53}.error{color:#c33038;font-size:13px}a{color:#2267b4}
+@media(max-width:650px){.shell{padding:13px}.head{display:block}h1{font-size:24px}}</style></head><body>
+<header><div class="shell head"><strong>MIRVIX AI · Журнал обращений</strong><nav><a href="/cabinet/">Кабинет сотрудника</a> · <a href="/">Главная</a></nav></div></header><main class="shell"><h1>Заявки и уведомления</h1><p class="sub">Только для вошедших сотрудников. Подтверждённые заявки сохраняются в серверном хранилище Netlify Blobs. Проверяйте уведомления с ошибками и повторяйте доставку.</p>
+<button id="refresh">Обновить журнал</button><p id="status" role="status"></p>
+<section><table><thead><tr><th>Получено</th><th>Номер</th><th>Заявитель</th><th>Обращение</th><th>Уведомление</th><th>Действие</th></tr></thead><tbody id="rows"><tr><td colspan="6">Загрузка…</td></tr></tbody></table></section>
+</main><script>
+const by=id=>document.getElementById(id);
+function cell(t){const x=document.createElement('td');x.textContent=String(t??'');return x}
+async function api(data){
+ const r=await fetch('/api/mirvix-leads-admin',{method:'POST',credentials:'same-origin',
+  headers:{'content-type':'application/json','x-mirvix-cabinet':'1'},body:JSON.stringify(data)});
+ const x=await r.json();if(!r.ok)throw Error(x.error||'Ошибка '+r.status);return x;
+}
+async function refresh(){
+ by('status').textContent='Читаем серверный журнал…';
+ try{
+  const data=await api({action:'list'});by('rows').replaceChildren();
+  for(const lead of data.leads){
+   const tr=document.createElement('tr');
+   tr.append(cell(new Date(lead.createdAt).toLocaleString('ru-RU')),cell(lead.id),
+    cell(lead.name+'\n'+lead.contact),cell(lead.task));
+   const status=cell(lead.state==='notified'?'Отправлено · '+(lead.notifiedAt||''):'ОЖИДАЕТ УВЕДОМЛЕНИЯ · попыток: '+lead.attempts+'\n'+(lead.lastError||''));
+   status.className=lead.state==='notified'?'sent':'pending';tr.append(status);
+   const act=document.createElement('td');
+   if(lead.state!=='notified'){
+    const button=document.createElement('button');button.textContent='Повторить';button.onclick=async()=>{
+     button.disabled=true;try{await api({action:'retry',id:lead.id});await refresh();}catch(e){by('status').textContent=e.message;}finally{button.disabled=false;}
+    };act.append(button);
+   }tr.append(act);by('rows').append(tr);
+  }
+  if(!data.leads.length)by('rows').append(cell('Нет сохранённых заявок.'));
+  by('status').textContent='Записей: '+data.leads.length;
+ }catch(e){by('status').textContent=e.message+' Откройте /cabinet/ и войдите как сотрудник.';by('rows').replaceChildren();}
+}
+by('refresh').onclick=refresh;refresh();
+</script></body></html>
