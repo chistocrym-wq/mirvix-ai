@@ -22,3 +22,8 @@
 
 /* The separate analytics consent remains unchosen but must not intercept the MIRA chat. It reappears when chat closes. */
 body.mira-chat-open #mirvix-consent{display:none!important}
+
+/* Netlify's Deploy Preview feedback drawer is external to the website. When MIRA is open,
+   prevent its high-z-index iframe from covering the mobile chat send button. */
+body.mira-chat-open [data-netlify-deploy-id],
+body.mira-chat-open iframe[title="Netlify Drawer"]{pointer-events:none!important;visibility:hidden!important}
