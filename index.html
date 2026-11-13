@@ -424,7 +424,6 @@ html.has-js [data-reveal].is-visible{opacity:1;transform:none}
 .contact-row.contact-messenger{padding:9px 0}
 .contact-icon svg{width:20px;height:20px}
 .messenger-telegram{background:#e7f7ff;color:#1d9cce}
-.messenger-whatsapp{background:#e4f9ec;color:#128e53}
 .messenger-max{background:#f0ebff;color:#704bce}
 .contact-hint{margin:6px 0 0;font-size:11px;line-height:1.6;color:#798ba6}
 .site-footer{background:#f7faff;padding:65px 0 23px;border-top:1px solid #e1e8f3}
@@ -827,8 +826,10 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   </script>
 <link rel="stylesheet" href="/assets/mira-widget.css">
 <link rel="stylesheet" href="/assets/mira-widget-extra.css">
+<link rel="stylesheet" href="/assets/mira-clean.css">
 <link rel="stylesheet" href="/assets/ocean-premium.css">
 <script defer src="/assets/mirvix-metrika.js"></script>
+<script defer src="/assets/mirvix-lead-form.js"></script>
 </head>
 <body>
 <a class="skip-link" href="#main">К содержимому</a>
@@ -839,7 +840,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       <img class="brand-symbol" src="assets/brand-symbol.png" alt="" width="76" height="58">
       <span class="brand-text">
         <img class="brand-wordmark" src="assets/brand-wordmark.png" alt="MIRVIX AI" width="188" height="36">
-        <span class="brand-tagline">Цифровые технологии и ИИ разработки</span>
+        <span class="brand-tagline">Продвижение в ИИ-поиске</span>
       </span>
     </a>
     <nav class="desktop-nav" aria-label="Основное меню">
@@ -863,7 +864,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
     <span class="ocean-brand-name">MIRVIX <span>AI</span></span>
   </div>
   <div class="mirvix-ocean-media" aria-hidden="true">
-    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted loop playsinline preload="metadata" poster="/assets/mirvix-ocean-premium-poster.jpg" aria-hidden="true">
+    <video id="mirvix-ocean-film" class="mirvix-ocean-film" autoplay muted playsinline preload="metadata" poster="/assets/mirvix-ocean-premium-poster.jpg" aria-hidden="true">
       <source src="/assets/mirvix-ocean-premium.mp4" type="video/mp4">
     </video>
     <div class="mirvix-ocean-shade"></div>
@@ -943,7 +944,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
   <div class="container hero-layout">
     <div class="hero-copy ocean-story-copy">
       <h1>Поможем Вашему бизнесу<br><span class="ocean-headline-accent">стать заметнее.</span></h1>
-      <p>В океане информации важно не потеряться, помогаем компаниям усиливать видимость в нейросетях и поиске, чтобы клиенты чаще находили именно Вас.</p>
+      <p>В океане информации важно не потеряться, помогаем компаниям усиливать присутствие в нейросетях и ИИ-поиске, чтобы клиенты чаще находили именно Вас.</p>
       <div class="hero-buttons">
         <a class="button button-primary" href="/check/" aria-label="Открыть MIRVIX GEO Check — проверка сайта и упоминаний в нейросетях">Проверить сайт в ИИ <span aria-hidden="true">↗</span></a>
         <a class="button button-light" href="#contacts">Связаться с нами <span aria-hidden="true">↗</span></a>
@@ -1063,16 +1064,16 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       <span class="pricing-note">Каждый проект начинаем с обсуждения задачи. Предложим решение с учётом ваших процессов, целей и бюджета.</span>
 <div class="lead-panel" id="lead-form">
   <div class="lead-panel-head"><span class="lead-eyebrow">ЗАЯВКА НА КОНСУЛЬТАЦИЮ</span><h3>Расскажите о своей задаче</h3><p>Подготовим обращение и откроем письмо в вашей почтовой программе. Данные не передаются сайту и не сохраняются на сервере.</p></div>
-  <form id="mirvix-lead" action="mailto:mirvixai@mail.ru" method="get">
+  <form id="mirvix-lead" method="post">
     <div class="lead-fields">
       <label>Как к вам обращаться? <span>*</span><input name="client_name" autocomplete="name" maxlength="100" placeholder="Ваше имя" required></label>
       <label>Как с вами связаться? <span>*</span><input name="client_contact" maxlength="160" placeholder="Телефон, почта или Telegram" required></label>
-      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Нужна консультация</option><option value="visibility">Видимость в поиске и ИИ</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option><option value="platform-waitlist">Раннее участие в платформе MIRVIX</option></select></label>
+      <label class="lead-full">Что вас интересует?<select name="plan"><option value="general">Консультация по ИИ-продвижению</option><option value="visibility">Присутствие в нейросетях и ИИ-поиске</option><option value="visibility-support">Продвижение и сопровождение</option><option value="bot">ИИ-помощник для сайта или бизнеса</option><option value="full">Комплексное ИИ-решение</option><option value="custom">Разработка приложений и автоматизация</option><option value="platform-waitlist">Раннее участие в платформе MIRVIX</option></select></label>
       <label class="lead-full">Опишите задачу<textarea name="message" rows="3" maxlength="3000" placeholder="Чем занимается компания и что хотелось бы улучшить?"></textarea></label>
     </div>
-    <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я ознакомлен(а) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и согласен(на) передать указанные данные по электронной почте для ответа на обращение.</span></label>
-    <button class="button button-primary lead-submit" type="submit">Подготовить письмо с заявкой <span aria-hidden="true">↗</span></button>
-    <p class="lead-explain">После нажатия откроется почтовое приложение. Для отправки нажмите «Отправить» в нём. Если почтовая программа не настроена, <a href="mailto:mirvixai@mail.ru">напишите нам напрямую</a>.</p>
+    <label class="lead-consent"><input type="checkbox" name="consent" required><span>Я согласен(на) с <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a> и разрешаю передать данные заявки специалистам MIRVIX AI для ответа.</span></label>
+    <button class="button button-primary lead-submit" type="submit">Отправить заявку <span aria-hidden="true">↗</span></button>
+    <p class="lead-explain" id="lead-status" role="status" aria-live="polite">Сначала сохраним заявку на сервере и выдадим её номер. Уведомление специалистам отправим отдельно.</p>
   </form>
 </div>
     </div>
@@ -1084,7 +1085,7 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
       <div class="contact-divider contact-messenger-divider"></div>
       <span class="contact-card-subtitle">НАПИСАТЬ В МЕССЕНДЖЕР</span>
       <div class="contact-row contact-messenger"><span class="contact-icon messenger-telegram" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M21.7 3.3a1 1 0 0 0-1-.2L2.8 10.3a1.1 1.1 0 0 0 .1 2.1l4.6 1.3 1.6 5a1.1 1.1 0 0 0 1.8.5l2.7-2.4 4.2 3.1a1 1 0 0 0 1.6-.6l3-14.8a1 1 0 0 0-.7-1.2ZM9.6 13.1l9-6.6-7.1 8.3-.5 2.2-1.4-3.9Z" fill="currentColor"/></svg></span><a href="https://t.me/+79602537979" target="_blank" rel="noopener noreferrer" aria-label="Открыть чат в Telegram по номеру телефона">Telegram <span aria-hidden="true">↗</span></a></div>
-      <div class="contact-row contact-messenger"><span class="contact-icon messenger-whatsapp" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M20 11.7a8 8 0 0 1-11.7 7.1L4 20l1.2-4.2A8 8 0 1 1 20 11.7Z"/><path d="M9 8.6c.2 3 2.5 5.5 5.5 6.1.9.1 1.6-.6 1.7-1.2l-2.3-1.1-.9 1a7.8 7.8 0 0 1-2.4-2.2l.9-.9-1.1-2.3c-.6-.2-1.4 0-1.4.6Z"/></svg></span><a href="https://wa.me/79602537979" target="_blank" rel="noopener noreferrer" aria-label="Открыть переписку в WhatsApp по номеру телефона">WhatsApp <span aria-hidden="true">↗</span></a></div>
+      
       <div class="contact-row contact-messenger"><span class="contact-icon messenger-max" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M5 5.5h14v11H9l-4 3v-14Z"/><path d="M8.2 13V9l2.3 2 2.4-2 2.4 2 1.2-2v4"/></svg></span><a href="https://web.max.ru/" target="_blank" rel="noopener noreferrer" aria-label="Открыть MAX и найти контакт по номеру телефона">MAX <span aria-hidden="true">↗</span></a></div>
       <p class="contact-hint">Для MAX откроется мессенджер: контакт можно найти по номеру +7 960 253-79-79. Прямую ссылку на профиль добавим после подтверждения.</p>
       <div class="contact-row"><span class="contact-icon" aria-hidden="true">⌖</span><span>Санкт-Петербург, ул. Смоленская, д. 18</span></div>
@@ -1301,16 +1302,16 @@ body:has(.mirvix-ocean-hero) .site-header .mobile-nav{background:#fff}
 
 </script>
 <div id="mira-widget">
-<button type="button" class="mira-launch" data-mira="launch" aria-controls="mira-chat" aria-expanded="false" aria-label="Открыть помощника MIRA"><img src="/assets/mira-avatar.jpg" alt="" width="49" height="49" loading="lazy"><span>MIRA<small>Выслушаю и помогу</small></span></button>
+<button type="button" class="mira-launch" data-mira="launch" aria-controls="mira-chat" aria-expanded="false" aria-label="Открыть помощника MIRA"><img src="/assets/mira-avatar.jpg" alt="" width="49" height="49" loading="lazy"><span>MIRA</span></button>
 
 <section class="mira-chat" id="mira-chat" data-mira="dialog" role="dialog" aria-label="Помощница MIRA" aria-modal="false" hidden>
-<header class="mira-head"><img src="/assets/mira-avatar.jpg" alt="" width="50" height="50"><span><strong>MIRA</strong><small>Расскажите о своей задаче</small></span><button class="mira-close" type="button" data-mira="close" aria-label="Закрыть чат">×</button></header>
+<header class="mira-head"><img src="/assets/mira-avatar.jpg" alt="" width="50" height="50"><span><strong>MIRA</strong></span><button class="mira-settings" type="button" data-mira="privacy-settings" aria-label="Изменить настройки ИИ" title="Настройки ИИ">⚙</button><button class="mira-close" type="button" data-mira="close" aria-label="Закрыть чат">×</button></header>
 <div class="mira-history" data-mira="history" role="log" aria-live="polite"></div>
 <div class="mira-voicecheck" data-mira="voicecheck" hidden><b>Я правильно записала? Проверьте текст:</b><textarea data-mira="transcript" aria-label="Распознанный текст"></textarea><div class="mira-actions"><button type="button" data-mira="confirm">Да, всё верно</button><button type="button" data-mira="retry">Надиктовать снова</button><button type="button" data-mira="cancel">Отмена</button></div></div>
-<label class="mira-consent"><input type="checkbox" data-mira="ai-consent"> <span>Разрешаю MIRA оформить текст задачи с помощью ИИ. Личные контакты в ИИ не передаются. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Подробнее</a></span></label>
-<div class="mira-delivery-panel" data-mira="delivery-panel" hidden><label><input type="checkbox" data-mira="delivery-consent"><span>Согласен(на) отправить обращение и указанные мной контакты специалисту MIRVIX AI через Telegram для ответа. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Политика</a></span></label></div>
-<div class="mira-inputbar"><textarea data-mira="input" aria-label="Ваше сообщение MIRA" rows="1" placeholder="Напишите сообщение"></textarea><button type="button" data-mira="mic" aria-label="Надиктовать сообщение" title="Голосовой ввод">🎙</button><button type="button" data-mira="send" aria-label="Отправить сообщение">➤</button></div>
-<div class="mira-foot">Голосовой ввод может использовать сервис распознавания браузера. Обращение передаётся только после вашего подтверждения. <a href="/legal/privacy/">Конфиденциальность</a>.</div>
+<div class="mira-optin" data-mira="ai-consent-panel" hidden><p><strong>Разрешить МИРЕ использовать ИИ для ответа?</strong> Текст вопросов без личных контактов будет обработан ИИ-сервисом. Решение можно изменить в настройках.</p><div class="mira-actions"><button type="button" data-mira="ai-yes">Разрешить ИИ</button><button type="button" data-mira="ai-no">Пока без ИИ</button></div><a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Условия обработки</a></div>
+<div class="mira-delivery-panel" data-mira="delivery-panel" hidden><label>Ваше имя<input data-mira="lead-name" autocomplete="name" maxlength="100" placeholder="Как к вам обращаться"></label><label>Телефон, email или Telegram<input data-mira="lead-contact" maxlength="180" placeholder="Как связаться с вами"></label><label class="mira-contact-privacy"><input type="checkbox" data-mira="delivery-consent"><span>Согласен(на) передать указанное обращение и контакты сотрудникам MIRVIX AI. <a href="/legal/privacy/" target="_blank" rel="noopener noreferrer">Политика</a></span></label><div class="mira-actions"><button type="button" data-mira="send-lead">Отправить заявку</button><button type="button" data-mira="close-lead">Отмена</button></div><p data-mira="lead-status" role="status" aria-live="polite"></p></div>
+<div class="mira-inputbar"><textarea data-mira="input" aria-label="Ваше сообщение MIRA" rows="1" placeholder="Напишите сообщение"></textarea><button type="button" data-mira="mic" aria-label="Надиктовать сообщение" title="Голосовой ввод">🎙</button><button type="button" data-mira="send" aria-label="Отправить сообщение">➤</button><button type="button" class="mira-transfer" data-mira="delivery-open" aria-label="Передать обращение специалисту" title="Передать обращение">✉</button></div>
+
 </section></div>
 <script src="/assets/mira-widget.js" defer></script>
 <script>
@@ -1332,6 +1333,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if(finished)return;
       finished=true;
       hero.classList.add('ocean-intro-done');
+      try{video.pause();}catch(e){}
       if(timer){clearTimeout(timer);timer=null;}
     };
     var start=function(){
@@ -1340,10 +1342,10 @@ document.addEventListener('DOMContentLoaded',function(){
       if(reduced.matches){hero.classList.add('ocean-intro-done');video.pause();return;}
       hero.classList.add('ocean-intro-playing');
       video.muted=true;
-      video.playbackRate=.72;
+      video.playbackRate=.85;
       var promise=video.play();
       if(promise&&promise.catch)promise.catch(function(){hero.classList.add('ocean-video-unavailable');});
-      timer=setTimeout(finish,10800);
+      timer=setTimeout(finish,8000);
     };
     video.addEventListener('canplay',start,{once:true});
     video.addEventListener('error',function(){hero.classList.add('ocean-video-unavailable');start();},{once:true});

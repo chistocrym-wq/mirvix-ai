@@ -2,8 +2,7 @@ name: Build premium MIRVIX ocean video
 on:
   push:
     branches:
-      - main
-      - feature/intelligence-evidence-source-repair-20261112
+      - release/mirvix-final-20261113
     paths:
       - '.github/workflows/build-mirvix-ocean.yml'
   workflow_dispatch: {}
@@ -28,7 +27,6 @@ jobs:
           sources=(
             'https://videos.pexels.com/video-files/5038048/5038048-hd_1920_1080_30fps.mp4'
             'https://videos.pexels.com/video-files/19912847/19912847-hd_1920_1080_30fps.mp4'
-            'https://videos.pexels.com/video-files/34754995/14733332_640_360_24fps.mp4'
           )
           ok=0
           for source in "${sources[@]}"; do
@@ -36,11 +34,16 @@ jobs:
             if curl -fL --retry 1 --connect-timeout 15 --max-time 100 \
                 --user-agent 'Mozilla/5.0' "$source" -o /tmp/mirvix-source.mp4 && \
                ffprobe -v error /tmp/mirvix-source.mp4 >/dev/null 2>&1; then
+              W=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 /tmp/mirvix-source.mp4)
+              H=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 /tmp/mirvix-source.mp4)
+              if [ "$W" -lt 1920 ] || [ "$H" -lt 1080 ]; then
+                echo "Source is below native Full HD, rejecting: $W x $H"; continue
+              fi
               ok=1; break
             fi
           done
           if [ "$ok" -ne 1 ]; then
-            echo 'No licensed wave source could be downloaded; do not publish fake background video.' >&2
+            echo 'No native 1920x1080 licensed footage; refusing upscaled low resolution.' >&2
             exit 1
           fi
           ffprobe -v error -show_entries stream=codec_name,width,height -of default=noprint_wrappers=1 /tmp/mirvix-source.mp4
@@ -48,15 +51,18 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p assets
-          ffmpeg -hide_banner -loglevel error -y -ss 0.1 -i /tmp/mirvix-source.mp4 -t 22 \
-            -vf 'crop=iw:ih*0.68:0:ih*0.32,scale=1600:900:force_original_aspect_ratio=increase,crop=1600:900,setpts=2.5*(PTS-STARTPTS),fps=24,eq=saturation=1.38:contrast=1.03:brightness=0.052:gamma=1.09,format=yuv420p' \
-            -c:v libx264 -preset medium -b:v 4400k -maxrate 4900k -bufsize 9000k -movflags +faststart -an \
+          ffmpeg -hide_banner -loglevel error -y -ss 0.1 -i /tmp/mirvix-source.mp4 -t 12 \
+            -vf 'crop=iw:trunc(ih*0.88/2)*2:0:ih*0.12,scale=1920:1080:flags=lanczos,setpts=1.45*(PTS-STARTPTS),fps=30,eq=saturation=1.28:contrast=1.03:brightness=0.035:gamma=1.05,format=yuv420p' \
+            -c:v libx264 -preset slow -crf 19 -maxrate 8500k -bufsize 17000k -movflags +faststart -an \
             assets/mirvix-ocean-premium.mp4
           ffmpeg -hide_banner -loglevel error -y -ss 0.8 -i assets/mirvix-ocean-premium.mp4 \
             -frames:v 1 -q:v 3 assets/mirvix-ocean-premium-poster.jpg
           ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 assets/mirvix-ocean-premium.mp4
           test -s assets/mirvix-ocean-premium.mp4
           test -s assets/mirvix-ocean-premium-poster.jpg
+          DIMS=$(ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 assets/mirvix-ocean-premium.mp4)
+          test "$DIMS" = "1920x1080" || { echo "Output not full-HD: $DIMS"; exit 1; }
+          echo "Verified native source and 1920x1080 output"
       - name: Commit real wave assets
         run: |
           set -euo pipefail
@@ -68,6 +74,17 @@ jobs:
             exit 0
           fi
           git commit -m 'media(ocean): store real slow turquoise wave video and poster for MIRVIX homepage'
-          git fetch origin "${GITHUB_REF_NAME}"
-          git rebase "origin/${GITHUB_REF_NAME}"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          # CI may be racing with source-file commits on this release branch.
+          # Rebase and retry the binary commit safely; never force-push.
+          for attempt in $(seq 1 15); do
+            git fetch origin "${GITHUB_REF_NAME}"
+            git rebase "origin/${GITHUB_REF_NAME}"
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              echo "Verified Full HD video committed on attempt $attempt"
+              exit 0
+            fi
+            echo "Concurrent update, safely retrying ($attempt/15)"
+            sleep 3
+          done
+          echo "Could not attach verified Full HD file: stop deployment" >&2
+          exit 1

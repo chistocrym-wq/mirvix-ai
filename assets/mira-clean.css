@@ -1,0 +1,29 @@
+/* MIRVIX Mira clean conversational layout, voluntary one-time AI choice. */
+.mira-optin{padding:15px 17px;background:#f4faff;border-top:1px solid #d9e9ff;font-size:13px;line-height:1.55;color:#284973}
+.mira-optin[hidden],.mira-delivery-panel[hidden],.mira-voicecheck[hidden]{display:none!important}
+.mira-optin p{margin:0 0 12px}
+.mira-optin a{font-size:12px;color:#206dc9}
+.mira-optin .mira-actions,.mira-delivery-panel .mira-actions{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0}
+.mira-optin button,.mira-delivery-panel button{font-size:12px;line-height:1.3;min-height:38px;border-radius:10px;padding:8px 12px}
+.mira-head .mira-settings{border:0!important;background:none!important;color:#5b7596!important;padding:7px!important;margin-left:auto!important;min-width:36px;min-height:36px;box-shadow:none!important;font-size:19px!important}
+.mira-head .mira-close{margin-left:0!important}
+.mira-site-link{display:block;width:max-content;max-width:100%;color:#1468c8;font-size:12px;font-weight:780;text-decoration:underline;margin-top:7px;overflow-wrap:anywhere}
+.mira-bubble{overflow-wrap:anywhere}
+.mira-inputbar .mira-transfer{font-size:18px;flex:0 0 40px;padding:6px;background:#edf5ff;color:#1765b3;border:1px solid #cadef7}
+.mira-delivery-panel{display:grid;gap:9px;background:#f4f8ff;padding:14px;border-top:1px solid #dbe7f7}
+.mira-delivery-panel label:not(.mira-contact-privacy){display:grid;gap:4px;font-size:12px;color:#284b71;font-weight:750}
+.mira-delivery-panel input:not([type="checkbox"]){width:100%;padding:9px 10px;border:1px solid #c3d7ee;border-radius:9px;font-size:13px}
+.mira-contact-privacy{display:flex;align-items:flex-start;gap:8px;font-size:11px;color:#465b76;line-height:1.55}
+.mira-contact-privacy input{margin-top:2px;flex:0 0 auto}
+.mira-delivery-panel [data-mira="lead-status"]{font-size:12px;color:#275990;margin:3px 0}
+#lead-status[data-state="success"]{color:#187259;font-weight:750}
+#lead-status[data-state="error"]{color:#b1364b;font-weight:750}
+@media(max-width:600px){.mira-optin{padding:15px}.mira-delivery-panel{padding:13px}.mira-head .mira-settings{margin-left:auto!important}}
+
+/* The separate analytics consent remains unchosen but must not intercept the MIRA chat. It reappears when chat closes. */
+body.mira-chat-open #mirvix-consent{display:none!important}
+
+/* Netlify's Deploy Preview feedback drawer is external to the website. When MIRA is open,
+   prevent its high-z-index iframe from covering the mobile chat send button. */
+body.mira-chat-open [data-netlify-deploy-id],
+body.mira-chat-open iframe[title="Netlify Drawer"]{pointer-events:none!important;visibility:hidden!important}
