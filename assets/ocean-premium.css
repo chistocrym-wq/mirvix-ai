@@ -55,7 +55,7 @@
   72%,100% { opacity:0;transform:translate3d(3px,0,0); }
 }
 .mirvix-ocean-hero.ocean-intro-done .mirvix-code-fragment {
-  animation-play-state:paused!important;
+  animation-play-state:running!important;
 }
 @media(max-width:760px) {
   .mirvix-ocean-hero .mirvix-ocean-film {object-position:48% center;}
