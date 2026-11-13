@@ -32,8 +32,8 @@ export default async function handler(request) {
     return output({ error: 'Разрешите обработку текста и не включайте личные контакты.' }, 400);
   }
   const token = process.env.OPENAI_API_KEY;
-  const base = process.env.OPENAI_BASE_URL;
-  if (!token || !base) return output({ error: 'ИИ-формулировка временно недоступна.' }, 503);
+  const base = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
+  if (!token) return output({ error: 'ИИ-формулировка временно недоступна.' }, 503);
   let url;
   try {
     const parsed = new URL(base);
