@@ -1,3 +1,6 @@
+import { getStore } from '@netlify/blobs';
+import { randomUUID } from 'node:crypto';
+import { isStaffRequest } from '../lib/cabinet-session.mjs';
 // Public, explicitly confirmed FREE AI-visibility request -> MIRVIX team Telegram.
 // Does not run paid AI APIs, does not collect payment, and never stores contacts in a database.
 // Uses existing MIRA_TELEGRAM_BOT_TOKEN + MIRA_TELEGRAM_CHAT_ID server-only secrets.
@@ -68,7 +71,7 @@ function prepare(body) {
   const contact = trim(body.contact, 180);
   const channel = trim(body.channel, 30);
   const wantsCompetitor = body.wantsCompetitor === true;
-  const allowedChannels = ['email', 'telegram', 'whatsapp'];
+  const allowedChannels = ['email', 'telegram'];
   if (!fits(company, 2, 120)) throw Error('Укажите название компании (2–120 символов).');
   if (!fits(category, 3, 180)) throw Error('Укажите сферу деятельности компании.');
   if (!fits(name, 2, 100)) throw Error('Укажите ваше имя.');
@@ -76,9 +79,6 @@ function prepare(body) {
   if (!fits(contact, 5, 180)) throw Error('Укажите, куда прислать результаты.');
   if (channel === 'email' && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/u.test(contact)) {
     throw Error('Для электронной почты укажите корректный адрес.');
-  }
-  if (channel === 'whatsapp' && !/^\+?[\d\s()-]{10,25}$/.test(contact)) {
-    throw Error('Для WhatsApp укажите номер телефона с кодом страны.');
   }
   if (channel === 'telegram' &&
       !/^(?:@[A-Za-z0-9_]{5,32}|https:\/\/t\.me\/[A-Za-z0-9_+]{5,70}|[+]?[0-9\s()-]{10,25})$/i.test(contact)) {
@@ -100,7 +100,7 @@ function prepare(body) {
 }
 
 function formatMessage(d) {
-  const channel = {email:'Электронная почта',telegram:'Telegram',whatsapp:'WhatsApp'}[d.channel];
+  const channel = {email:'Электронная почта',telegram:'Telegram'}[d.channel];
   return [
     '🔎 MIRVIX AI · Новая заявка на бесплатный отчёт',
     '📋 Вид анализа: ' + SERVICES[d.service],
@@ -128,7 +128,30 @@ function formatMessage(d) {
   ].join('\n');
 }
 
+function leadsStore() {return getStore({name:'mirvix-free-ai-inbox',consistency:'strong'});}
+function uid(value) {return typeof value==='string'&&/^[a-f0-9-]{36}$/i.test(value)?value:randomUUID();}
+async function saveLead(key,prepared) {
+  const store=leadsStore();
+  const old=await store.get('leads/'+key,{type:'json',consistency:'strong'});
+  if(old) return old;
+  const item={id:key,createdAt:new Date().toISOString(),...prepared,status:'received',notification:'pending'};
+  await store.setJSON('leads/'+key,item);
+  return item;
+}
+async function listLeads(request) {
+  const url=new URL(request.url);
+  const headers=Object.fromEntries(request.headers.entries());
+  if(!isStaffRequest({headers:{...headers,host:url.host}})) return respond({error:'Требуется вход сотрудника MIRVIX.'},403);
+  const store=leadsStore();
+  const index=await store.list({prefix:'leads/',paginate:false});
+  const keys=(index.blobs||[]).slice(-120);
+  const rows=(await Promise.all(keys.map(x=>store.get(x.key,{type:'json',consistency:'strong'})))).filter(Boolean)
+    .sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  return respond({leads:rows.slice(0,100)});
+}
 export default async function handler(request) {
+  if (request.method==='GET') return new URL(request.url).searchParams.get('action')==='list'
+    ? listLeads(request) : respond({error:'Используйте POST.'},405);
   if (request.method !== 'POST') return respond({error:'Используйте POST.'}, 405);
   if (!sameOrigin(request)) return respond({error:'Недопустимый источник запроса.'}, 403);
   if (!(request.headers.get('content-type') || '').toLowerCase().startsWith('application/json')) {
@@ -145,31 +168,48 @@ export default async function handler(request) {
   } catch {
     return respond({error:'Не удалось прочитать заявку.'}, 400);
   }
+  if(data?.action==='ack'){
+    const url=new URL(request.url),headers=Object.fromEntries(request.headers.entries());
+    if(!isStaffRequest({headers:{...headers,host:url.host}}))return respond({error:'Требуется вход сотрудника.'},403);
+    if(typeof data.id!=='string'||!/^[a-f0-9-]{36}$/i.test(data.id))return respond({error:'Некорректная заявка.'},422);
+    const s=leadsStore(),key='leads/'+data.id;
+    const old=await s.get(key,{type:'json',consistency:'strong'});
+    if(!old)return respond({error:'Заявка не найдена.'},404);
+    const status=['received','in_progress','closed'].includes(data.status)?data.status:null;
+    if(!status)return respond({error:'Недопустимый статус.'},422);
+    await s.setJSON(key,{...old,status,updatedAt:new Date().toISOString()});
+    return respond({updated:true});
+  }
   if (data?.extra_url) return respond({submitted:true}, 200); // non-visible honeypot
   let prepared;
   try { prepared = prepare(data); }
   catch (error) { return respond({error:error.message}, 422); }
-  const token = process.env.MIRA_TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.MIRA_TELEGRAM_CHAT_ID;
-  if (!token || !chatId || !/^-?\d{5,22}$/.test(chatId)) {
-    return respond({error:'Приём заявок временно недоступен. Отправьте заявку на mirvixai@mail.ru.'}, 503);
+  // Persist first: an unavailable Telegram bot must never silently discard an accepted form.
+  const leadId=uid(data.requestId);
+  let saved;
+  try { saved=await saveLead(leadId,prepared); }
+  catch {return respond({error:'Сервер не смог надёжно сохранить заявку. Напишите на mirvixai@mail.ru.'},503);}
+  if(saved.notification==='delivered')return respond({submitted:true,requestId:leadId,notified:true,message:'Заявка уже получена.'});
+  const token=process.env.MIRA_TELEGRAM_BOT_TOKEN;
+  const chatId=process.env.MIRA_TELEGRAM_CHAT_ID;
+  if (!token || !chatId || !/^-?\\d{5,22}$/.test(chatId)) {
+    return respond({submitted:true,requestId:leadId,notified:false,message:'Заявка сохранена. Уведомление команде пока недоступно.'},202);
   }
-  const message = formatMessage(prepared);
-  if (message.length > 4096) return respond({error:'Заявка слишком длинная. Сократите список запросов.'}, 413);
+  const message=formatMessage(prepared);
+  if(message.length>4096)return respond({submitted:true,requestId:leadId,notified:false,message:'Заявка сохранена, уведомление будет обработано отдельно.'},202);
   try {
-    const response = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({chat_id:chatId, text:message, disable_web_page_preview:true}),
-      signal: AbortSignal.timeout(12000)
+    const response=await fetch('https://api.telegram.org/bot'+token+'/sendMessage',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:chatId,text:message,disable_web_page_preview:true}),
+      signal:AbortSignal.timeout(12000)
     });
-    const result = await response.json().catch(() => null);
-    if (!response.ok || result?.ok !== true) {
-      return respond({error:'Сервис приёма заявок не подтвердил доставку. Попробуйте снова или отправьте письмо.'}, 502);
-    }
-    return respond({submitted:true, message:'Заявка на бесплатную проверку отправлена.'});
+    const result=await response.json().catch(()=>null);
+    if(!response.ok||result?.ok!==true) return respond({submitted:true,requestId:leadId,notified:false,message:'Заявка сохранена. Уведомление команде задерживается.'},202);
+    try {await leadsStore().setJSON('leads/'+leadId,{...saved,notification:'delivered',notifiedAt:new Date().toISOString()});}
+    catch { /* Telegram confirmed delivery: avoid retry to prevent duplicate messages. */ }
+    return respond({submitted:true,requestId:leadId,notified:true,message:'Заявка успешно получена и передана специалисту.'});
   } catch {
-    return respond({error:'Не удалось доставить заявку. Попробуйте снова или отправьте письмо.'}, 502);
+    return respond({submitted:true,requestId:leadId,notified:false,message:'Заявка сохранена. Уведомление команде задерживается.'},202);
   }
 }
 

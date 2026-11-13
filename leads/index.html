@@ -1,0 +1,73 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Входящие заявки · MIRVIX AI</title>
+<style>:root{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#edf5ff;background:#0b1930}*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(130deg,#0c2037,#0b1930);min-height:100vh}main{max-width:1100px;margin:auto;padding:26px 18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:28px}a{color:#94caff}
+h1{font-size:clamp(27px,4vw,42px);margin:10px 0}p{color:#b4cae2;line-height:1.6}
+.card{border:1px solid #314b6d;border-radius:15px;background:#122943;padding:21px;margin:12px 0}
+.row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+button,select{border:1px solid #4d7196;border-radius:9px;background:#284875;color:#f2f7ff;font:inherit;padding:9px 13px;cursor:pointer}
+button{background:linear-gradient(120deg,#2267bd,#594fbe);font-weight:700}
+.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:790px}
+td,th{padding:12px;border-bottom:1px solid #33516e;text-align:left;vertical-align:top}
+th{color:#aad5ed;background:#1c3450;font-size:12px}
+small{color:#a5bad3}strong{color:#fff}
+pre{white-space:pre-wrap;word-break:break-word;font-family:inherit;line-height:1.55;margin:8px 0}
+.warning{padding:10px 13px;border-left:3px solid #eebc6d;background:#2d384a;border-radius:7px}
+@media(max-width:650px){.card{padding:14px}}</style></head><body>
+<main><header><strong>MIRVIX AI · ВХОДЯЩИЕ</strong><nav><a href="/cabinet/">Кабинет</a> · <a href="/check/">Проверка ИИ</a></nav></header>
+<h1>Заявки на бесплатную ИИ-проверку</h1><p>Закрытый список обращений из формы. Сюда попадают заявки даже при временном сбое уведомлений Telegram. Доступ только у вошедшего сотрудника MIRVIX.</p>
+<section class="card"><div class="row"><div id="auth">Проверяем сессию сотрудника…</div><button id="reload" hidden>Обновить</button></div></section>
+<section class="card" id="list" hidden><p class="warning">Проверяйте отметку доставки: «Ожидает уведомления» означает, что заявка сохранена, но Telegram не подтвердил доставку.</p>
+<div class="tablewrap"><table><thead><tr><th>Когда / компания</th><th>Контакт</th><th>Задача</th><th>Доставка</th><th>Статус</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<p id="status" role="status" aria-live="polite"></p>
+</main>
+<script>
+(()=>{
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const endpoint='/api/ai-visibility-request';
+  async function check(){
+    const r=await fetch('/.netlify/functions/cabinet-auth',{method:'POST',credentials:'same-origin',
+      headers:{'content-type':'application/json','x-mirvix-cabinet':'1'},body:JSON.stringify({action:'status'})});
+    const d=await r.json().catch(()=>({}));
+    if(d.role!=='staff'){$('auth').innerHTML='Требуется <a href="/cabinet/?role=staff">вход сотрудника</a> на том же домене.';return;}
+    $('auth').textContent='Вход сотрудника подтверждён';
+    $('reload').hidden=false;$('list').hidden=false;await load();
+  }
+  async function load(){
+    try{
+      const r=await fetch(endpoint+'?action=list',{method:'GET',credentials:'same-origin',
+        headers:{'x-mirvix-cabinet':'1'},cache:'no-store'});
+      const d=await r.json();
+      if(!r.ok)throw Error(d.error||'Ошибка загрузки');
+      const leads=d.leads||[];
+      $('rows').innerHTML=leads.length?leads.map(x=>
+        '<tr><td><small>'+safe(new Date(x.createdAt).toLocaleString('ru-RU'))+'</small><br><strong>'+safe(x.company)+'</strong><br><small>'+safe(x.site)+'</small></td>'+
+        '<td>'+safe(x.name)+'<br>'+safe(x.channel)+': '+safe(x.contact)+'</td>'+
+        '<td><pre>'+safe(x.category)+'</pre><small>Вопросы: '+safe(x.questions||'не указаны')+'</small><br><small>Конкурент: '+safe(x.competitor||'нет')+'</small></td>'+
+        '<td>'+ (x.notification==='delivered'?'Отправлено в Telegram':'Ожидает уведомления')+'</td>'+
+        '<td><select data-id="'+safe(x.id)+'">'+
+        [['received','Новая'],['in_progress','В работе'],['closed','Закрыта']].map(([k,v])=>
+          '<option value="'+k+'"'+(x.status===k?' selected':'')+'>'+v+'</option>').join('')+'</select></td></tr>').join(''):
+        '<tr><td colspan="5">Заявок пока нет.</td></tr>';
+      $('status').textContent='Всего заявок: '+leads.length;
+    }catch(e){$('status').textContent='Ошибка: '+e.message;}
+  }
+  $('rows').addEventListener('change',async e=>{
+    const select=e.target.closest('select[data-id]');
+    if(!select)return;
+    try{
+      const r=await fetch(endpoint,{method:'POST',credentials:'same-origin',
+        headers:{'content-type':'application/json','x-mirvix-cabinet':'1'},
+        body:JSON.stringify({action:'ack',id:select.dataset.id,status:select.value})});
+      const d=await r.json();
+      if(!r.ok)throw Error(d.error||'Ошибка сохранения');
+      $('status').textContent='Статус обновлён.';
+    }catch(e){$('status').textContent='Ошибка: '+e.message;await load();}
+  });
+  $('reload').addEventListener('click',load);
+  check().catch(e=>{$('auth').textContent='Не удалось проверить вход: '+e.message;});
+})();
+</script></body></html>

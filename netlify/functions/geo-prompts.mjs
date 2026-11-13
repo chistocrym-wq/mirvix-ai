@@ -153,6 +153,8 @@ export async function handler(event){
       message:available.openai||available.gemini?'Ключ генератора обнаружен; работоспособность подтвердит пробный запрос.':
         'Нет OPENAI_API_KEY или GEMINI_API_KEY в окружении текущей функции Netlify. Проверьте scope Functions и новый production deploy.'});
   }
+  if(body.action==='generate'||!body.action)
+    return respond(423,{error:'Прямая массовая генерация вопросов временно отключена. Требуются индивидуальный проект, бюджет API и серверная очередь.'});
   if(body.action&&body.action!=='generate')return respond(400,{error:'Неизвестная команда.'});
   if(!process.env.OPENAI_API_KEY&&!process.env.GEMINI_API_KEY){
     return respond(503,{error:'Нет API-ключей генерации на сервере: проверьте Netlify Environment variables → scope Functions → Deploy production.'});

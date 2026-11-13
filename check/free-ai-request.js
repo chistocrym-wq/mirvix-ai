@@ -13,6 +13,7 @@
   const channel = document.getElementById('free-ai-channel');
   const contact = document.getElementById('free-ai-contact');
   const submit = document.getElementById('free-ai-submit');
+  let pendingRequestId = null;
 
   async function checkStaff() {
     access.hidden = true;
@@ -91,7 +92,8 @@
       channel: channel.value,
       contact: textValue('contact', 180),
       consent: document.getElementById('free-ai-consent').checked,
-      extra_url: textValue('extra_url', 100)
+      extra_url: textValue('extra_url', 100),
+      requestId: pendingRequestId || (pendingRequestId = crypto.randomUUID())
     };
     submit.disabled = true;
     showStatus('Отправляем заявку в MIRVIX AI…');
@@ -112,11 +114,15 @@
       if (!response.ok || result.submitted !== true) {
         throw Error(result.error || 'Заявка не доставлена.');
       }
-      showStatus('Заявка получена! Мы проведём бесплатную проверку и отправим отчёт по указанному контакту.', 'success');
+      showStatus(result.notified === true
+        ? 'Заявка успешно отправлена специалисту MIRVIX AI. Мы свяжемся с вами по указанному контакту.'
+        : 'Заявка сохранена в системе MIRVIX AI, но уведомление специалисту задерживается. Мы обработаем её из кабинета заявок.', 'success');
+      pendingRequestId = null;
       form.reset();
       competitor.hidden = true;
       setContactMode();
     } catch (error) {
+      // If server accepted but browser lost the response, reuse the same request ID.
       const reason = error.name === 'AbortError' ?
         'Сервис не ответил. Проверьте соединение и попробуйте отправить заявку ещё раз.' :
         String(error.message || 'Не удалось отправить заявку.');

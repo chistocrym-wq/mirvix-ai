@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#0c1732">
+<title>MIRVIX AI · Business Intelligence</title>
+<link rel="icon" href="/assets/favicon-32.png">
+<style>
+:root{--bg:#0b1630;--panel:#142440;--panel2:#172b4b;--line:#304461;--text:#edf4ff;--muted:#a6bbd9;--cyan:#73d8f9;--violet:#b7a5fc;--positive:#74e0c5;--warning:#ffcb80;--danger:#ff939d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -10%,#302c6f,transparent 46%),var(--bg);color:var(--text);font:14px/1.5 Inter,"Segoe UI",Arial,sans-serif}a{color:#93befe}.page{max-width:1290px;margin:auto;padding:0 22px}header{background:#0a1832ed;border-bottom:1px solid #2f4765;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}header .page{display:flex;min-height:70px;gap:20px;align-items:center;justify-content:space-between}.brand{font-size:18px;font-weight:850;letter-spacing:-.02em}.brand span{color:var(--cyan)}header nav{display:flex;gap:17px;flex-wrap:wrap}header nav a{font-size:13px;text-decoration:none;color:#b5c9e7}.hero{padding:47px 0 20px}.overline{font-size:11px;letter-spacing:.15em;color:#9fbaff;font-weight:900;text-transform:uppercase}h1{font-size:clamp(31px,4vw,52px);margin:8px 0 10px;line-height:1.13;letter-spacing:-.04em}h1 em{font-style:normal;color:#a8a0ff}h2{margin:0 0 6px;font-size:22px}h3{font-size:17px;margin:16px 0 8px}.lead,.muted,.hint{color:var(--muted)}.lead{font-size:16px;max-width:920px}.hint{font-size:12px}.panel{border:1px solid var(--line);background:linear-gradient(155deg,#152744,#0f1d36);padding:23px;border-radius:19px;margin:20px 0}.panel p{margin:5px 0 12px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:12px 0}.card{border-radius:14px;background:#172b4b;border:1px solid #314867;padding:16px}.card strong{font-size:28px;display:block;line-height:1.25}.card small{display:block;color:var(--muted);margin-bottom:6px}.card .note{font-size:11px;color:#8fb0d5}.notice{margin:14px 0;border-radius:12px;padding:12px 15px;background:#253958;border:1px solid #49688d}.notice.error{background:#442a42;border-color:#a05262;color:#ffd3d6}.notice.success{background:#1b4045;border-color:#458474;color:#bcf4df}.hidden{display:none!important}label{display:grid;gap:7px;font-size:12px;color:#c3d6f0;font-weight:700}input,select,textarea{width:100%;background:#0a1a34;color:#f3f9ff;padding:11px 12px;font:inherit;border:1px solid #465d7e;border-radius:9px;min-width:0}textarea{min-height:86px;resize:vertical}input[type=checkbox]{width:auto}button{font:inherit;border:0;border-radius:10px;padding:11px 17px;background:linear-gradient(115deg,#3279e3,#7c58d8);color:#fff;font-weight:750;cursor:pointer}button.secondary{background:#213b61;border:1px solid #52749e}button.ghost{background:transparent;border:1px solid #536e91}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{border:1px solid #536c94;border-radius:99px;padding:6px 10px;color:#d3e3fb;font-size:12px}.chip.good{border-color:#317e6a;color:var(--positive)}.chip.warn{border-color:#896d36;color:var(--warning)}.tablewrap{overflow:auto;border:1px solid #364b6b;border-radius:12px;margin-top:13px}table{border-collapse:collapse;width:100%;min-width:780px}th{text-align:left;background:#203456;color:#b5cff1;padding:12px;font-size:11px;text-transform:uppercase}td{padding:12px;border-top:1px solid #314765;vertical-align:top}td .hint{margin-top:4px}a.external{text-decoration:none}.status{font-size:12px;display:inline-block;padding:4px 9px;background:#233a5c;border:1px solid #456288;border-radius:99px;color:#c8deff}.status.bad{color:#ffbdc5;border-color:#97596c}.status.ok{color:#a8ead1;border-color:#38876f}.bar{height:7px;border-radius:9px;background:#293e5a;overflow:hidden;margin-top:8px}.bar>span{height:100%;background:linear-gradient(100deg,#3fc6dc,#af8df4);display:block}.provider-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.provider{background:#132744;padding:12px;border-radius:10px;border:1px solid #344e74;display:flex;align-items:center;gap:8px}.provider input{accent-color:#659cf8}.actions-list{display:grid;gap:11px;margin-top:15px}.action{border-left:3px solid #628fff;background:#102440;border-radius:8px;padding:11px 14px}.action.urgent{border-color:#ffb76d}.action small{display:block;color:#a8c0dd;margin-top:5px}.textpre{white-space:pre-wrap;word-break:break-word;background:#0c1a34;border:1px solid #2b4768;border-radius:10px;padding:14px;color:#d6e6ff;font:12px/1.55 ui-monospace,Consolas,monospace;max-height:300px;overflow:auto}.toggle{display:flex;gap:8px;align-items:center;font-weight:500}footer{color:#8fa8c9;font-size:12px;padding:30px 0 55px}@media(max-width:950px){.cards{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.provider-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:580px){.cards,.grid,.provider-grid{grid-template-columns:1fr}.page{padding:0 13px}.panel{padding:16px}header nav{display:none}.hero{padding-top:29px}}
+@media print{body{background:#fff;color:#122440}header,.no-print,button,.panel:not(.report){display:none!important}.panel,.card{background:#fff;color:#122440;border:1px solid #ccd5e5;break-inside:avoid}.hint,.muted{color:#46516a!important}.tablewrap{overflow:visible}table{min-width:0;font-size:9px}td,th{color:#192945;padding:5px}.page{max-width:100%}}
+</style></head><body>
+<header><div class="page"><div class="brand">MIRVIX <span>AI</span> / Intelligence</div><nav><a href="/publisher/">GEO Publisher</a><a href="/check/">ИИ-проверка</a><a href="/audit/">Технический аудит</a><a href="/cabinet/">Кабинет</a></nav></div></header>
+<main class="page">
+<section class="hero"><div class="overline">Единая диагностика / конкурентная разведка</div><h1>Где бизнес <em>теряет клиентов</em><br>и как это исправить</h1>
+<p class="lead">Техническая готовность сайта, позиции Google и Яндекса, конкуренты по запросам, анализ рекомендаций ИИ, реальные источники обращений и приоритетный план продвижения — в одном отчёте.</p></section>
+<div id="auth" class="notice">Проверяем доступ сотрудника…</div>
+<div id="work" class="hidden">
+<section class="panel no-print"><h2>1. Выберите проверяемую компанию</h2><p class="muted">Используем поисковые результаты из GEO Publisher. Никаких вымышленных позиций.</p>
+<div class="grid">
+<label>Сохранённый подбор GEO Publisher<select id="run"><option value="">Выберите запуск</option></select></label>
+<label>Название компании<input id="brand" placeholder="Название клиники / бренда"></label>
+<label>Подтверждённые конкуренты: названия через ;<input id="competitorNames" placeholder="Клиника А; Клиника Б"></label>
+<label>Подтверждённые домены конкурентов через ;<input id="competitorDomains" placeholder="clinic-a.ru; clinic-b.ru"></label>
+</div>
+<div class="actions"><button id="loadRun">Загрузить результаты поиска</button><a href="/publisher/" class="hint">Нет запуска? Начните поиск в GEO Publisher</a></div>
+<div id="readiness" class="notice hidden"></div>
+</section>
+<section id="report" class="hidden">
+<div class="cards">
+<div class="card"><small>Проверенных поисковых пар</small><strong id="kQueries">—</strong><div class="note">Запрос × поисковик</div></div>
+<div class="card"><small>Компания в топ-10</small><strong id="kTop">—</strong><div class="note">В полученной выборке</div></div>
+<div class="card"><small>Сайты-кандидаты</small><strong id="kRivals">—</strong><div class="note">Не все являются клиниками</div></div>
+<div class="card"><small>Где конкуренты выше</small><strong id="kGaps">—</strong><div class="note">Только подтверждённые конкуренты</div></div>
+<div class="card"><small>Упоминания в ИИ</small><strong id="kAI">—</strong><div class="note">Проверенных ответов API</div></div>
+</div>
+<section class="panel report" id="seoReport"><h2>2. SEO: где нас находят в поиске</h2><p class="muted">Показываем реальные позиции из API по отдельным запросам, а не произвольную общую «позицию сайта».</p>
+<div id="seoTable"></div></section>
+<section class="panel report"><h2>3. Кто появляется вместо нас</h2><p class="muted">Каталоги, СМИ и медицинские порталы отделены от возможных конкурентов. Подтверждайте конкурирующие компании вручную.</p>
+<div id="rivalTable"></div></section>
+<section class="panel no-print"><h2>4. Матрица запросов и все подключённые ИИ</h2>
+<p class="muted">Матрица начинается с точных запросов из зафиксированной поисковой выдачи с указанием поисковой системы и даты. Новые вопросы, введённые вручную, считаются гипотезами до проверки. ИИ-проверка работает только по подтверждённым подключениям и оплачиваемым запросам.</p>
+<div class="grid two">
+<label>Запросы для ИИ-проверки (один на строку, до 20)<textarea id="aiPrompts"></textarea></label>
+<div><strong>Провайдеры</strong><p class="hint">API-модели не равны персонализированному приложению. GigaChat без веб-поиска считается отдельно.</p>
+<div class="provider-grid" id="providers"></div></div>
+</div>
+<div id="promptEvidence" class="hint" aria-live="polite">После загрузки SEO-выдачи здесь появятся источники каждого запроса.</div>
+<div class="actions"><button id="discover" class="secondary">Обновить матрицу из конкурентов</button><button id="runAI">Запустить проверку выбранных ИИ</button><button id="stopAI" class="ghost" disabled>Остановить</button><span id="aiProgress" class="hint"></span></div>
+<div class="notice">Проверка может расходовать деньги на API. Максимум 20 вопросов × 7 систем. Рекомендуем первый запуск: 3 вопроса × 2 системы. Ответы не публикуются и не рассылаются конкурентам.</div>
+</section>
+<section class="panel report"><h2>5. Матрица рекомендаций ИИ</h2><div id="aiTable" class="muted">ИИ-проверка ещё не проводилась.</div></section>
+<section class="panel no-print"><h2>6. Откуда приходят клиенты</h2>
+<p class="muted">Без доступа к аналитике нельзя определить каналы трафика и число записей. Загрузите согласованную выгрузку CSV из Метрики/GA4 с объединёнными лидами из CRM.</p>
+<label>Период наблюдения<input id="period" placeholder="Например: октябрь 2026"></label>
+<label style="margin-top:12px">CSV: source,visits,leads (в одной таблице; UTF-8)<textarea id="trafficCsv" placeholder="source,visits,leads&#10;Органический поиск,650,27&#10;Платная реклама,240,9"></textarea></label>
+<div class="actions"><button id="loadTraffic" class="secondary">Применить выгрузку</button><button id="clearTraffic" class="ghost">Очистить</button></div>
+<p class="hint">Не вставляйте в поле персональные данные пациентов. Агрегированные числа не подтверждаются автоматически; отчёт помечает их как пользовательскую выгрузку.</p>
+</section>
+<section class="panel report"><h2>7. Источники визитов и обращений</h2><div id="trafficReport" class="muted">Данные аналитики пока не подключены.</div></section>
+<section class="panel report"><h2>8. План действий по приоритетам</h2><p class="muted">От технических ошибок до конкретных запросов, где конкуренты уже появляются. Без обещаний гарантированного роста.</p><div id="actionsReport" class="actions-list"></div></section>
+<section class="panel report"><h2>9. Итог для клиента</h2><div id="clientSummary"></div></section>
+<div class="actions no-print"><button id="print">Сохранить клиентский отчёт PDF</button><button id="exportJson" class="secondary">Выгрузить данные JSON</button></div>
+</section>
+</div><div id="flash" role="status" aria-live="polite"></div>
+</main><footer class="page">MIRVIX AI · Данные выдачи и ИИ действительны для конкретных запросов, региона и даты. Источники, оценки и гипотезы показываются отдельно. Не является обещанием продаж.</footer>
+<script type="module" src="/intelligence/app.js"></script></body></html>
