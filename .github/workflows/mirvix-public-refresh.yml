@@ -1,0 +1,47 @@
+name: MIRVIX public refresh — MIRA, leads and ocean
+on:
+  pull_request:
+    paths:
+      - 'assets/mira-widget.js'
+      - 'assets/mira-widget-extra.css'
+      - 'netlify/functions/mira-*.mjs'
+      - 'netlify/functions/ai-visibility-request.mjs'
+      - 'index.html'
+      - 'check/**'
+      - 'legal/**'
+      - 'tools/**'
+      - 'leads/**'
+      - 'tests/mirvix-public-refresh.test.mjs'
+      - '.github/workflows/mirvix-public-refresh.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'assets/mira-widget.js'
+      - 'netlify/functions/mira-*.mjs'
+      - 'netlify/functions/ai-visibility-request.mjs'
+      - 'index.html'
+      - 'check/**'
+      - 'legal/**'
+      - 'tools/**'
+      - 'leads/**'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Syntax
+        run: |
+          node --check assets/mira-widget.js
+          node --check check/free-ai-request.js
+          node --check netlify/functions/mira-chat.mjs
+          node --check netlify/functions/mira-brief.mjs
+          node --check netlify/functions/mira-transcribe.mjs
+          node --check netlify/functions/ai-visibility-request.mjs
+          node --check tests/mirvix-public-refresh.test.mjs
+      - name: Regression and client flows
+        run: node --test tests/mira-dialog.test.mjs tests/mirvix-public-refresh.test.mjs
