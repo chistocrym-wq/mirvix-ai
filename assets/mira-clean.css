@@ -19,3 +19,6 @@
 #lead-status[data-state="success"]{color:#187259;font-weight:750}
 #lead-status[data-state="error"]{color:#b1364b;font-weight:750}
 @media(max-width:600px){.mira-optin{padding:15px}.mira-delivery-panel{padding:13px}.mira-head .mira-settings{margin-left:auto!important}}
+
+/* The separate analytics consent remains unchosen but must not intercept the MIRA chat. It reappears when chat closes. */
+body.mira-chat-open #mirvix-consent{display:none!important}
