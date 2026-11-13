@@ -49,8 +49,8 @@ jobs:
           set -euo pipefail
           mkdir -p assets
           ffmpeg -hide_banner -loglevel error -y -ss 8 -i /tmp/mirvix-source.mp4 -t 9 \
-            -vf 'fps=24,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,eq=saturation=1.22:contrast=1.07:brightness=0.025,format=yuv420p' \
-            -c:v libx264 -preset medium -crf 24 -movflags +faststart -an \
+            -vf 'fps=24,scale=1600:900:force_original_aspect_ratio=increase,crop=1600:900,eq=saturation=1.22:contrast=1.07:brightness=0.025,format=yuv420p' \
+            -c:v libx264 -preset medium -b:v 4400k -maxrate 4900k -bufsize 9000k -movflags +faststart -an \
             assets/mirvix-ocean-premium.mp4
           ffmpeg -hide_banner -loglevel error -y -ss 0.8 -i assets/mirvix-ocean-premium.mp4 \
             -frames:v 1 -q:v 3 assets/mirvix-ocean-premium-poster.jpg
