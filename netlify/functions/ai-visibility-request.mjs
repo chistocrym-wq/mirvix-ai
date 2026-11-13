@@ -168,6 +168,18 @@ export default async function handler(request) {
   } catch {
     return respond({error:'Не удалось прочитать заявку.'}, 400);
   }
+  if(data?.action==='ack'){
+    const url=new URL(request.url),headers=Object.fromEntries(request.headers.entries());
+    if(!isStaffRequest({headers:{...headers,host:url.host}}))return respond({error:'Требуется вход сотрудника.'},403);
+    if(typeof data.id!=='string'||!/^[a-f0-9-]{36}$/i.test(data.id))return respond({error:'Некорректная заявка.'},422);
+    const s=leadsStore(),key='leads/'+data.id;
+    const old=await s.get(key,{type:'json',consistency:'strong'});
+    if(!old)return respond({error:'Заявка не найдена.'},404);
+    const status=['received','in_progress','closed'].includes(data.status)?data.status:null;
+    if(!status)return respond({error:'Недопустимый статус.'},422);
+    await s.setJSON(key,{...old,status,updatedAt:new Date().toISOString()});
+    return respond({updated:true});
+  }
   if (data?.extra_url) return respond({submitted:true}, 200); // non-visible honeypot
   let prepared;
   try { prepared = prepare(data); }
