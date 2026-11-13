@@ -8,6 +8,9 @@ on:
       - '.github/workflows/release-browser.yml'
       - 'assets/mira-widget.js'
       - 'assets/mira-clean.css'
+      - 'assets/ocean-premium.css'
+      - 'assets/hero-legibility.css'
+      - 'netlify/functions/mira-transcribe.mjs'
       - 'index.html'
       - 'tariffs/index.html'
       - 'netlify/functions/mira-chat.mjs'
@@ -42,11 +45,11 @@ jobs:
           done
           exit 1
         env:
-          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || 'https://deploy-preview-39--resonant-cupcake-231bab.netlify.app' }}
+          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || format('https://deploy-preview-{0}--resonant-cupcake-231bab.netlify.app', github.event.pull_request.number) }}
       - name: Test desktop and mobile
         run: npx playwright test --config playwright.config.mjs
         env:
-          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || 'https://deploy-preview-39--resonant-cupcake-231bab.netlify.app' }}
+          MIRVIX_TEST_BASE_URL: ${{ github.event_name == 'push' && 'https://mirvixai.com' || format('https://deploy-preview-{0}--resonant-cupcake-231bab.netlify.app', github.event.pull_request.number) }}
       - name: Attach screenshots and traces
         if: always()
         uses: actions/upload-artifact@v4
