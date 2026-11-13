@@ -60,7 +60,7 @@ function localAnswer(q){
  return 'Могу помочь разобраться в GEO-продвижении, тарифах, работе сайта и ИИ-помощниках. Подробности можно уточнить у специалиста через кнопку передачи обращения.';
 }
 function setBusy(x){
- state.loading=x;ui.send.disabled=x;ui.input.disabled=x;ui.mic.disabled=x||!Speech||state.voiceBusy;
+ state.loading=x;ui.send.disabled=x;ui.input.disabled=x;ui.mic.disabled=x||state.voiceBusy;
  ui.deliverySend.disabled=x;
 }
 async function sendMessage(initial){
